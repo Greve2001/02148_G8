@@ -1,10 +1,14 @@
 package dtu.dk;
 
+import static java.lang.Thread.sleep;
+
 public class Main {
     public static Thread guiThread;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         guiThread = new Thread(new GUIStarter());
         guiThread.start();
+        sleep(3000);
+        MainFX.changeScene("gameScreen.fxml");
     }
 }
 
