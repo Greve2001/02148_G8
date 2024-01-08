@@ -33,10 +33,7 @@
 
 .heart {
     -fx-background-color: -fx-red;
-    -fx-shape: "M0 200 v-200 h200 
-        a100,100 90 0,1 0,200
-        a100,100 90 0,1 -200,0
-        z";
+    -fx-shape: "M0 200 v-200 h200 a100,100 90 0,1 0,200 a100,100 90 0,1 -200,0";
     -fx-scale-x: 0.75; /* Adjust this value to scale the width */
     -fx-scale-y: 0.75; /* Adjust this value to scale the height */
     -fx-rotate: 225;   /* Adjust this value to rotate the shape in degrees */
