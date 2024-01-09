@@ -38,9 +38,9 @@ public class MainFX extends Application {
         //setting up the stage
         stage = primaryStage;
         primaryStage.setTitle("Word Wars!");
-        FXMLLoader loadrer = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
         try {
-            pane = loadrer.load();
+            pane = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
