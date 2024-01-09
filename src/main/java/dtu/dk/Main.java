@@ -2,29 +2,26 @@ package dtu.dk;
 
 import dtu.dk.View.MainFX;
 
+import java.util.concurrent.CountDownLatch;
+
 import static java.lang.Thread.sleep;
 
 public class Main {
-    public static Thread guiThread;
+    public static CountDownLatch latch = new CountDownLatch(1);
     public static void main(String[] args) throws InterruptedException {
         GUIStarter.startGUI();
+        latch.await();
         MainFX.changeScene("gameScreen.fxml");
     }
 }
 
 class GUIStarter implements Runnable{
     public void run() {
-        MainFX.main(new String[0]);
+        MainFX.startFX();
     }
 
     public static void startGUI(){
         new Thread(new GUIStarter()).start();
-        while (MainFX.getStage() == null){
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+
     }
 }

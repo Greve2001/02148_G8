@@ -1,5 +1,6 @@
 package dtu.dk.View;
 
+import dtu.dk.Main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -29,8 +30,8 @@ public class MainFX extends Application {
     SequentialSpace wordsTyped = new SequentialSpace();
     Thread keyLoggerThread = new Thread(new KeyPrinter());
 
-    public static void main(String[] args) {
-        launch(args);
+    public static void startFX() {
+        launch();
     }
 
     @Override
@@ -46,6 +47,7 @@ public class MainFX extends Application {
         }
         Scene scene = new Scene(pane, 1280, 720);
         this.scene = scene;
+
         scene.getStylesheets().add("nice.css");
 
 
@@ -81,8 +83,7 @@ public class MainFX extends Application {
         //showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
-
-
+        Main.latch.countDown();
     }
 
     public static void changeScene(String fxml){
