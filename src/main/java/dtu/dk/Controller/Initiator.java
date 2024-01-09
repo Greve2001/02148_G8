@@ -74,8 +74,7 @@ public class Initiator implements Runnable {
 
     private void sendWords() throws InterruptedException {
         // TODO get actual words
-        WordCreator wordCreator = new WordCreator();
-        List<String> words = wordCreator.makeWords();
+        List<String> words = WordCreator.getSubset(1000);
 
         space.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
