@@ -10,16 +10,14 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-padding: 10px;" styleClass="background" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-padding: 10px;" styleClass="background" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox layoutX="16.0" layoutY="619.0" prefHeight="86.0" prefWidth="997.0" style="-fx-alignment: center;" styleClass="side">
+      <HBox fx:id="hBoxToPrompt" layoutX="16.0" layoutY="619.0" prefHeight="86.0" prefWidth="997.0" style="-fx-alignment: center;" styleClass="side">
          <children>
-            <Label fx:id="promt" styleClass="writefield" text="Write here" />
-            <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 48;" />
+            <Label fx:id="prompt" styleClass="writefield" text="Write here" />
          </children>
       </HBox>
-      <HBox layoutX="436.0" layoutY="-196.0" prefHeight="100.0" prefWidth="200.0" />
-      <GridPane layoutX="1026.0" layoutY="17.0" prefHeight="390.0" prefWidth="237.0" styleClass="side">
+      <GridPane fx:id="players" layoutX="1026.0" layoutY="17.0" prefHeight="390.0" prefWidth="237.0" styleClass="side">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -31,7 +29,7 @@
             <RowConstraints maxHeight="54.820068359375" minHeight="10.0" prefHeight="54.820068359375" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <GridPane prefHeight="94.0" prefWidth="206.0">
+            <GridPane fx:id="gridPeneM2" prefHeight="94.0" prefWidth="206.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="145.29168701171875" minWidth="10.0" prefWidth="83.8011474609375" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.43695068359375" minWidth="10.0" prefWidth="136.6988525390625" />
@@ -41,7 +39,7 @@
               </rowConstraints>
                <children>
                   <Label fx:id="playerName_m2" minHeight="37.0" prefHeight="50.0" prefWidth="70.0" styleClass="playername" text="name" />
-                  <GridPane prefHeight="66.0" prefWidth="150.0" GridPane.columnIndex="1">
+                  <GridPane fx:id="gridPaneHeartM2" prefHeight="66.0" prefWidth="150.0" GridPane.columnIndex="1">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -61,7 +59,7 @@
                   </GridPane>
                </children>
             </GridPane>
-            <GridPane prefHeight="85.0" prefWidth="200.0" GridPane.rowIndex="3">
+            <GridPane fx:id="gridPane1" prefHeight="85.0" prefWidth="200.0" GridPane.rowIndex="3">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="145.29168701171875" minWidth="10.0" prefWidth="73.6075439453125" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.43695068359375" minWidth="10.0" prefWidth="146.8924560546875" />
@@ -71,7 +69,7 @@
                </rowConstraints>
                <children>
                   <Label fx:id="playerName_1" minHeight="37.0" prefHeight="65.0" prefWidth="112.0" styleClass="playername" text="name" />
-                  <GridPane GridPane.columnIndex="1">
+                  <GridPane fx:id="gridPaneHeart1" GridPane.columnIndex="1">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -91,7 +89,7 @@
                   </GridPane>
                </children>
             </GridPane>
-            <GridPane prefHeight="54.0" prefWidth="217.0" GridPane.rowIndex="1">
+            <GridPane fx:id="gridPaneM1" prefHeight="54.0" prefWidth="217.0" GridPane.rowIndex="1">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="145.29168701171875" minWidth="10.0" prefWidth="84.8441162109375" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.43695068359375" minWidth="10.0" prefWidth="135.6558837890625" />
@@ -101,7 +99,7 @@
                </rowConstraints>
                <children>
                   <Label fx:id="playerName_m1" minHeight="37.0" prefHeight="56.0" prefWidth="69.0" styleClass="playername" text="carstenn3" />
-                  <GridPane prefHeight="52.0" prefWidth="143.0" GridPane.columnIndex="1">
+                  <GridPane fx:id="gridPaneHeartM1" prefHeight="52.0" prefWidth="143.0" GridPane.columnIndex="1">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -121,7 +119,7 @@
                   </GridPane>
                </children>
             </GridPane>
-            <GridPane prefHeight="55.0" prefWidth="225.0" GridPane.rowIndex="4">
+            <GridPane fx:id="gridPane2" prefHeight="55.0" prefWidth="225.0" GridPane.rowIndex="4">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="145.29168701171875" minWidth="10.0" prefWidth="76.6719970703125" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.43695068359375" minWidth="10.0" prefWidth="143.8280029296875" />
@@ -131,7 +129,7 @@
                </rowConstraints>
                <children>
                   <Label fx:id="playerName_2" minHeight="37.0" prefHeight="65.0" prefWidth="112.0" styleClass="playername" text="name" />
-                  <GridPane GridPane.columnIndex="1">
+                  <GridPane fx:id="gridPaneHeart2" GridPane.columnIndex="1">
                      <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -151,7 +149,7 @@
                   </GridPane>
                </children>
             </GridPane>
-            <GridPane prefHeight="177.0" prefWidth="221.0" GridPane.rowIndex="2">
+            <GridPane fx:id="gridPaneMe" prefHeight="177.0" prefWidth="221.0" GridPane.rowIndex="2">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="83.9085693359375" minWidth="10.0" prefWidth="76.817138671875" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="83.00146484375" minWidth="10.0" prefWidth="77.682861328125" />
@@ -182,9 +180,9 @@
          </padding>
       </GridPane>
       <Pane fx:id="wordPane" layoutX="4.0" layoutY="4.0" prefHeight="616.0" prefWidth="1023.0" />
-      <HBox layoutX="1025.0" layoutY="524.0" minWidth="240.0" prefHeight="86.0" prefWidth="240.0" style="-fx-alignment: center;" styleClass="side">
+      <HBox fx:id="hBoxStreak" layoutX="1025.0" layoutY="524.0" minWidth="240.0" prefHeight="86.0" prefWidth="240.0" style="-fx-alignment: center;" styleClass="side">
          <children>
-            <GridPane prefHeight="117.0" prefWidth="205.0">
+            <GridPane fx:id="gridPaneStreak" prefHeight="117.0" prefWidth="205.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
@@ -203,9 +201,9 @@
             </GridPane>
          </children>
       </HBox>
-      <HBox layoutX="1024.0" layoutY="619.0" prefHeight="86.0" prefWidth="244.0" style="-fx-alignment: center;">
+      <HBox fx:id="hBoxlLstWord" layoutX="1024.0" layoutY="619.0" prefHeight="86.0" prefWidth="244.0" style="-fx-alignment: center;">
          <children>
-            <GridPane prefHeight="86.0" prefWidth="239.0" styleClass="side">
+            <GridPane fx:id="gridPaneLastWord" prefHeight="86.0" prefWidth="239.0" styleClass="side">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
