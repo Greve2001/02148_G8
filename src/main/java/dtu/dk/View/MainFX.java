@@ -19,6 +19,7 @@ public class MainFX extends Application {
     //use thees to change scene
     private static AnchorPane pane;
     private static Scene scene;
+
     private static Stage stage;
 
     private static Label prompt;
@@ -56,8 +57,10 @@ public class MainFX extends Application {
                     key = "";
                     wordsTyped.put(prompt.getText());
                     prompt.setText(key);
-
                 } else {
+                    if(event.getCode() == KeyCode.BACK_SPACE){
+                        prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
+                    }
                     prompt.setText(prompt.getText() + key);
                 }
             } catch (InterruptedException e) {
@@ -115,6 +118,14 @@ public class MainFX extends Application {
     private static void setPointes(){
         MainFX.prompt = (Label) pane.lookup("#prompt");
         MainFX.prompt.setText("");
+    }
+
+    public static Stage getStage() {
+        return stage;
+    }
+
+    public static void setStage(Stage stage) {
+        MainFX.stage = stage;
     }
 
 }
