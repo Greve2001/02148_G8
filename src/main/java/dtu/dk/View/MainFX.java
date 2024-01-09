@@ -4,7 +4,6 @@ import dtu.dk.Main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -17,7 +16,7 @@ import org.jspace.SequentialSpace;
 import java.io.IOException;
 
 public class MainFX extends Application {
-    //use thees to change scene
+    // Use these to change scene
     private static AnchorPane pane;
     private static Scene scene;
 
@@ -25,8 +24,7 @@ public class MainFX extends Application {
 
     private static Label prompt;
 
-
-    //keylogger space
+    // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
     Thread keyLoggerThread = new Thread(new KeyPrinter());
 
@@ -36,7 +34,7 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        //setting up the stage
+        // Setting up the stage
         stage = primaryStage;
         primaryStage.setTitle("Word Wars!");
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
@@ -45,25 +43,24 @@ public class MainFX extends Application {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Scene scene = new Scene(pane, 1280, 720);
-        this.scene = scene;
+        scene = new Scene(pane, 1280, 720);
         stage.setResizable(false);
         scene.getStylesheets().add("nice.css");
 
 
-        //setting up keloger and starting keyPrinter
+        // Setting up keylogger and starting keyPrinter
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {
                 String key = event.getText();
-                if(event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER){
-                    if (prompt.getText().equals("")){
+                if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER) {
+                    if (prompt.getText().equals("")) {
                         return;
                     }
                     key = "";
                     wordsTyped.put(prompt.getText());
                     prompt.setText(key);
                 } else {
-                    if(event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0){
+                    if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
                         prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
                     }
                     prompt.setText(prompt.getText() + key);
@@ -74,22 +71,22 @@ public class MainFX extends Application {
         });
         keyLoggerThread.start();
 
-        //setting up the stage to close when the x is pressed
+        // Setting up the stage to close when the x is pressed
         stage.onCloseRequestProperty().setValue(e -> {
             Platform.exit();
             System.exit(0);
         });
 
-        //showing the stage
+        // Showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
         Main.latch.countDown();
     }
 
-    public static void changeScene(String fxml){
+    public static void changeScene(String fxml) {
         Platform.runLater(() -> {
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
-            AnchorPane pane = null;
+            AnchorPane pane;
             try {
                 pane = loader.load();
             } catch (IOException e) {
@@ -103,12 +100,13 @@ public class MainFX extends Application {
             MainFX.pane = pane;
             MainFX.scene = scene;
 
-            setPointes();
+            setPoints();
         });
     }
-    private class KeyPrinter implements Runnable{
+
+    private class KeyPrinter implements Runnable {
         public void run() {
-            while(true){
+            while (true) {
                 try {
                     String key = (String) wordsTyped.get(new FormalField(String.class))[0];
                     System.out.println(key);
@@ -119,17 +117,8 @@ public class MainFX extends Application {
         }
     }
 
-    private static void setPointes(){
+    private static void setPoints() {
         MainFX.prompt = (Label) pane.lookup("#prompt");
         MainFX.prompt.setText("");
     }
-
-    public static Stage getStage() {
-        return stage;
-    }
-
-    public static void setStage(Stage stage) {
-        MainFX.stage = stage;
-    }
-
 }
