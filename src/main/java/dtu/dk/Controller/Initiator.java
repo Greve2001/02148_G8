@@ -1,8 +1,10 @@
 package dtu.dk.Controller;
 
 
+import dtu.dk.GameConfigs;
 import dtu.dk.Utils;
 import org.jspace.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +15,14 @@ public class Initiator implements Runnable {
     final static String errorSpaceNotAvailable = "The space used for initiating is not available";
 
     public final String setupSpaceName = "setup";
-    private String uri;
-    private SpaceRepository repo = new SpaceRepository();
-    private Space space = new SequentialSpace();
+    private final String uri;
+    private final SpaceRepository repo = new SpaceRepository();
+    private final Space space = new SequentialSpace();
 
     protected List<String> playerURIs = new ArrayList<>();
 
     public Initiator(String initiatorIP, String initiatorPort) {
-        uri = "tcp://" + initiatorIP + ":" + initiatorPort +"/?keep";
+        uri = "tcp://" + initiatorIP + ":" + initiatorPort + "/?keep";
     }
 
     @Override
@@ -73,9 +75,7 @@ public class Initiator implements Runnable {
     }
 
     private void sendWords() throws InterruptedException {
-        // TODO get actual words
-        List<String> words = new ArrayList<>();
-        words.add("Test");
+        List<String> words = WordCreator.getSubset(GameConfigs.wordsInPLay);
 
         space.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
@@ -200,6 +200,7 @@ class ReadyHandler implements Runnable {
         if (playerURIs.contains(peerURI)) {
             readyCounter++;
             System.out.println("Initiator: " + peerURI + " is ready");
+
         }
     }
 }
