@@ -54,11 +54,14 @@ public class MainFX extends Application {
             try {
                 String key = event.getText();
                 if(event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER){
+                    if (prompt.getText().equals("")){
+                        return;
+                    }
                     key = "";
                     wordsTyped.put(prompt.getText());
                     prompt.setText(key);
                 } else {
-                    if(event.getCode() == KeyCode.BACK_SPACE){
+                    if(event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0){
                         prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
                     }
                     prompt.setText(prompt.getText() + key);
