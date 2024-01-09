@@ -1,21 +1,21 @@
 package dtu.dk.View;
 
-import dtu.dk.Main;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
-public class MainFX extends Application {
+public class MainFX extends Application implements GUIInterface {
     // Use these to change scene
     private static AnchorPane pane;
     private static Scene scene;
@@ -23,14 +23,16 @@ public class MainFX extends Application {
     private static Stage stage;
 
     private static Label prompt;
-
+    //used to prevent the program from continuing before the stage is shown
+    private final CountDownLatch latch = new CountDownLatch(1);
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
     Thread keyLoggerThread = new Thread(new KeyPrinter());
 
-    public static void startFX() {
+    public void startFX() {
         launch();
     }
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -80,10 +82,11 @@ public class MainFX extends Application {
         // Showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
-        Main.latch.countDown();
+        latch.countDown();
     }
 
-    public static void changeScene(String fxml) {
+    @Override
+    public void changeScene(String fxml) {
         Platform.runLater(() -> {
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
             AnchorPane pane;
@@ -100,8 +103,18 @@ public class MainFX extends Application {
             MainFX.pane = pane;
             MainFX.scene = scene;
 
-            setPoints();
+            setPointers();
         });
+    }
+
+    private void setPointers() {
+        MainFX.prompt = (Label) pane.lookup("#prompt");
+        MainFX.prompt.setText("");
+    }
+
+    @Override
+    public CountDownLatch getLatch() {
+        return latch;
     }
 
     private class KeyPrinter implements Runnable {
@@ -115,10 +128,5 @@ public class MainFX extends Application {
                 }
             }
         }
-    }
-
-    private static void setPoints() {
-        MainFX.prompt = (Label) pane.lookup("#prompt");
-        MainFX.prompt.setText("");
     }
 }
