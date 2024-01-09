@@ -47,7 +47,7 @@ public class MainFX extends Application {
         }
         Scene scene = new Scene(pane, 1280, 720);
         this.scene = scene;
-
+        stage.setResizable(false);
         scene.getStylesheets().add("nice.css");
 
 
