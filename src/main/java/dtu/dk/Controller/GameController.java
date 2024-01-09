@@ -7,12 +7,9 @@ public class GameController {
     MainFX ui;
 
     public GameController() {
-        ui = new MainFX();
-        new Thread(() -> {
-            ui.startFX();
-        });
+        GUIRunner.startGUI();
         try {
-            ui.getLatch().await();
+            ui = MainFX.getUI();
         } catch (InterruptedException e) {
             System.err.println("Could not await latch");
             throw new RuntimeException(e);
@@ -24,4 +21,14 @@ public class GameController {
     }
 
 
+}
+
+class GUIRunner implements Runnable {
+    public static void startGUI() {
+        new Thread(new GUIRunner()).start();
+    }
+
+    public void run() {
+        MainFX.startFX();
+    }
 }

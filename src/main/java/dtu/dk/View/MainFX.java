@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class MainFX extends Application implements GUIInterface {
+
+    private static MainFX ui;
+
     // Use these to change scene
     private static AnchorPane pane;
     private static Scene scene;
@@ -24,15 +27,20 @@ public class MainFX extends Application implements GUIInterface {
 
     private static Label prompt;
     //used to prevent the program from continuing before the stage is shown
-    private final CountDownLatch latch = new CountDownLatch(1);
+    private static final CountDownLatch latch = new CountDownLatch(1);
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
     Thread keyLoggerThread = new Thread(new KeyPrinter());
 
-    public void startFX() {
+    public static void startFX() {
         launch();
     }
 
+    public static MainFX getUI() throws InterruptedException {
+        ;
+        latch.await();
+        return ui;
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -82,6 +90,7 @@ public class MainFX extends Application implements GUIInterface {
         // Showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
+        this.ui = this;
         latch.countDown();
     }
 
@@ -130,3 +139,4 @@ public class MainFX extends Application implements GUIInterface {
         }
     }
 }
+
