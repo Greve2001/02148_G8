@@ -1,33 +1,33 @@
 
 * {
-   -fx-primary: #000000;
-   -fx-grey: #4c4c4c;
-   -fx-slightgrey: #5d5d5d;
-   -fx-white: #ffffff;
- -fx-red: #FF0000;
+    -fx-primary: #000000;
+    -fx-grey: #4c4c4c;
+    -fx-slightgrey: #5d5d5d;
+    -fx-white: #ffffff;
+    -fx-red: #FF0000;
 }
 
 .background {
--fx-background-color: -fx-primary;
--fx-padding: 10px;
--fx-border-width: 5px;
- -fx-border-color: -fx-slightgrey;
+    -fx-background-color: -fx-primary;
+    -fx-padding: 10px;
+    -fx-border-width: 5px;
+    -fx-border-color: -fx-slightgrey;
 
 }
 
-.side{
--fx-background-color: -fx-grey;
--fx-border-radius: 10px;
-    -fx-background-radius: 10px; 
--fx-border-width: 5px;
+.side {
+    -fx-background-color: -fx-grey;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-width: 5px;
 
- -fx-border-color: -fx-slightgrey;
+    -fx-border-color: -fx-slightgrey;
 
 }
 
-.playername{
--fx-text-fill: -fx-white;
--fx-font-size: 14px;
+.playername {
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 14px;
 }
 
 
@@ -36,47 +36,54 @@
     -fx-shape: "M0 200 v-200 h200 a100,100 90 0,1 0,200 a100,100 90 0,1 -200,0";
     -fx-scale-x: 0.75; /* Adjust this value to scale the width */
     -fx-scale-y: 0.75; /* Adjust this value to scale the height */
-    -fx-rotate: 225;   /* Adjust this value to rotate the shape in degrees */
+    -fx-rotate: 225; /* Adjust this value to rotate the shape in degrees */
 }
 
-.lastwordhead{
--fx-text-alignment:center;
--fx-fill: -fx-white;
--fx-font-size: 24px;
+.lastwordhead {
+    -fx-text-alignment: center;
+    -fx-fill: -fx-white;
+    -fx-font-size: 24px;
 
 
 }
-.lastword{
--fx-alignment:center;
--fx-text-fill: -fx-white;
--fx-font-size: 24px;
+
+.lastword {
+    -fx-alignment: center;
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 24px;
 }
 
-.writefield{
--fx-text-fill: white;
--fx-font-size: 48px;
+.textOnPane {
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 40px;
 }
 
-.gun{
--fx-shape: "M544 64h-16V56C528 42.74 517.3 32 504 32S480 42.74 480 56V64H43.17C19.33 64 0 83.33 0 107.2v89.66C0 220.7 19.33 240 43.17 240c21.26 0 36.61 20.35 30.77 40.79l-40.69 158.4C27.41 459.6 42.76 480 64.02 480h103.8c14.29 0 26.84-9.469 30.77-23.21L226.4 352h94.58c24.16 0 45.5-15.41 53.13-38.28L398.6 240h36.1c8.486 0 16.62-3.369 22.63-9.373L480 208h64c17.67 0 32-14.33 32-32V96C576 78.33 561.7 64 544 64zM328.5 298.6C327.4 301.8 324.4 304 320.9 304H239.1L256 240h92.02L328.5 298.6zM480 160H64V128h416V160z";
+.writefield {
+    -fx-text-fill: white;
+    -fx-font-size: 48px;
+}
+
+.gun {
+    -fx-shape: "M544 64h-16V56C528 42.74 517.3 32 504 32S480 42.74 480 56V64H43.17C19.33 64 0 83.33 0 107.2v89.66C0 220.7 19.33 240 43.17 240c21.26 0 36.61 20.35 30.77 40.79l-40.69 158.4C27.41 459.6 42.76 480 64.02 480h103.8c14.29 0 26.84-9.469 30.77-23.21L226.4 352h94.58c24.16 0 45.5-15.41 53.13-38.28L398.6 240h36.1c8.486 0 16.62-3.369 22.63-9.373L480 208h64c17.67 0 32-14.33 32-32V96C576 78.33 561.7 64 544 64zM328.5 298.6C327.4 301.8 324.4 304 320.9 304H239.1L256 240h92.02L328.5 298.6zM480 160H64V128h416V160z";
     -fx-background-color: -fx-primary;
-     /* Adjust this value to scale the width */
+    /* Adjust this value to scale the width */
 
 
 }
 
-.arrowdown{
--fx-shape:"M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z";
+.arrowdown {
+    -fx-shape: "M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z";
     -fx-background-color: -fx-white;
--fx-rotate:90;
--fx-scale-x:0.5;
--fx-scale-y:0.5;
+    -fx-rotate: 90;
+    -fx-scale-x: 0.5;
+    -fx-scale-y: 0.5;
 
 }
 
-.arrowup{
--fx-shape:"M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z";
+.arrowup {
+    -fx-shape: "M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z";
     -fx-background-color: -fx-primary;
--fx-rotate:270;
--fx-scale-x:0.5;
--fx-scale-y:0.5;}
+    -fx-rotate: 270;
+    -fx-scale-x: 0.5;
+    -fx-scale-y: 0.5;
+}

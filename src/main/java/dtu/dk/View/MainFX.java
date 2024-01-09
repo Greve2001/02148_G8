@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
@@ -17,20 +18,17 @@ import java.util.concurrent.CountDownLatch;
 
 public class MainFX extends Application implements GUIInterface {
 
+    //used to prevent the program from continuing before the stage is shown
+    private static final CountDownLatch latch = new CountDownLatch(1);
     private static MainFX ui;
-
     // Use these to change scene
     private static AnchorPane pane;
     private static Scene scene;
-
     private static Stage stage;
-
-    private static Label prompt;
-    //used to prevent the program from continuing before the stage is shown
-    private static final CountDownLatch latch = new CountDownLatch(1);
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
-    Thread keyLoggerThread = new Thread(new KeyPrinter());
+    private Label prompt;
+    private VBox textPane;
 
     public static void startFX() {
         launch();
@@ -58,7 +56,7 @@ public class MainFX extends Application implements GUIInterface {
         scene.getStylesheets().add("nice.css");
 
 
-        // Setting up keylogger and starting keyPrinter
+        // Setting up keylogger
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {
                 String key = event.getText();
@@ -79,7 +77,6 @@ public class MainFX extends Application implements GUIInterface {
                 throw new RuntimeException(e);
             }
         });
-        keyLoggerThread.start();
 
         // Setting up the stage to close when the x is pressed
         stage.onCloseRequestProperty().setValue(e -> {
@@ -90,6 +87,7 @@ public class MainFX extends Application implements GUIInterface {
         // Showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
+        setPointers();
         this.ui = this;
         latch.countDown();
     }
@@ -108,6 +106,7 @@ public class MainFX extends Application implements GUIInterface {
             Scene scene = new Scene(pane, 1280, 720);
             scene.getStylesheets().add("nice.css");
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.show();
             MainFX.pane = pane;
             MainFX.scene = scene;
@@ -117,13 +116,40 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     private void setPointers() {
-        MainFX.prompt = (Label) pane.lookup("#prompt");
-        MainFX.prompt.setText("");
+        prompt = (Label) pane.lookup("#prompt");
+        if (prompt != null)
+            prompt.setText("");
+        textPane = (VBox) pane.lookup("#textPane");
+        if (textPane != null)
+            textPane.getChildren().clear();
+    }
+
+    public void setSpace(SequentialSpace space) {
+        this.wordsTyped = space;
     }
 
     @Override
     public CountDownLatch getLatch() {
         return latch;
+    }
+
+    @Override
+    public void addTextToTextPane(String text) {
+        Platform.runLater(() -> {
+            Label label = new Label(text);
+            label.getStyleClass().add("textOnPane");
+            textPane.getChildren().add(label);
+        });
+    }
+
+    @Override
+    public void changeNewestTextOnTextPane(String text) {
+        Platform.runLater(() -> {
+            Label label = new Label(text);
+            textPane.getChildren().remove(textPane.getChildren().size() - 1);
+            label.getStyleClass().add("textOnPane");
+            textPane.getChildren().add(label);
+        });
     }
 
     private class KeyPrinter implements Runnable {
