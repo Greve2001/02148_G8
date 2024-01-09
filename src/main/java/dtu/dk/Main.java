@@ -1,5 +1,7 @@
 package dtu.dk;
 
+import dtu.dk.View.MainFX;
+
 import static java.lang.Thread.sleep;
 
 public class Main {

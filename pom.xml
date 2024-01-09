@@ -58,7 +58,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>dtu.dk.MainFX</mainClass>
+              <mainClass>dtu.dk.View.MainFX</mainClass>
             </configuration>
           </execution>
         </executions>

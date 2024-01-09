@@ -1,8 +1,11 @@
-package dtu.dk;
+package dtu.dk.View;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
@@ -18,8 +21,11 @@ public class MainFX extends Application {
     private static Scene scene;
     private static Stage stage;
 
+    private static Label prompt;
+
+
     //keylogger space
-    SequentialSpace keysPressed = new SequentialSpace();
+    SequentialSpace wordsTyped = new SequentialSpace();
     Thread keyLoggerThread = new Thread(new KeyPrinter());
 
     public static void main(String[] args) {
@@ -33,7 +39,7 @@ public class MainFX extends Application {
         primaryStage.setTitle("Word Wars!");
         FXMLLoader loadrer = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
         try {
-            pane = (AnchorPane) loadrer.load();
+            pane = loadrer.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +51,15 @@ public class MainFX extends Application {
         //setting up keloger and starting keyPrinter
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {
-                keysPressed.put(event.getText());
+                String key = event.getText();
+                if(event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER){
+                    key = "";
+                    wordsTyped.put(prompt.getText());
+                    prompt.setText(key);
+
+                } else {
+                    prompt.setText(prompt.getText() + key);
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -61,6 +75,8 @@ public class MainFX extends Application {
         //showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
     }
 
     public static void changeScene(String fxml){
@@ -68,7 +84,7 @@ public class MainFX extends Application {
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
             AnchorPane pane = null;
             try {
-                pane = (AnchorPane) loader.load();
+                pane = loader.load();
             } catch (IOException e) {
                 System.err.println("Could not load fxml file: " + fxml);
                 throw new RuntimeException(e);
@@ -79,14 +95,15 @@ public class MainFX extends Application {
             stage.show();
             MainFX.pane = pane;
             MainFX.scene = scene;
+
+            setPointes();
         });
     }
-
     private class KeyPrinter implements Runnable{
         public void run() {
             while(true){
                 try {
-                    String key = (String) keysPressed.get(new FormalField(String.class))[0];
+                    String key = (String) wordsTyped.get(new FormalField(String.class))[0];
                     System.out.println(key);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -95,5 +112,9 @@ public class MainFX extends Application {
         }
     }
 
+    private static void setPointes(){
+        MainFX.prompt = (Label) pane.lookup("#prompt");
+        MainFX.prompt.setText("");
+    }
 
 }
