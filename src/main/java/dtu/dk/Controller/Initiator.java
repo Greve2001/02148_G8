@@ -1,6 +1,7 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Protocol;
+import dtu.dk.Utils;
 import javafx.util.Pair;
 import org.jspace.*;
 
@@ -11,7 +12,7 @@ import java.util.stream.IntStream;
 import static dtu.dk.Protocol.*;
 
 
-public class Initiator {
+public class Initiator implements Runnable {
     final static String errorSpaceNotAvailable = "The space used for initiating is not available";
 
     public final String setupSpaceName = "setup";
@@ -21,8 +22,12 @@ public class Initiator {
 
     protected List<String> playerURIs = new ArrayList<>();
 
-    public Initiator(String localIP) {
-        this.uri = "tcp://" + localIP + ":31125/?keep";
+    public Initiator(String initiatorIP, String initiatorPort) {
+        this.uri = "tcp://" + initiatorIP + ":" + initiatorPort +"/?keep";
+    }
+
+    @Override
+    public void run() {
         repo.addGate(this.uri);
         repo.add(setupSpaceName, space);
 
@@ -37,6 +42,7 @@ public class Initiator {
                     new ActualField("local"),
                     new ActualField("allReady")
             );
+            System.out.println("Initiator: Got allReady locally");
 
             // TODO: Should have safe way to stop or interrupt threads. They just run forever now
             //connHandler.stop();
@@ -50,6 +56,7 @@ public class Initiator {
             System.out.println("Space does not exists");
             System.exit(1);
         }
+
     }
 
     private void sendPlayerList() throws InterruptedException {
@@ -60,7 +67,12 @@ public class Initiator {
             order.add(i);
         }
 
-        space.put(PLAYERS, playerURIs, order);
+        space.put(
+                PLAYERS,
+                Utils.StringListToArray(playerURIs),
+                Utils.IntegerListToArray(order)
+        );
+        System.out.println("Initiator: Sent player list");
     }
 
     private void sendWords() throws InterruptedException {
@@ -68,7 +80,8 @@ public class Initiator {
         List<String> words = new ArrayList<>();
         words.add("Test");
 
-        space.put(WORDS, words);
+        space.put(WORDS, Utils.StringListToArray(words));
+        System.out.println("Initiator: Sent words");
     }
 
     private void waitForLoadingDone() throws InterruptedException {
@@ -85,12 +98,14 @@ public class Initiator {
 
             doneLoadingURIs.add(uri);
         }
+        System.out.println("Initiator: All loadings done");
     }
 
     private void startGame() throws InterruptedException {
         for (String peerURI : playerURIs) {
             space.put(START, peerURI);
         }
+        System.out.println("Initiator: Sent Start to all peers");
 
         List<String> startedURIs = new ArrayList<>();
         while (startedURIs.size() < playerURIs.size()) {
@@ -104,6 +119,7 @@ public class Initiator {
 
             startedURIs.add(uri);
         }
+        System.out.println("Initiator: Recieved Started back from all peers");
     }
 }
 
@@ -136,11 +152,11 @@ class ConnectionHandler implements Runnable {
 
         if (!playerURIs.contains(peerURI)) {
             playerURIs.add(peerURI);
-            System.out.println("Peer connected: " + peerURI);
+            System.out.println("Initiator: Peer connected: " + peerURI);
             return peerURI;
 
         } else {
-            System.out.println("Duplicate peerURI");
+            System.out.println("Initiator: Duplicate peerURI");
             return "";
         }
     }
@@ -148,7 +164,7 @@ class ConnectionHandler implements Runnable {
     private void sendPeerConformation(String uri) {
         try {
             space.put(CONNECTED, uri);
-            System.out.println("Sent: " + CONNECT + " to peer: " + uri);
+            System.out.println("Initiator sent " + CONNECT + " to peer: " + uri);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -166,10 +182,10 @@ class ReadyHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while (readyCounter == playerURIs.size() && readyCounter >= 2) {
+            while (readyCounter == playerURIs.size() && readyCounter < 2) {
                 readyListen();
             }
-            System.out.println("All Peers are ready");
+            System.out.println("Initiator: All Peers are ready");
 
             space.put("local", "allReady");
         } catch (InterruptedException e) {
@@ -184,8 +200,9 @@ class ReadyHandler implements Runnable {
                 new FormalField(String.class)
         )[1];
 
-        if (playerURIs.contains(peerURI))
+        if (playerURIs.contains(peerURI)) {
             readyCounter++;
+            System.out.println("Initiator: " + peerURI + " is ready");
+        }
     }
-
 }
