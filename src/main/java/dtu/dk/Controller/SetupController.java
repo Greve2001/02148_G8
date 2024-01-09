@@ -1,10 +1,13 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
+import dtu.dk.Model.Peer;
+import dtu.dk.Model.Player;
+import javafx.util.Pair;
 import org.jspace.*;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +16,9 @@ import static dtu.dk.Protocol.*;
 public class SetupController {
     String localURI, publicURI;
     SpaceRepository repo;
+    Space localPeerSpace;
     RemoteSpace setupSpace;
+    int localID;
 
     GameController gameController;
 
@@ -21,19 +26,21 @@ public class SetupController {
     List<Integer> playerIDs;
     List<String> words;
 
+    List<Pair<Peer, Player>> peers = new ArrayList<>();
+
     public SetupController(GameController gameController) {
         this.gameController = gameController;
     }
 
-    public void join(String localIP, String localPort, String initiatorIP) throws NoGameSetupException {
+    public void join(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         try {
             prepareLocalRepository(localIP, localPort);
-            connectToInitiator(initiatorIP);
+            connectToInitiator(initiatorIP, initiatorPort);
             signalReady(); // TODO Should not be called sequentially
-
 
         } catch (Exception e) {
             repo.shutDown();
+            System.out.println(e);
             throw new NoGameSetupException();
         }
     }
@@ -41,7 +48,7 @@ public class SetupController {
     public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         new Thread(new Initiator(localIP, initiatorPort)).start();
 
-        join(localIP, localPort, initiatorIP);
+        join(localIP, localPort, initiatorIP, initiatorPort);
     }
 
     private void prepareLocalRepository(String localIP, String localPort) {
@@ -49,14 +56,14 @@ public class SetupController {
         publicURI = "tcp://" + localIP + ":" + localPort + "/peer?keep";
 
         repo = new SpaceRepository();
-        Space peerSpace = new SequentialSpace();
+        localPeerSpace = new SequentialSpace();
         repo.addGate(localURI);
-        repo.add("peer", peerSpace);
+        repo.add("peer", localPeerSpace);
         System.out.println("Peer: Local repo is running");
     }
 
-    private void connectToInitiator(String initiatorIP) throws IOException, InterruptedException {
-        String initiatorURI = "tcp://" + initiatorIP + ":31125/setup?keep";
+    private void connectToInitiator(String initiatorIP, String initiatorPort) throws IOException, InterruptedException {
+        String initiatorURI = "tcp://" + initiatorIP + ":" + initiatorPort + "/setup?keep";
         setupSpace = new RemoteSpace(initiatorURI);
 
         setupSpace.put(CONNECT, publicURI);
@@ -71,24 +78,7 @@ public class SetupController {
         setupSpace.put(READY, publicURI);
         System.out.println("Peer: Signaled ready");
 
-        // Get players
-        Object[] playerRes = setupSpace.query( // Player list
-                new ActualField(PLAYERS),
-                new FormalField(String[].class), // URIs
-                new FormalField(Integer[].class) // Order
-        );
-        playerURIs = Arrays.asList((String[]) playerRes[1]);
-        playerIDs = Arrays.asList((Integer[]) playerRes[2]);
-        System.out.println("Peer: Got Players");
-
-        // Get words
-        words = Arrays.asList((String[]) setupSpace.query(
-                new ActualField(WORDS),
-                new FormalField(String[].class)
-        )[1]);
-        System.out.println("Peer: Got words");
-
-        // Sent loading
+        loadSetupRequirements();
         setupSpace.put(LOADING_DONE, publicURI);
         System.out.println("Peer: Sent loading done");
 
@@ -102,6 +92,67 @@ public class SetupController {
         // Sent started
         setupSpace.put(STARTED, publicURI);
         // TODO make gamecontroller start game
+    }
+
+    private void loadSetupRequirements() throws InterruptedException {
+        // Get players
+        Object[] playerRes = setupSpace.query( // Player list
+                new ActualField(PLAYERS),
+                new FormalField(String[].class), // URIs
+                new FormalField(Integer[].class) // Order
+        );
+        playerURIs = Arrays.asList((String[]) playerRes[1]);
+        playerIDs = Arrays.asList((Integer[]) playerRes[2]);
+        System.out.println("Peer: Got Players");
+
+        // Find localID
+        int i = playerURIs.indexOf(publicURI);
+        localID = playerIDs.get(i);
+        System.out.println("Peer: LocalID: " + localID);
+
+        connectToPeers();
+
+        // Get words
+        words = Arrays.asList((String[]) setupSpace.query(
+                new ActualField(WORDS),
+                new FormalField(String[].class)
+        )[1]);
+        System.out.println("Peer: Got words");
+    }
+
+    private void connectToPeers() {
+        peers.add(new Pair<>(
+                new Peer(localID, localPeerSpace),
+                new Player()
+        ));
+
+        // Insert peers in correct order.
+        for (int i = localID+1 % playerURIs.size(); i < playerURIs.size(); i++) {
+            Pair<Peer, Player> pair = createPeerPlayer(i);
+            if (pair != null)
+                peers.add(pair);
+        }
+
+        for (int i = 0; i < localID; i++) {
+            Pair<Peer, Player> pair = createPeerPlayer(i);
+            if (pair != null)
+                peers.add(pair);
+        }
+    }
+
+    private Pair<Peer, Player> createPeerPlayer(int index) {
+        try {
+            String playerURI = playerURIs.get(index);
+            int playerID = playerIDs.get(index);
+
+            RemoteSpace peerSpace = new RemoteSpace(playerURI);
+            Peer peer = new Peer(playerID, peerSpace);
+            return new Pair<>(peer, new Player());
+
+        } catch (Exception e) {
+            System.out.println("Peer: Player removed");
+            return null;
+        }
     }
 }
 

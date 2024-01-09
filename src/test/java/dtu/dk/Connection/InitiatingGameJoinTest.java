@@ -12,6 +12,7 @@ public class InitiatingGameJoinTest {
 
         String localIP = "localhost";
         String localPort = "31127";
-        setupController.join(localIP, localPort, localIP);
+        String initiatorPort = "31125";
+        setupController.join(localIP, localPort, localIP, initiatorPort);
     }
 }
