@@ -40,7 +40,7 @@ public class SetupController {
 
         } catch (Exception e) {
             repo.shutDown();
-            System.out.println(e);
+            e.printStackTrace();
             throw new NoGameSetupException();
         }
     }
@@ -126,15 +126,16 @@ public class SetupController {
                 new Player()
         ));
 
+        Pair<Peer, Player> pair;
         // Insert peers in correct order.
-        for (int i = localID+1 % playerURIs.size(); i < playerURIs.size(); i++) {
-            Pair<Peer, Player> pair = createPeerPlayer(i);
+        for (int i = localID + 1 % playerURIs.size(); i < playerURIs.size(); i++) {
+            pair = createPeerPlayer(i);
             if (pair != null)
                 peers.add(pair);
         }
 
         for (int i = 0; i < localID; i++) {
-            Pair<Peer, Player> pair = createPeerPlayer(i);
+            pair = createPeerPlayer(i);
             if (pair != null)
                 peers.add(pair);
         }
