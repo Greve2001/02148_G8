@@ -74,8 +74,8 @@ public class Initiator implements Runnable {
 
     private void sendWords() throws InterruptedException {
         // TODO get actual words
-        List<String> words = new ArrayList<>();
-        words.add("Test");
+        WordCreator wordCreator = new WordCreator();
+        List<String> words = wordCreator.makeWords();
 
         space.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
@@ -200,6 +200,7 @@ class ReadyHandler implements Runnable {
         if (playerURIs.contains(peerURI)) {
             readyCounter++;
             System.out.println("Initiator: " + peerURI + " is ready");
+
         }
     }
 }
