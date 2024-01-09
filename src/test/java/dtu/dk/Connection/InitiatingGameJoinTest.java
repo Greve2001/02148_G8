@@ -8,7 +8,7 @@ public class InitiatingGameJoinTest {
         GameController gameController = new GameController();
         SetupController setupController = new SetupController(gameController);
 
-        String localIP = "10.209.189.18";
+        String localIP = "localhost";
         String localPort = "31127";
         setupController.join(localIP, localPort, localIP);
     }

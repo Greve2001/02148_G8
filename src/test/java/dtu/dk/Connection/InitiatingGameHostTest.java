@@ -8,7 +8,7 @@ public class InitiatingGameHostTest {
         GameController gameController = new GameController();
         SetupController setupController = new SetupController(gameController);
 
-        String localIP = "10.209.189.18";
+        String localIP = "localhost";
         String localPort = "31126";
         String initiatorPort = "31125";
         setupController.host(localIP, localPort, localIP, initiatorPort);

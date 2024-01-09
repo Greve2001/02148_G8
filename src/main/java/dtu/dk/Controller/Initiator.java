@@ -1,13 +1,10 @@
 package dtu.dk.Controller;
 
-import dtu.dk.Protocol;
-import dtu.dk.Utils;
-import javafx.util.Pair;
-import org.jspace.*;
 
+import dtu.dk.Utils;
+import org.jspace.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static dtu.dk.Protocol.*;
 
@@ -23,12 +20,12 @@ public class Initiator implements Runnable {
     protected List<String> playerURIs = new ArrayList<>();
 
     public Initiator(String initiatorIP, String initiatorPort) {
-        this.uri = "tcp://" + initiatorIP + ":" + initiatorPort +"/?keep";
+        uri = "tcp://" + initiatorIP + ":" + initiatorPort +"/?keep";
     }
 
     @Override
     public void run() {
-        repo.addGate(this.uri);
+        repo.addGate(uri);
         repo.add(setupSpaceName, space);
 
         Thread connHandler = new Thread(new ConnectionHandler(space, playerURIs));
@@ -53,7 +50,7 @@ public class Initiator implements Runnable {
             startGame();
 
         } catch (InterruptedException e) {
-            System.out.println("Space does not exists");
+            System.err.println("Space does not exists");
             System.exit(1);
         }
 
