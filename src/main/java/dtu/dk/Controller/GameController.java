@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
+import static dtu.dk.Utils.getLocalIPAddress;
+
 public class GameController {
 
     private MainFX ui;
@@ -69,7 +71,7 @@ public class GameController {
 
     private void getInformation(boolean isHost) {
         if (isHost) {
-            ui.addTextToTextPane("Please enter your IP address");
+            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
         } else {
             ui.addTextToTextPane("Please enter the host's IP address");
         }
@@ -85,9 +87,12 @@ public class GameController {
             } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
+            } else if (hostIP.equals("y") || hostIP.equals("yes")) {
+                hostIP = getLocalIPAddress();
+                exitDoWhile = true;
             } else {
                 if (isHost) {
-                    ui.changeNewestTextOnTextPane("Invalid - Please enter your IP address");
+                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? \" + getLocalIPAddress() + \" (y/yes) if not type your IP address");
                 } else {
                     ui.changeNewestTextOnTextPane("Invalid - Please enter the host's IP address");
                 }
@@ -95,7 +100,7 @@ public class GameController {
         } while (!exitDoWhile);
         ui.addTextToTextPane(hostIP);
         if (!isHost) {
-            ui.addTextToTextPane("Please enter your IP address");
+            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
             exitDoWhile = false;
             do {
                 try {
@@ -108,8 +113,11 @@ public class GameController {
                 } else if (localIP.equals("exit") || localIP.equals("quit")) {
                     Platform.exit();
                     System.exit(0);
+                } else if (localIP.equals("y") || localIP.equals("yes")) {
+                    localIP = getLocalIPAddress();
+                    exitDoWhile = true;
                 } else {
-                    ui.changeNewestTextOnTextPane("Invalid - Please enter your IP address");
+                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? \" + getLocalIPAddress() + \" (y/yes) if not type your IP address");
                 }
             } while (!exitDoWhile);
             ui.addTextToTextPane(localIP);

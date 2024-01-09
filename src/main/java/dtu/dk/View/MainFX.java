@@ -3,6 +3,7 @@ package dtu.dk.View;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -53,6 +54,7 @@ public class MainFX extends Application implements GUIInterface {
         }
         scene = new Scene(pane, 1280, 720);
         stage.setResizable(false);
+        scene.setCursor(Cursor.NONE);
         scene.getStylesheets().add("nice.css");
 
 
@@ -106,6 +108,7 @@ public class MainFX extends Application implements GUIInterface {
             Scene scene = new Scene(pane, 1280, 720);
             scene.getStylesheets().add("nice.css");
             stage.setScene(scene);
+            scene.setCursor(Cursor.NONE);
             stage.setResizable(false);
             stage.show();
             MainFX.pane = pane;
