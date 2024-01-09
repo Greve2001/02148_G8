@@ -1,5 +1,7 @@
 package dtu.dk;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.List;
 
 public class Utils {
@@ -19,5 +21,17 @@ public class Utils {
         }
 
         return arr;
+    }
+
+    public static String getLocalIPAddress() {
+        try {
+            final DatagramSocket datagramSocket = new DatagramSocket();
+            datagramSocket.connect(InetAddress.getByName("8.8.8.8"), 12345);
+
+            return datagramSocket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+            System.err.println("Could not find local IP");
+            return "";
+        }
     }
 }
