@@ -2,9 +2,10 @@ package dtu.dk.Connection;
 
 import dtu.dk.Controller.GameController;
 import dtu.dk.Controller.SetupController;
+import dtu.dk.Exceptions.NoGameSetupException;
 
 public class InitiatingGameHostTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoGameSetupException {
         GameController gameController = new GameController();
         SetupController setupController = new SetupController(gameController);
 
