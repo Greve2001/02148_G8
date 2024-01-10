@@ -1,7 +1,9 @@
 package dtu.dk.View;
 
+import dtu.dk.Model.Word;
 import org.jspace.SequentialSpace;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public interface GUIInterface {
@@ -11,6 +13,10 @@ public interface GUIInterface {
     CountDownLatch getLatch();
 
     void setSpace(SequentialSpace space);
+
+    void setWordsFallingList(List<Word> wordsFalling);
+
+    void makeWordFall(Word word);
 
     void addTextToTextPane(String text);
 

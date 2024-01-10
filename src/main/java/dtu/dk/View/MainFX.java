@@ -1,6 +1,9 @@
 package dtu.dk.View;
 
+import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
+import dtu.dk.Model.Word;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -13,10 +16,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class MainFX extends Application implements GUIInterface {
@@ -28,11 +33,13 @@ public class MainFX extends Application implements GUIInterface {
     private static Scene scene;
     private static Stage stage;
     // Keylogger space
-    SequentialSpace wordsTyped = new SequentialSpace();
+    SequentialSpace fxWords = new SequentialSpace();
     private Pane[][] hearts = new Pane[5][3];
     private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
+    private Pane wordPane;
+    private List<Word> wordsFalling;
 
     public static void startFX() {
         launch();
@@ -69,7 +76,7 @@ public class MainFX extends Application implements GUIInterface {
                         return;
                     }
                     key = "";
-                    wordsTyped.put(prompt.getText());
+                    fxWords.put(FxWordsToken.TYPED, prompt.getText());
                     prompt.setText(key);
                 } else if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
                     prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
@@ -138,10 +145,18 @@ public class MainFX extends Application implements GUIInterface {
         for (int i = 0; i < 4; i++) {
             playerNames[i] = (Label) pane.lookup("#playerName_" + i);
         }
+
+        wordPane = (Pane) pane.lookup("#wordPane");
+        if (wordPane != null)
+            wordPane.getChildren().clear();
     }
 
     public void setSpace(SequentialSpace space) {
-        this.wordsTyped = space;
+        this.fxWords = space;
+    }
+
+    public void setWordsFallingList(List<Word> wordsFalling) {
+        this.wordsFalling = wordsFalling;
     }
 
     @Override
@@ -217,11 +232,50 @@ public class MainFX extends Application implements GUIInterface {
         });
     }
 
+    /**
+     * Makes a word fall from the top of the screen to the bottom
+     * When the word hits the bottom of the screen it is removed from the screen
+     * and the word is added to the fxWords space with the token HIT
+     * if the word is not in the wordsFalling list it is added to the list
+     *
+     * @param word
+     */
+    public void makeWordFall(Word word) {
+        if (wordPane == null)
+            throw new NullPointerException("wordPane not initialized/found");
+        if (!wordsFalling.contains(word)) {
+            wordsFalling.add(word);
+        }
+        Platform.runLater(() -> {
+            Label label = new Label(word.getText());
+            label.getStyleClass().add("wordsFaling");
+            wordPane.getChildren().add(label);
+            int x = (int) (Math.random() * (wordPane.getWidth() - label.getWidth()));
+            label.setLayoutX(x);
+            TranslateTransition transition = new TranslateTransition();
+            transition.setDuration(Duration.seconds(word.getFallDuration()));
+            transition.setNode(label);
+            transition.setToY(wordPane.getHeight() - 24);
+            transition.setInterpolator(javafx.animation.Interpolator.LINEAR);
+            transition.setOnFinished(e -> {
+                wordPane.getChildren().remove(label);
+                wordsFalling.remove(word);
+                try {
+                    fxWords.put(FxWordsToken.HIT, word);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            transition.play();
+        });
+
+    }
+
     private class KeyPrinter implements Runnable {
         public void run() {
             while (true) {
                 try {
-                    String key = (String) wordsTyped.get(new FormalField(String.class))[0];
+                    String key = (String) fxWords.get(new FormalField(String.class))[0];
                     System.out.println(key);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

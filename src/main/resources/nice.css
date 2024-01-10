@@ -43,8 +43,6 @@
     -fx-text-alignment: center;
     -fx-fill: -fx-white;
     -fx-font-size: 24px;
-
-
 }
 
 .lastword {
@@ -61,6 +59,11 @@
 .writefield {
     -fx-text-fill: white;
     -fx-font-size: 48px;
+}
+
+.wordsFaling {
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 24px;
 }
 
 .gun {

@@ -1,12 +1,17 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
+import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Model.Word;
+import dtu.dk.Protocol;
+import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
+import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
@@ -16,7 +21,7 @@ import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
     private final MainFX ui;
-    private final SequentialSpace wordsTyped = new SequentialSpace();
+    private final SequentialSpace fxWords = new SequentialSpace();
     private LocalGameController localGameController;
 
     private final List<Pair<Peer, Player>> peers;
@@ -28,12 +33,16 @@ public class GameController {
     private String hostIP;
     private String localIP;
     private boolean isHost;
+    private List<Word> wordsFalling;
 
     public GameController() {
+        wordsFalling = new ArrayList<>();
+
         GUIRunner.startGUI();
         try {
             ui = MainFX.getUI();
-            ui.setSpace(wordsTyped);
+            ui.setSpace(fxWords);
+            ui.setWordsFallingList(wordsFalling);
         } catch (InterruptedException e) {
             System.err.println("Could not await latch");
             throw new RuntimeException(e);
@@ -43,7 +52,7 @@ public class GameController {
         boolean exitDoWhile = false;
         do {
             try {
-                wordTyped = (String) wordsTyped.get(new FormalField(String.class))[0];
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -87,7 +96,7 @@ public class GameController {
         exitDoWhile = false;
         do {
             try {
-                wordTyped = (String) wordsTyped.get(new FormalField(String.class))[0];
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -156,7 +165,7 @@ public class GameController {
         boolean exitDoWhile = false;
         do {
             try {
-                hostIP = (String) wordsTyped.get(new FormalField(String.class))[0];
+                hostIP = (String) fxWords.get(new FormalField(String.class))[0];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -183,7 +192,7 @@ public class GameController {
             exitDoWhile = false;
             do {
                 try {
-                    localIP = (String) wordsTyped.get(new FormalField(String.class))[0];
+                    localIP = (String) fxWords.get(new FormalField(String.class))[0];
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -209,7 +218,7 @@ public class GameController {
         exitDoWhile = false;
         do {
             try {
-                username = (String) wordsTyped.get(new FormalField(String.class))[0];
+                username = (String) fxWords.get(new FormalField(String.class))[0];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
