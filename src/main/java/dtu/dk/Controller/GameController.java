@@ -112,9 +112,13 @@ public class GameController {
     }
 
     public void startGame() {
-        // TODO: Should happen when a word hits the bottom of the screen
         Pair<Peer, Player> me = peers.get(0);
+
+        // TODO: Should happen when a word hits the bottom of the screen
         loseLife(me);
+
+        // TODO: Should happen when typing a word correct
+        correctlyTyped();
     }
 
     private void loseLife(Pair<Peer, Player> pair) {
@@ -131,6 +135,15 @@ public class GameController {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void correctlyTyped() {
+        Pair<Peer, Player> me = peers.get(0);
+
+        me.getValue().addStreak();
+        if ((me.getValue().getStreak() % 10) == 0) {
+            // TODO: Send word to next player
         }
     }
 
