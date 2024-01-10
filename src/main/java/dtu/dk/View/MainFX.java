@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jspace.FormalField;
@@ -26,6 +27,7 @@ public class MainFX extends Application implements GUIInterface {
     private static AnchorPane pane;
     private static Scene scene;
     private static Stage stage;
+    private static Pane[][] hearts = new Pane[5][3];
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
     private Label prompt;
@@ -124,6 +126,11 @@ public class MainFX extends Application implements GUIInterface {
         textPane = (VBox) pane.lookup("#textPane");
         if (textPane != null)
             textPane.getChildren().clear();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                hearts[i][j] = (Pane) pane.lookup("#heart_" + i + "_" + j);
+            }
+        }
     }
 
     public void setSpace(SequentialSpace space) {
@@ -151,6 +158,30 @@ public class MainFX extends Application implements GUIInterface {
             textPane.getChildren().remove(textPane.getChildren().size() - 1);
             label.getStyleClass().add("textOnPane");
             textPane.getChildren().add(label);
+        });
+    }
+
+    /**
+     * Updates the life of a player
+     * player -2 = behind player -1
+     * player -1 = behind me
+     * player 0 = me
+     * player 1 = infront of me
+     * player 2 = infront of player 1
+     *
+     * @param player
+     * @param life   emount of life for player [0:3]
+     */
+    public void updateLife(int player, int life) {
+        int p = player + 2;
+        Platform.runLater(() -> {
+            for (int i = 0; i < 3; i++) {
+                if (i < life) {
+                    hearts[p][i].setVisible(true);
+                } else {
+                    hearts[p][i].setVisible(false);
+                }
+            }
         });
     }
 
