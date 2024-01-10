@@ -58,13 +58,11 @@ public class GameController {
                 case "join" -> {
                     ui.changeScene(GameConfigs.JAVA_FX_JOIN);
                     isHost = false;
-                    getInformation(isHost);
                     exitDoWhile = true;
                 }
                 case "host" -> {
                     ui.changeScene(GameConfigs.JAVA_FX_HOST);
                     isHost = true;
-                    getInformation(isHost);
                     exitDoWhile = true;
                 }
                 case "exit", "quit" -> {
@@ -75,6 +73,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
+        getInformation(isHost);
         SetupController setupController = new SetupController(this);
         try {
             if (isHost) {
@@ -87,6 +86,7 @@ public class GameController {
             //todo add Alert / messageox
             throw new RuntimeException(e);
         }
+
         ui.addTextToTextPane("Type 'ready' to start the game");
         exitDoWhile = false;
         do {
@@ -158,19 +158,21 @@ public class GameController {
         } else {
             ui.addTextToTextPane(GameConfigs.GET_HOST_IP);
         }
+
         boolean exitDoWhile = false;
         do {
             try {
-                hostIP = (String) fxWords.get(new FormalField(String.class))[0];
+                hostIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
             if (hostIP.matches(GameConfigs.REGEX_IP)) {
                 exitDoWhile = true;
             } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
-            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
+            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_YES) || hostIP.equals(GameConfigs.GET_LOCAL_IP_Y)) {
                 hostIP = getLocalIPAddress();
                 exitDoWhile = true;
             } else {
@@ -188,7 +190,7 @@ public class GameController {
             exitDoWhile = false;
             do {
                 try {
-                    localIP = (String) fxWords.get(new FormalField(String.class))[0];
+                    localIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -214,7 +216,7 @@ public class GameController {
         exitDoWhile = false;
         do {
             try {
-                username = (String) fxWords.get(new FormalField(String.class))[0];
+                username = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
