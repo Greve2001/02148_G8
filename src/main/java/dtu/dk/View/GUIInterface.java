@@ -28,4 +28,6 @@ public interface GUIInterface {
 
     void updatePlayerName(int player, String name) throws NullPointerException;
 
+    void updateStreak(int streak) throws NullPointerException;
+
 }
