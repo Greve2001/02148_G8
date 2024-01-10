@@ -189,6 +189,7 @@ public class GameController {
                 ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
             }
         } while (!exitDoWhile);
+        ui.addTextToTextPane(username);
     }
 
 }
