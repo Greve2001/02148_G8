@@ -116,7 +116,7 @@ public class Initiator implements Runnable {
 
             startedURIs.add(uri);
         }
-        System.out.println("Initiator: Recieved Started back from all peers");
+        System.out.println("Initiator: Received Started back from all peers");
     }
 }
 

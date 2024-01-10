@@ -70,6 +70,7 @@ public class SetupController {
                 new ActualField(CONNECTED),
                 new ActualField(publicURI)
         );
+
         System.out.println("Peer: Connected to Initiator");
     }
 
