@@ -16,6 +16,8 @@ public interface GUIInterface {
 
     void changeNewestTextOnTextPane(String text);
 
-    void updateLife(int player, int life);
+    void updateLife(int player, int life) throws NullPointerException;
+
+    void updatePlayerName(int player, String name) throws NullPointerException;
 
 }

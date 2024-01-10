@@ -110,7 +110,6 @@ public class GameController {
 
     public void startGame() {
     }
-    //todo make strings and vars constant in gameSettings
 
 
     private void getInformation(boolean isHost) {
