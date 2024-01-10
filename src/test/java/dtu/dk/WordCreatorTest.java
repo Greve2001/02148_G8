@@ -2,6 +2,7 @@ package dtu.dk;
 
 
 import dtu.dk.Controller.WordCreator;
+import dtu.dk.Model.Word;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertTrue;
 
 public class WordCreatorTest {
-    List<String> words;
+    List<Word> words;
 
     @Before
     public void setup() {
@@ -20,8 +21,8 @@ public class WordCreatorTest {
     public void noWordsWithWhitespace() {
         boolean noWordsWithWhitespace = true;
 
-        for (String word : words) {
-            if (word.contains(" ")) {
+        for (Word word : words) {
+            if (word.getText().contains(" ")) {
                 noWordsWithWhitespace = false;
                 break;
             }

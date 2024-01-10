@@ -4,6 +4,7 @@ import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Model.Word;
 import javafx.util.Pair;
 import org.jspace.*;
 
@@ -25,7 +26,7 @@ public class SetupController {
 
     List<String> playerURIs;
     List<Integer> playerIDs;
-    List<String> words;
+    List<Word> words;
 
     List<Pair<Peer, Player>> peers = new ArrayList<>();
 
@@ -114,9 +115,9 @@ public class SetupController {
         connectToPeers();
 
         // Get words
-        words = Arrays.asList((String[]) setupSpace.query(
+        words = Arrays.asList((Word[]) setupSpace.query(
                 new ActualField(WORDS),
-                new FormalField(String[].class)
+                new FormalField(Word[].class)
         )[1]);
         System.out.println("Peer: Got words");
     }
@@ -163,7 +164,7 @@ public class SetupController {
         return peers;
     }
 
-    public List<String> getWords() {
+    public List<Word> getWords() {
         return words;
     }
 }

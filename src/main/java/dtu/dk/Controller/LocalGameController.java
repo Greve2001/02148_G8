@@ -4,6 +4,7 @@ import dtu.dk.GameConfigs;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Model.Word;
 import dtu.dk.Protocol;
 import dtu.dk.UpdateToken;
 import javafx.util.Pair;
@@ -43,7 +44,7 @@ public class LocalGameController {
         }
     }
 
-    public void addWordToMyScreen(String word) {
+    public void addWordToMyScreen(Word word) {
         myPlayer.addWordToScreen(word);
     }
 }

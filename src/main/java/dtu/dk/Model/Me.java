@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Me extends Player {
-    private final List<String> wordOnScreen = new ArrayList<>();
+    private final List<Word> wordOnScreen = new ArrayList<>();
 
-    public void addWordToScreen(String word) {
+    public void addWordToScreen(Word word) {
         wordOnScreen.add(word);
     }
 
-    public void removeWordFromScreen(String word) {
+    public void removeWordFromScreen(Word word) {
         wordOnScreen.remove(word);
     }
 
-    public List<String> getWordsOnScreen() {
+    public List<Word> getWordsOnScreen() {
         return wordOnScreen;
     }
 }

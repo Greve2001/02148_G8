@@ -3,6 +3,7 @@ package dtu.dk.Controller;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Model.Word;
 import javafx.util.Pair;
 import org.jspace.SequentialSpace;
 import org.junit.Before;
@@ -16,7 +17,7 @@ public class LocalGameControllerTest {
     Me myPlayer;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         myPlayer = new Me();
 
         pair = new Pair<>(
@@ -41,8 +42,8 @@ public class LocalGameControllerTest {
     @Test
     public void addWordToMyScreen() {
         assertEquals(0, myPlayer.getWordsOnScreen().size());
-        localGameController.addWordToMyScreen("Hello");
+        localGameController.addWordToMyScreen(new Word("Hello"));
         assertEquals(1, myPlayer.getWordsOnScreen().size());
-        assertEquals("Hello", myPlayer.getWordsOnScreen().get(0));
+        assertEquals("Hello", myPlayer.getWordsOnScreen().get(0).getText());
     }
 }

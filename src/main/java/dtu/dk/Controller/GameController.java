@@ -6,8 +6,6 @@ import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Model.Word;
-import dtu.dk.Protocol;
-import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -22,27 +20,24 @@ import static dtu.dk.Utils.getLocalIPAddress;
 public class GameController {
     private final MainFX ui;
     private final SequentialSpace fxWords = new SequentialSpace();
-    private LocalGameController localGameController;
+    private final LocalGameController localGameController;
 
     private final List<Pair<Peer, Player>> peers;
-    private Pair<Peer, Player> me;
-    private List<String> commonWords;
+    private final Pair<Peer, Player> myPair;
+    private final List<Word> commonWords;
     boolean gameEnded = false;
 
     private String username;
     private String hostIP;
     private String localIP;
     private boolean isHost;
-    private List<Word> wordsFalling;
 
     public GameController() {
-        wordsFalling = new ArrayList<>();
-
         GUIRunner.startGUI();
+
         try {
             ui = MainFX.getUI();
             ui.setSpace(fxWords);
-            ui.setWordsFallingList(wordsFalling);
         } catch (InterruptedException e) {
             System.err.println("Could not await latch");
             throw new RuntimeException(e);
@@ -119,10 +114,11 @@ public class GameController {
 
         // Set needed start variables before starting the game locally
         peers = setupController.getPeers();
-        me = peers.get(0);
-        localGameController = new LocalGameController(me);
-        me.getValue().setUsername(username);
+        myPair = peers.get(0);
+        localGameController = new LocalGameController(myPair);
+        myPair.getValue().setUsername(username);
         commonWords = setupController.getWords();
+        ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
         startGame();
@@ -146,7 +142,7 @@ public class GameController {
             }
         }
         // TODO: Should happen when a word hits the bottom of the screen
-        localGameController.loseLife(me);
+        localGameController.loseLife(myPair);
 
         // TODO: Should happen when typing a word correct
         localGameController.correctlyTyped();
