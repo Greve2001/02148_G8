@@ -18,11 +18,10 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class MainFX extends Application implements GUIInterface {
-
-    //used to prevent the program from continuing before the stage is shown
+    // Used to prevent the program from continuing before the stage is shown
     private static final CountDownLatch latch = new CountDownLatch(1);
     private static MainFX ui;
-    // Use these to change scene
+    // Used to change scene
     private static AnchorPane pane;
     private static Scene scene;
     private static Stage stage;
@@ -36,7 +35,6 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     public static MainFX getUI() throws InterruptedException {
-        ;
         latch.await();
         return ui;
     }

@@ -8,15 +8,13 @@ import org.jspace.SequentialSpace;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
+    private final MainFX ui;
 
-    private MainFX ui;
-
-    private SequentialSpace wordsTyped = new SequentialSpace();
+    private final SequentialSpace wordsTyped = new SequentialSpace();
 
     private String username;
     private String hostIP;
     private String localIP;
-
 
     public GameController() {
         GUIRunner.startGUI();
@@ -29,11 +27,10 @@ public class GameController {
         }
 
         String wordTyped = "";
-        Boolean exitDoWhile = false;
+        boolean exitDoWhile = false;
         do {
             try {
                 wordTyped = (String) wordsTyped.get(new FormalField(String.class))[0];
-
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -71,11 +68,11 @@ public class GameController {
 
     private void getInformation(boolean isHost) {
         if (isHost) {
-            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
+            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes). If not type your IP address");
         } else {
             ui.addTextToTextPane("Please enter the host's IP address");
         }
-        Boolean exitDoWhile = false;
+        boolean exitDoWhile = false;
         do {
             try {
                 hostIP = (String) wordsTyped.get(new FormalField(String.class))[0];
@@ -92,12 +89,13 @@ public class GameController {
                 exitDoWhile = true;
             } else {
                 if (isHost) {
-                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? \" + getLocalIPAddress() + \" (y/yes) if not type your IP address");
+                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? " + getLocalIPAddress() + " (y/yes). If not type your IP address");
                 } else {
                     ui.changeNewestTextOnTextPane("Invalid - Please enter the host's IP address");
                 }
             }
         } while (!exitDoWhile);
+
         ui.addTextToTextPane(hostIP);
         if (!isHost) {
             ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
@@ -108,6 +106,7 @@ public class GameController {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+
                 if (localIP.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
                     exitDoWhile = true;
                 } else if (localIP.equals("exit") || localIP.equals("quit")) {
@@ -124,6 +123,7 @@ public class GameController {
         } else {
             localIP = hostIP;
         }
+
         ui.addTextToTextPane("Please enter your username");
         exitDoWhile = false;
         do {
