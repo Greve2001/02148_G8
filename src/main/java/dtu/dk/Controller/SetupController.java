@@ -1,6 +1,7 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
+import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import javafx.util.Pair;
@@ -124,7 +125,7 @@ public class SetupController {
         // Add me first in the list og peers
         peers.add(new Pair<>(
                 new Peer(localID, localPeerSpace),
-                new Player()
+                new Me()
         ));
 
         // Insert peers in correct order.
@@ -160,6 +161,10 @@ public class SetupController {
 
     public List<Pair<Peer, Player>> getPeers() {
         return peers;
+    }
+
+    public List<String> getWords() {
+        return words;
     }
 }
 

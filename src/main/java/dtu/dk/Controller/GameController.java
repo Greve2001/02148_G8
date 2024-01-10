@@ -2,6 +2,7 @@ package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.GameConfigs;
+import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Protocol;
@@ -22,6 +23,8 @@ public class GameController {
 
     private final List<Pair<Peer, Player>> peers;
     private Pair<Peer, Player> me;
+    private List<String> commonWords;
+    boolean gameEnded = false;
 
     private String username;
     private String hostIP;
@@ -106,17 +109,35 @@ public class GameController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+        // Set needed start variables before starting the game locally
         peers = setupController.getPeers();
         me = peers.get(0);
         me.getValue().setUsername(username);
+        commonWords = setupController.getWords();
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
         startGame();
     }
 
     public void startGame() {
-        Pair<Peer, Player> me = peers.get(0);
+        int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
 
+        for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
+            Me myPlayer = (Me) me.getValue();
+            myPlayer.addWordToScreen(commonWords.get(i));
+
+            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
+                sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
+                fallenWords = 0;
+            }
+
+            try {
+                Thread.sleep(sleepTempo);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         // TODO: Should happen when a word hits the bottom of the screen
         loseLife(me);
 
