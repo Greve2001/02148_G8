@@ -1,5 +1,6 @@
 package dtu.dk.Controller;
 
+import dtu.dk.GameConfigs;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import org.jspace.FormalField;
@@ -42,12 +43,12 @@ public class GameController {
 
             switch (wordTyped) {
                 case "join" -> {
-                    ui.changeScene("join.fxml");
+                    ui.changeScene(GameConfigs.JAVA_FX_JOIN);
                     getInformation(false);
                     exitDoWhile = true;
                 }
                 case "host" -> {
-                    ui.changeScene("host.fxml");
+                    ui.changeScene(GameConfigs.JAVA_FX_HOST);
                     getInformation(true);
                     exitDoWhile = true;
                 }
@@ -71,9 +72,9 @@ public class GameController {
 
     private void getInformation(boolean isHost) {
         if (isHost) {
-            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
+            ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
         } else {
-            ui.addTextToTextPane("Please enter the host's IP address");
+            ui.addTextToTextPane(GameConfigs.GET_HOST_IP);
         }
         Boolean exitDoWhile = false;
         do {
@@ -82,25 +83,25 @@ public class GameController {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if (hostIP.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+            if (hostIP.matches(GameConfigs.REGEX_IP)) {
                 exitDoWhile = true;
-            } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
+            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || localIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
                 Platform.exit();
                 System.exit(0);
-            } else if (hostIP.equals("y") || hostIP.equals("yes")) {
+            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
                 hostIP = getLocalIPAddress();
                 exitDoWhile = true;
             } else {
                 if (isHost) {
-                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? \" + getLocalIPAddress() + \" (y/yes) if not type your IP address");
+                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 } else {
-                    ui.changeNewestTextOnTextPane("Invalid - Please enter the host's IP address");
+                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
                 }
             }
         } while (!exitDoWhile);
         ui.addTextToTextPane(hostIP);
         if (!isHost) {
-            ui.addTextToTextPane("Is this your IP address? " + getLocalIPAddress() + " (y/yes) if not type your IP address");
+            ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
             exitDoWhile = false;
             do {
                 try {
@@ -108,23 +109,23 @@ public class GameController {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                if (localIP.matches("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$")) {
+                if (localIP.matches(GameConfigs.REGEX_IP)) {
                     exitDoWhile = true;
                 } else if (localIP.equals("exit") || localIP.equals("quit")) {
                     Platform.exit();
                     System.exit(0);
-                } else if (localIP.equals("y") || localIP.equals("yes")) {
+                } else if (localIP.equals(GameConfigs.GET_LOCAL_IP_Y) || localIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
                     localIP = getLocalIPAddress();
                     exitDoWhile = true;
                 } else {
-                    ui.changeNewestTextOnTextPane("Invalid - Is this your IP address? \" + getLocalIPAddress() + \" (y/yes) if not type your IP address");
+                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 }
             } while (!exitDoWhile);
             ui.addTextToTextPane(localIP);
         } else {
             localIP = hostIP;
         }
-        ui.addTextToTextPane("Please enter your username");
+        ui.addTextToTextPane(GameConfigs.GET_USERNAME);
         exitDoWhile = false;
         do {
             try {
@@ -139,7 +140,7 @@ public class GameController {
             } else if (username.length() < 10) {
                 exitDoWhile = true;
             } else {
-                ui.changeNewestTextOnTextPane("Please enter a valid username");
+                ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
             }
         } while (!exitDoWhile);
     }
