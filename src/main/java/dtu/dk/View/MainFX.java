@@ -27,9 +27,10 @@ public class MainFX extends Application implements GUIInterface {
     private static AnchorPane pane;
     private static Scene scene;
     private static Stage stage;
-    private static Pane[][] hearts = new Pane[5][3];
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
+    private Pane[][] hearts = new Pane[5][3];
+    private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
 
@@ -123,13 +124,19 @@ public class MainFX extends Application implements GUIInterface {
         prompt = (Label) pane.lookup("#prompt");
         if (prompt != null)
             prompt.setText("");
+
         textPane = (VBox) pane.lookup("#textPane");
         if (textPane != null)
             textPane.getChildren().clear();
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
                 hearts[i][j] = (Pane) pane.lookup("#heart_" + i + "_" + j);
             }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            playerNames[i] = (Label) pane.lookup("#playerName_" + i);
         }
     }
 
@@ -172,7 +179,9 @@ public class MainFX extends Application implements GUIInterface {
      * @param player
      * @param life   emount of life for player [0:3]
      */
-    public void updateLife(int player, int life) {
+    public void updateLife(int player, int life) throws NullPointerException {
+        if (hearts[0][0] == null)
+            throw new NullPointerException("hearts not initialized/found");
         int p = player + 2;
         Platform.runLater(() -> {
             for (int i = 0; i < 3; i++) {
@@ -182,6 +191,29 @@ public class MainFX extends Application implements GUIInterface {
                     hearts[p][i].setVisible(false);
                 }
             }
+        });
+    }
+
+    public void updatePlayerName(int player, String name) throws NullPointerException {
+        if (playerNames[0] == null)
+            throw new NullPointerException("playerNames not initialized/found");
+
+        if (player == 0)
+            throw new NullPointerException("player 0 have no name");
+        if (player > 2 || player < -2)
+            throw new NullPointerException("No player " + player + " exists");
+
+        switch (player) {
+            case -2 -> player = 0;
+            case -1 -> player = 1;
+            case 1 -> player = 2;
+            case 2 -> player = 3;
+            default -> throw new NullPointerException("No player " + player + " exists");
+        }
+
+        int p = player;
+        Platform.runLater(() -> {
+            playerNames[p].setText(name);
         });
     }
 
