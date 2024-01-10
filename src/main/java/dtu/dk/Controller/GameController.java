@@ -4,6 +4,8 @@ import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Protocol;
+import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -18,7 +20,7 @@ public class GameController {
     private final MainFX ui;
     private final SequentialSpace wordsTyped = new SequentialSpace();
 
-    private List<Pair<Peer, Player>> peers;
+    private final List<Pair<Peer, Player>> peers;
 
     private String username;
     private String hostIP;
@@ -80,7 +82,6 @@ public class GameController {
             throw new RuntimeException(e);
         }
         ui.addTextToTextPane("Type 'ready' to start the game");
-        wordTyped = "";
         exitDoWhile = false;
         do {
             try {
@@ -105,12 +106,35 @@ public class GameController {
             throw new RuntimeException(e);
         }
         peers = setupController.getPeers();
+
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
+        startGame();
     }
 
     public void startGame() {
+        // TODO: Should happen when a word hits the bottom of the screen
+        Pair<Peer, Player> me = peers.get(0);
+        loseLife(me);
     }
 
+    private void loseLife(Pair<Peer, Player> pair) {
+        pair.getValue().loseLife();
+        if (pair.getValue().getLives() == 0) {
+            try {
+                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.DEATH, pair.getKey().getID());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.LIFE, pair.getKey().getID());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    //todo make strings and vars constant in gameSettings
 
     private void getInformation(boolean isHost) {
         if (isHost) {
@@ -130,7 +154,7 @@ public class GameController {
             } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
-            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
+            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
                 hostIP = getLocalIPAddress();
                 exitDoWhile = true;
             } else {
@@ -190,7 +214,6 @@ public class GameController {
         } while (!exitDoWhile);
         ui.addTextToTextPane(username);
     }
-
 }
 
 class GUIRunner implements Runnable {
