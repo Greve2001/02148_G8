@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 public class WordCreatorTest {
     List<String> words;
 
@@ -16,10 +18,14 @@ public class WordCreatorTest {
     }
     @Test
     public void noWordsWithWhitespace() {
+        boolean noWordsWithWhitespace = true;
+
         for (String word : words) {
-            if (word.contains(" "))
-                assert false;
+            if (word.contains(" ")) {
+                noWordsWithWhitespace = false;
+                break;
+            }
         }
-        assert true;
+        assertTrue(noWordsWithWhitespace);
     }
 }
