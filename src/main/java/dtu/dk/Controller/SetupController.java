@@ -20,17 +20,11 @@ public class SetupController {
     RemoteSpace setupSpace;
     int localID;
 
-    GameController gameController;
-
     List<String> playerURIs;
     List<Integer> playerIDs;
     List<String> words;
 
     List<Pair<Peer, Player>> peers = new ArrayList<>();
-
-    public SetupController(GameController gameController) {
-        this.gameController = gameController;
-    }
 
     public void join(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         try {
@@ -46,7 +40,6 @@ public class SetupController {
 
     public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         new Thread(new Initiator(localIP, initiatorPort)).start();
-
         join(localIP, localPort, initiatorIP, initiatorPort);
     }
 
@@ -90,7 +83,6 @@ public class SetupController {
 
         // Sent started
         setupSpace.put(STARTED, publicURI);
-        // TODO make gamecontroller start game
     }
 
     private void loadSetupRequirements() throws InterruptedException {

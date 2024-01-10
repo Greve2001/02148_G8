@@ -67,7 +67,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-        SetupController setupController = new SetupController(this);
+        SetupController setupController = new SetupController();
         try {
             if (isHost) {
                 setupController.host(localIP, GameConfigs.DEFAULT_PORT_HOST, localIP, GameConfigs.INIT_PORT);
