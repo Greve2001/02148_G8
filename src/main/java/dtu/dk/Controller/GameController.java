@@ -70,9 +70,9 @@ public class GameController {
         SetupController setupController = new SetupController(this);
         try {
             if (isHost) {
-                setupController.host(localIP, GameConfigs.DEFAULT_PORT, localIP, GameConfigs.INIT_PORT);
+                setupController.host(localIP, GameConfigs.DEFAULT_PORT_HOST, localIP, GameConfigs.INIT_PORT);
             } else {
-                setupController.join(localIP, GameConfigs.DEFAULT_PORT, hostIP, GameConfigs.INIT_PORT);
+                setupController.join(localIP, GameConfigs.DEFAULT_PORT_JOIN, hostIP, GameConfigs.INIT_PORT);
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");

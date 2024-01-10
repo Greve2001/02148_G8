@@ -35,7 +35,8 @@ public class GameConfigs {
 
     //ports
     public static final String INIT_PORT = "31125";
-    public static final String DEFAULT_PORT = "31126";
+    public static final String DEFAULT_PORT_JOIN = "31127";
+    public static final String DEFAULT_PORT_HOST = "31126";
 
 
 }
