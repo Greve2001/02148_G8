@@ -41,6 +41,7 @@ public class MainFX extends Application implements GUIInterface {
     private VBox textPane;
     private Pane wordPane;
     private Label streak;
+    private Label lastWord;
     private List<Word> wordsFalling;
 
     public static void startFX() {
@@ -155,6 +156,10 @@ public class MainFX extends Application implements GUIInterface {
         streak = (Label) pane.lookup("#streak");
         if (streak != null)
             streak.setText("0");
+
+        lastWord = (Label) pane.lookup("#lastWord");
+        if (lastWord != null)
+            lastWord.setText("");
     }
 
     public void setSpace(SequentialSpace space) {
@@ -307,6 +312,14 @@ public class MainFX extends Application implements GUIInterface {
             throw new NullPointerException("streak not initialized/found");
         Platform.runLater(() -> {
             this.streak.setText("" + streak);
+        });
+    }
+
+    public void updateLastWord(String word) throws NullPointerException {
+        if (lastWord == null)
+            throw new NullPointerException("lastWord not initialized/found");
+        Platform.runLater(() -> {
+            lastWord.setText(word);
         });
     }
 

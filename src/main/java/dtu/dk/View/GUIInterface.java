@@ -30,4 +30,6 @@ public interface GUIInterface {
 
     void updateStreak(int streak) throws NullPointerException;
 
+    void updateLastWord(String word) throws NullPointerException;
+
 }
