@@ -114,22 +114,26 @@ public class GameController {
     public void startGame() {
         // TODO: Should happen when a word hits the bottom of the screen
         Pair<Peer, Player> me = peers.get(0);
-        me.getValue().loseLife();
-        if (me.getValue().getLives() == 0) {
+        loseLife(me);
+    }
+
+    private void loseLife(Pair<Peer, Player> pair) {
+        pair.getValue().loseLife();
+        if (pair.getValue().getLives() == 0) {
             try {
-                me.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.DEATH, me.getKey().getID());
+                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.DEATH, pair.getKey().getID());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         } else {
             try {
-                me.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.LIFE, me.getKey().getID());
+                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.LIFE, pair.getKey().getID());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-
     }
+
     //todo make strings and vars constant in gameSettings
 
     private void getInformation(boolean isHost) {
