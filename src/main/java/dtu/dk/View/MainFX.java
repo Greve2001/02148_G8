@@ -1,5 +1,6 @@
 package dtu.dk.View;
 
+import dtu.dk.GameConfigs;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -44,7 +45,7 @@ public class MainFX extends Application implements GUIInterface {
         // Setting up the stage
         stage = primaryStage;
         primaryStage.setTitle("Word Wars!");
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource(GameConfigs.JAVA_FX_INTRO));
         try {
             pane = loader.load();
         } catch (IOException e) {
@@ -53,7 +54,7 @@ public class MainFX extends Application implements GUIInterface {
         scene = new Scene(pane, 1280, 720);
         stage.setResizable(false);
         scene.setCursor(Cursor.NONE);
-        scene.getStylesheets().add("nice.css");
+        scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
 
 
         // Setting up keylogger
@@ -104,7 +105,7 @@ public class MainFX extends Application implements GUIInterface {
                 throw new RuntimeException(e);
             }
             Scene scene = new Scene(pane, 1280, 720);
-            scene.getStylesheets().add("nice.css");
+            scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
             stage.setScene(scene);
             scene.setCursor(Cursor.NONE);
             stage.setResizable(false);
