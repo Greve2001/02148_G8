@@ -92,8 +92,8 @@ public class SetupController {
                 new FormalField(String[].class), // URIs
                 new FormalField(Integer[].class) // Order
         );
-        playerURIs = Arrays.asList((String[]) playerRes[1]);
-        playerIDs = Arrays.asList((Integer[]) playerRes[2]);
+        playerURIs = new ArrayList<>(Arrays.asList((String[]) playerRes[1]));
+        playerIDs = new ArrayList<>(Arrays.asList((Integer[]) playerRes[2]));
         System.out.println("Peer: Got Players");
 
         // Find localID
@@ -123,6 +123,7 @@ public class SetupController {
             pair = createPeerPlayer(i);
             if (pair != null)
                 peers.add(pair);
+
         }
 
         for (int i = 0; i < localID; i++) {
@@ -147,8 +148,8 @@ public class SetupController {
         }
     }
 
-    public List<Pair<Peer, Player>> getPeers() {
-        return peers;
+    public ArrayList<Pair<Peer, Player>> getPeers() {
+        return new ArrayList<>(peers);
     }
 }
 
