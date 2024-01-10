@@ -14,7 +14,7 @@ public class Me extends Player {
         wordOnScreen.remove(word);
     }
 
-    public List<String> getWordOnScreen() {
+    public List<String> getWordsOnScreen() {
         return wordOnScreen;
     }
 }

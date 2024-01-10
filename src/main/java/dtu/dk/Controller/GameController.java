@@ -2,11 +2,8 @@ package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.GameConfigs;
-import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
-import dtu.dk.Protocol;
-import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -20,6 +17,7 @@ import static dtu.dk.Utils.getLocalIPAddress;
 public class GameController {
     private final MainFX ui;
     private final SequentialSpace wordsTyped = new SequentialSpace();
+    private LocalGameController localGameController;
 
     private final List<Pair<Peer, Player>> peers;
     private Pair<Peer, Player> me;
@@ -113,6 +111,7 @@ public class GameController {
         // Set needed start variables before starting the game locally
         peers = setupController.getPeers();
         me = peers.get(0);
+        localGameController = new LocalGameController(me);
         me.getValue().setUsername(username);
         commonWords = setupController.getWords();
 
@@ -124,8 +123,7 @@ public class GameController {
         int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
-            Me myPlayer = (Me) me.getValue();
-            myPlayer.addWordToScreen(commonWords.get(i));
+            localGameController.addWordToMyScreen(commonWords.get(i));
 
             if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
                 sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
@@ -139,37 +137,13 @@ public class GameController {
             }
         }
         // TODO: Should happen when a word hits the bottom of the screen
-        loseLife(me);
+        localGameController.loseLife(me);
 
         // TODO: Should happen when typing a word correct
-        correctlyTyped();
+        localGameController.correctlyTyped();
     }
 
-    private void loseLife(Pair<Peer, Player> pair) {
-        pair.getValue().loseLife();
-        if (pair.getValue().getLives() == 0) {
-            try {
-                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.DEATH, pair.getKey().getID());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            try {
-                pair.getKey().getSpace().put(Protocol.UPDATE, UpdateToken.LIFE, pair.getKey().getID());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
-    private void correctlyTyped() {
-        Pair<Peer, Player> me = peers.get(0);
-
-        me.getValue().addStreak();
-        if ((me.getValue().getStreak() % GameConfigs.REQUIRED_STREAK) == 0) {
-            // TODO: Send word to next player
-        }
-    }
 
     //todo make strings and vars constant in gameSettings
 
