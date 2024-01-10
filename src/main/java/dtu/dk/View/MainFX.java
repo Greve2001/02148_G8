@@ -68,13 +68,12 @@ public class MainFX extends Application implements GUIInterface {
                     key = "";
                     wordsTyped.put(prompt.getText());
                     prompt.setText(key);
+                } else if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
+                    prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
                 } else {
-                    if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
-                        prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
-                    } else {
-                        prompt.setText(prompt.getText() + key);
-                    }
+                    prompt.setText(prompt.getText() + key);
                 }
+
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
