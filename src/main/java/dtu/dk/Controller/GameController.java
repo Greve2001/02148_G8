@@ -128,7 +128,7 @@ public class GameController {
             }
             if (hostIP.matches(GameConfigs.REGEX_IP)) {
                 exitDoWhile = true;
-            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || localIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
+            } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
             } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
