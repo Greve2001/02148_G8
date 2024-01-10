@@ -16,4 +16,6 @@ public interface GUIInterface {
 
     void changeNewestTextOnTextPane(String text);
 
+    void updateLife(int player, int life);
+
 }
