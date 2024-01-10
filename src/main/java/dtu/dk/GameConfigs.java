@@ -5,6 +5,9 @@ public class GameConfigs {
     public static final int wordsInPLay = 1000;
     // word speed factor/ difficulty?
 
+    /*
+     *************** GameController settings ***************
+     */
 
     //javaFX sceenes
     public static final String JAVA_FX_INTRO = "intro.fxml";
@@ -24,6 +27,16 @@ public class GameConfigs {
     public static final String GET_LOCAL_IP_Y_YES = "(" + GET_LOCAL_IP_Y + "/" + GET_LOCAL_IP_YES + ")";
     public static final String GET_LOCAL_IP_INVALID = "Invalid - ";
     public static final String REGEX_IP = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
+
+
+    /*
+     *************** SetupController ***************
+     */
+
+    //ports
+    public static final String INIT_PORT = "31125";
+    public static final String DEFAULT_PORT_JOIN = "31127";
+    public static final String DEFAULT_PORT_HOST = "31126";
 
 
 }

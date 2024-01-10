@@ -36,7 +36,6 @@ public class SetupController {
         try {
             prepareLocalRepository(localIP, localPort);
             connectToInitiator(initiatorIP, initiatorPort);
-            signalReady(); // TODO Should not be called sequentially
 
         } catch (Exception e) {
             repo.shutDown();
@@ -154,6 +153,10 @@ public class SetupController {
             System.out.println("Peer: Player removed");
             return null;
         }
+    }
+
+    public List<Pair<Peer, Player>> getPeers() {
+        return peers;
     }
 }
 
