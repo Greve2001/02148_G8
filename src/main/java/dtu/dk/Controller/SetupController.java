@@ -32,6 +32,12 @@ public class SetupController {
         this.gameController = gameController;
     }
 
+    public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
+        new Thread(new Initiator(localIP, initiatorPort)).start();
+
+        join(localIP, localPort, initiatorIP, initiatorPort);
+    }
+
     public void join(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         try {
             prepareLocalRepository(localIP, localPort);
@@ -42,12 +48,6 @@ public class SetupController {
             e.printStackTrace();
             throw new NoGameSetupException();
         }
-    }
-
-    public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
-        new Thread(new Initiator(localIP, initiatorPort)).start();
-
-        join(localIP, localPort, initiatorIP, initiatorPort);
     }
 
     private void prepareLocalRepository(String localIP, String localPort) {
@@ -99,7 +99,7 @@ public class SetupController {
         Object[] playerRes = setupSpace.query( // Player list
                 new ActualField(PLAYERS),
                 new FormalField(String[].class), // URIs
-                new FormalField(Integer[].class) // Order
+                new FormalField(Integer[].class) // PlayerIDs
         );
         playerURIs = Arrays.asList((String[]) playerRes[1]);
         playerIDs = Arrays.asList((Integer[]) playerRes[2]);
@@ -121,13 +121,15 @@ public class SetupController {
     }
 
     private void connectToPeers() {
+        // Add me first in the list og peers
         peers.add(new Pair<>(
                 new Peer(localID, localPeerSpace),
                 new Player()
         ));
 
-        Pair<Peer, Player> pair;
         // Insert peers in correct order.
+        Pair<Peer, Player> pair;
+
         for (int i = localID + 1 % playerURIs.size(); i < playerURIs.size(); i++) {
             pair = createPeerPlayer(i);
             if (pair != null)

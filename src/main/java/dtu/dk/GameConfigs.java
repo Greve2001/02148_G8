@@ -1,22 +1,23 @@
 package dtu.dk;
 
 public class GameConfigs {
-    //default game values
+    // Default game values
     public static final int wordsInPLay = 1000;
-    // word speed factor/ difficulty?
+    public static final int REQUIRED_STREAK = 10;
+    // Word speed factor/ difficulty?
 
     /*
      *************** GameController settings ***************
      */
 
-    //javaFX sceenes
+    // JavaFX scenes
     public static final String JAVA_FX_INTRO = "intro.fxml";
     public static final String JAVA_FX_HOST = "host.fxml";
     public static final String JAVA_FX_JOIN = "join.fxml";
     public static final String JAVA_FX_GAMESCREEN = "gameScreen.fxml";
     public static final String JAVA_FX_CSS = "nice.css";
 
-    //getInformation() strings - regex
+    // getInformation() strings - regex
     public static final String GET_USERNAME = "Please enter your username";
     public static final String GET_USERNAME_INVALID = "Invalid username - ";
     public static final String GET_HOST_IP = "Please enter the host IP";
@@ -33,7 +34,7 @@ public class GameConfigs {
      *************** SetupController ***************
      */
 
-    //ports
+    // Ports
     public static final String INIT_PORT = "31125";
     public static final String DEFAULT_PORT_JOIN = "31127";
     public static final String DEFAULT_PORT_HOST = "31126";

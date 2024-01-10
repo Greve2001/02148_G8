@@ -21,6 +21,7 @@ public class GameController {
     private final SequentialSpace wordsTyped = new SequentialSpace();
 
     private final List<Pair<Peer, Player>> peers;
+    private Pair<Peer, Player> me;
 
     private String username;
     private String hostIP;
@@ -106,6 +107,8 @@ public class GameController {
             throw new RuntimeException(e);
         }
         peers = setupController.getPeers();
+        me = peers.get(0);
+        me.getValue().setUsername(username);
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
         startGame();
@@ -142,7 +145,7 @@ public class GameController {
         Pair<Peer, Player> me = peers.get(0);
 
         me.getValue().addStreak();
-        if ((me.getValue().getStreak() % 10) == 0) {
+        if ((me.getValue().getStreak() % GameConfigs.REQUIRED_STREAK) == 0) {
             // TODO: Send word to next player
         }
     }
