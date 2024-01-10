@@ -1,35 +1,43 @@
 package dtu.dk.View;
 
-import dtu.dk.Main;
+import dtu.dk.GameConfigs;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
-public class MainFX extends Application {
-    // Use these to change scene
+public class MainFX extends Application implements GUIInterface {
+    // Used to prevent the program from continuing before the stage is shown
+    private static final CountDownLatch latch = new CountDownLatch(1);
+    private static MainFX ui;
+    // Used to change scene
     private static AnchorPane pane;
     private static Scene scene;
-
     private static Stage stage;
-
-    private static Label prompt;
-
     // Keylogger space
     SequentialSpace wordsTyped = new SequentialSpace();
-    Thread keyLoggerThread = new Thread(new KeyPrinter());
+    private Label prompt;
+    private VBox textPane;
 
     public static void startFX() {
         launch();
+    }
+
+    public static MainFX getUI() throws InterruptedException {
+        latch.await();
+        return ui;
     }
 
     @Override
@@ -37,7 +45,7 @@ public class MainFX extends Application {
         // Setting up the stage
         stage = primaryStage;
         primaryStage.setTitle("Word Wars!");
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("intro.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource(GameConfigs.JAVA_FX_INTRO));
         try {
             pane = loader.load();
         } catch (IOException e) {
@@ -45,10 +53,11 @@ public class MainFX extends Application {
         }
         scene = new Scene(pane, 1280, 720);
         stage.setResizable(false);
-        scene.getStylesheets().add("nice.css");
+        scene.setCursor(Cursor.NONE);
+        scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
 
 
-        // Setting up keylogger and starting keyPrinter
+        // Setting up keylogger
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {
                 String key = event.getText();
@@ -59,17 +68,16 @@ public class MainFX extends Application {
                     key = "";
                     wordsTyped.put(prompt.getText());
                     prompt.setText(key);
+                } else if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
+                    prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
                 } else {
-                    if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
-                        prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
-                    }
                     prompt.setText(prompt.getText() + key);
                 }
+
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
-        keyLoggerThread.start();
 
         // Setting up the stage to close when the x is pressed
         stage.onCloseRequestProperty().setValue(e -> {
@@ -80,10 +88,13 @@ public class MainFX extends Application {
         // Showing the stage
         primaryStage.setScene(scene);
         primaryStage.show();
-        Main.latch.countDown();
+        setPointers();
+        this.ui = this;
+        latch.countDown();
     }
 
-    public static void changeScene(String fxml) {
+    @Override
+    public void changeScene(String fxml) {
         Platform.runLater(() -> {
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
             AnchorPane pane;
@@ -94,13 +105,52 @@ public class MainFX extends Application {
                 throw new RuntimeException(e);
             }
             Scene scene = new Scene(pane, 1280, 720);
-            scene.getStylesheets().add("nice.css");
+            scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
             stage.setScene(scene);
+            scene.setCursor(Cursor.NONE);
+            stage.setResizable(false);
             stage.show();
             MainFX.pane = pane;
             MainFX.scene = scene;
 
-            setPoints();
+            setPointers();
+        });
+    }
+
+    private void setPointers() {
+        prompt = (Label) pane.lookup("#prompt");
+        if (prompt != null)
+            prompt.setText("");
+        textPane = (VBox) pane.lookup("#textPane");
+        if (textPane != null)
+            textPane.getChildren().clear();
+    }
+
+    public void setSpace(SequentialSpace space) {
+        this.wordsTyped = space;
+    }
+
+    @Override
+    public CountDownLatch getLatch() {
+        return latch;
+    }
+
+    @Override
+    public void addTextToTextPane(String text) {
+        Platform.runLater(() -> {
+            Label label = new Label(text);
+            label.getStyleClass().add("textOnPane");
+            textPane.getChildren().add(label);
+        });
+    }
+
+    @Override
+    public void changeNewestTextOnTextPane(String text) {
+        Platform.runLater(() -> {
+            Label label = new Label(text);
+            textPane.getChildren().remove(textPane.getChildren().size() - 1);
+            label.getStyleClass().add("textOnPane");
+            textPane.getChildren().add(label);
         });
     }
 
@@ -116,9 +166,5 @@ public class MainFX extends Application {
             }
         }
     }
-
-    private static void setPoints() {
-        MainFX.prompt = (Label) pane.lookup("#prompt");
-        MainFX.prompt.setText("");
-    }
 }
+

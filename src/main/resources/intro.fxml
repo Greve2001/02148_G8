@@ -2,40 +2,41 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-padding: 10px;" styleClass="background" stylesheets="@nice.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox layoutX="16.0" layoutY="620.0" prefHeight="86.0" prefWidth="1244.0" style="-fx-alignment: center;" styleClass="side">
-         <children>
-            <Label styleClass="writefield" text="Write here" />
-            <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 48;" />
-         </children>
-      </HBox>
+       <HBox layoutX="16.0" layoutY="620.0" prefHeight="86.0" prefWidth="1244.0" style="-fx-alignment: center;"
+             styleClass="side" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+           <children>
+               <Label fx:id="prompt" styleClass="writefield" text="Write here"/>
+               <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 48;"/>
+           </children>
+       </HBox>
       <Pane layoutX="9.0" layoutY="116.0" prefHeight="488.0" prefWidth="1233.0">
-         <children>
-            <Label layoutX="625.0" layoutY="173.0" styleClass="writefield" text="Join" />
-            <Label layoutX="622.0" layoutY="263.0" styleClass="writefield" text="Host" />
-            <Text layoutX="667.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-            <Text fill="WHITE" layoutX="613.0" layoutY="141.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="writefield" text="Write:" />
-         </children></Pane>
-      <HBox layoutX="36.0" layoutY="14.0" prefHeight="100.0" prefWidth="1226.0" style="-fx-alignment: center;" styleClass="side">
-         <children>
-            <GridPane prefHeight="90.0" prefWidth="1178.0" style="-fx-alignment: center;">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.0296630859375" minWidth="10.0" prefWidth="141.33917236328125" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="866.6608276367188" minWidth="10.0" prefWidth="866.6608276367188" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="169.4237060546875" minWidth="10.0" prefWidth="128.927978515625" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
+          <children>
+              <Label layoutX="574.0" layoutY="153.0" style="-fx-text-alignment: center;" styleClass="writefield"
+                     text="Join"/>
+              <Label layoutX="567.0" layoutY="223.0" style="-fx-text-alignment: center;" styleClass="writefield"
+                     text="Host"/>
+              <Text fill="WHITE" layoutX="554.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                    style="-fx-text-alignment: center;" styleClass="writefield" text="Write:"/>
+          </children></Pane>
+       <HBox layoutX="36.0" layoutY="14.0" prefHeight="100.0" prefWidth="1226.0" style="-fx-alignment: center;"
+             styleClass="side" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+           <children>
+               <GridPane prefHeight="90.0" prefWidth="1178.0" style="-fx-alignment: center;">
+                   <columnConstraints>
+                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.0296630859375" minWidth="10.0"
+                                          prefWidth="141.33917236328125"/>
+                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="866.6608276367188" minWidth="10.0"
+                                          prefWidth="866.6608276367188"/>
+                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="169.4237060546875" minWidth="10.0"
+                                          prefWidth="128.927978515625"/>
+                   </columnConstraints>
+                   <rowConstraints>
+                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                   </rowConstraints>
                <children>
                   <Pane prefHeight="90.0" prefWidth="107.0" style="-fx-scale-x: -1;" styleClass="gun" GridPane.columnIndex="2">
                      <opaqueInsets>
