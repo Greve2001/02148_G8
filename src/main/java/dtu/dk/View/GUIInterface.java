@@ -18,6 +18,8 @@ public interface GUIInterface {
 
     void makeWordFall(Word word);
 
+    void removeWordFalling(Word word);
+
     void addTextToTextPane(String text);
 
     void changeNewestTextOnTextPane(String text);

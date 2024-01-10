@@ -6,6 +6,7 @@ import dtu.dk.Model.Word;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -266,9 +267,34 @@ public class MainFX extends Application implements GUIInterface {
                     throw new RuntimeException(ex);
                 }
             });
+            word.setTranslateTransition(transition);
             transition.play();
         });
 
+    }
+
+    /**
+     * Removes a word from the screen
+     * if the word is in the wordsFalling list it is removed from the list
+     *
+     * @param word
+     */
+    public void removeWordFalling(Word word) {
+        if (wordPane == null)
+            throw new NullPointerException("wordPane not initialized/found");
+        Platform.runLater(() -> {
+            ObservableList children = wordPane.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Label label = (Label) children.get(i);
+                if (label.getText().equals(word.getText())) {
+                    wordPane.getChildren().remove(label);
+                    if (wordsFalling.contains(word))
+                        wordsFalling.remove(word);
+                    word.getTranslateTransition().stop();
+                    break;
+                }
+            }
+        });
     }
 
     private class KeyPrinter implements Runnable {
