@@ -14,8 +14,6 @@ import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
 import java.util.ArrayList;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 import static dtu.dk.Protocol.PLAYER_DROPPED;
@@ -27,9 +25,8 @@ public class GameController {
     private final SequentialSpace fxWords = new SequentialSpace();
     private final LocalGameController localGameController;
 
-    private ArrayList<Pair<Peer, Player>> activePeers;
+    private final ArrayList<Pair<Peer, Player>> activePeers;
     private ArrayList<Pair<Peer, Player>> allPeers;
-    private final List<Pair<Peer, Player>> peers;
     private final Pair<Peer, Player> myPair;
     private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
@@ -80,7 +77,7 @@ public class GameController {
         } while (!exitDoWhile);
 
         joinOrHost(isHost);
-        SetupController setupController = new SetupController(this);
+        SetupController setupController = new SetupController();
         try {
             if (isHost) {
                 setupController.host(localIP, GameConfigs.DEFAULT_PORT_HOST, localIP, GameConfigs.INIT_PORT);
@@ -123,8 +120,7 @@ public class GameController {
         new Thread(new DisconnectChecker(this)).start();
 
         // Set needed start variables before starting the game locally
-        peers = setupController.getPeers();
-        myPair = peers.get(0);
+        myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
         myPair.getValue().setUsername(username);
         for (String word : setupController.getWords()) {
@@ -134,7 +130,6 @@ public class GameController {
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
     }
-
 
     private void joinOrHost(boolean isHost) {
         if (isHost) {
@@ -225,7 +220,7 @@ public class GameController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        new Thread(this::spawnWords);
+        new Thread(this::spawnWords).start();
         // TODO: Should happen when a word hits the bottom of the screen
         localGameController.loseLife(myPair);
 
@@ -266,11 +261,11 @@ class DisconnectChecker implements Runnable{
     public void run(){
         int nextPeerIndex = 1;
         while(activePeerList.size() > 1){
-            try { // get a non existing string in the remotespace of the person next in the disconnect line
-                    activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
+            try { // get a non-existing string in the RemoteSpace of the person next in the disconnect line
+                activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
-                for(int index = 2; index < activePeerList.size(); index++){
+                for (int index = 2; index < activePeerList.size(); index++) {
                     try {
                         //TODO - this is not picked up by the other peers yet
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
