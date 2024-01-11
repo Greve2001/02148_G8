@@ -18,8 +18,7 @@ import org.jspace.Space;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dtu.dk.Protocol.PLAYER_DROPPED;
-import static dtu.dk.Protocol.UPDATE;
+import static dtu.dk.Protocol.*;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
@@ -30,7 +29,7 @@ public class GameController {
     private final Pair<Peer, Player> myPair;
     private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
-    private ArrayList<Pair<Peer, Player>> allPeers;
+    private final ArrayList<Pair<Peer, Player>> allPeers;
     private String username;
     private String hostIP;
     private String localIP;
@@ -154,9 +153,8 @@ public class GameController {
                         Platform.exit();
                         System.exit(0);
                     }
-                    default -> {
-                        ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
-                    }
+                    default ->
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
                 }
             }
         } while (!exitDoWhile);
@@ -191,9 +189,8 @@ public class GameController {
                         Platform.exit();
                         System.exit(0);
                     }
-                    default -> {
-                        ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
-                    }
+                    default ->
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 }
             }
         } while (!exitDoWhile);
@@ -214,19 +211,20 @@ public class GameController {
                 throw new RuntimeException(e);
             }
 
-            if (username.length() < 10) {
-                exitDoWhile = true;
-            } else {
-                switch (username) {
-                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
-                        Platform.exit();
-                        System.exit(0);
-                    }
-                    default -> {
+            switch (username) {
+                case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                    Platform.exit();
+                    System.exit(0);
+                }
+                default -> {
+                    if (username.length() < 10)
+                        exitDoWhile = true;
+                    else
                         ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
-                    }
                 }
             }
+
+
         } while (!exitDoWhile);
         ui.addTextToTextPane(username);
     }
@@ -244,9 +242,7 @@ public class GameController {
             }
 
             switch (wordTyped.toLowerCase()) {
-                case GameConfigs.READY, GameConfigs.EMPTY_STRING -> {
-                    exitDoWhile = true;
-                }
+                case GameConfigs.READY, GameConfigs.EMPTY_STRING -> exitDoWhile = true;
                 default -> System.out.println(GameConfigs.UNKNOWN_CMD + wordTyped);
             }
         } while (!exitDoWhile);
@@ -294,7 +290,7 @@ public class GameController {
     }
 
     /**
-     * Also update player lifes
+     * Also update player lives
      * This only works for other players - not local life
      */
     protected void updateUIPlayerList() {
@@ -369,7 +365,7 @@ class WordTypedController implements Runnable {
 
     public void run() {
         //todo should exit when game ends
-        String wordTyped = "";
+        String wordTyped;
         while (!gameController.gameEnded) {
             try {
                 wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
@@ -419,7 +415,7 @@ class DisconnectChecker implements Runnable {
                 if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
-                System.out.println("Player disconnectet. Active peer list size = " + activePeerList.size());
+                System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
     }
@@ -445,7 +441,7 @@ class UpdateChecker implements Runnable {
                         new FormalField(Integer.class) // Order
                 );
                 switch ((Protocol) updateTup[1]) {
-                    case UPDATE_LIFE:
+                    case UPDATE_LIFE -> {
                         //get the id we need to check
                         //get the persons life and update it
                         for (int index = 1; index < activePLayerList.size(); index++) {
@@ -460,23 +456,22 @@ class UpdateChecker implements Runnable {
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
                         }
-                        break;
-                    case UPDATE_DEATH:
+                    }
+                    case UPDATE_DEATH -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
                                 break;
                             }
                         }
-                        break;
-                    case UPDATE_SEND_WORD:
+                    }
+                    case UPDATE_SEND_WORD -> {
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
-                        //TODO actually send the word..
-                        break;
-                    default:
-                        System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
+                    }
+                    //TODO actually send the word..
+                    default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
             } catch (InterruptedException e) {
                 System.out.println("UpdateChecker error - Cant get local space - something is wrong??");
