@@ -480,8 +480,10 @@ class WordHitController implements Runnable {
 class DisconnectChecker implements Runnable {
 
     ArrayList<Pair<Peer, Player>> activePeerList;
+    GameController gameController;
 
     public DisconnectChecker(GameController gameController) {
+        this.gameController = gameController;
         activePeerList = gameController.getActivePeers();
     }
 
@@ -494,7 +496,6 @@ class DisconnectChecker implements Runnable {
                 //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
                 for (int index = 2; index < activePeerList.size(); index++) {
                     try {
-                        //TODO - this is not picked up by the other peers yet
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
                     } catch (InterruptedException ex) {
                         System.out.println("Another disconnect -.-");
@@ -503,6 +504,7 @@ class DisconnectChecker implements Runnable {
                 if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
+                gameController.updateUIPlayerList();
                 System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
@@ -560,6 +562,16 @@ class UpdateChecker implements Runnable {
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
                         //TODO actually send the word..
+                        break;
+                    case PLAYER_DROPPED:
+                        for (int index = 1; index < activePLayerList.size(); index++) {
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
+                                activePLayerList.remove(index);
+                                gameController.updateUIPlayerList();
+                                System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
+                                break;
+                            }
+                        }
                         break;
                     default:
                         System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
