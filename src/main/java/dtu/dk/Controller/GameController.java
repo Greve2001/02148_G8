@@ -216,11 +216,6 @@ public class GameController {
     }
 
     public void startGame() {
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         new Thread(this::spawnWords).start();
         // TODO: Should happen when a word hits the bottom of the screen
         localGameController.loseLife(myPair);
@@ -230,19 +225,21 @@ public class GameController {
     }
 
     private void spawnWords() {
-        int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
+        int wpm = GameConfigs.START_WPM;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
             ui.makeWordFall(commonWords.get(i));
 
-            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
-                sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
+            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && wpm < GameConfigs.MAX_WPM) {
+                wpm += GameConfigs.WPM_INCREASE;
                 fallenWords = 0;
             }
 
+            int sleepInterval = (60 / wpm) * 1000;
+
             try {
-                Thread.sleep(sleepTempo);
+                Thread.sleep(sleepInterval);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
