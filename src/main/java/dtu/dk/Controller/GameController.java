@@ -19,10 +19,9 @@ import org.jspace.Space;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dtu.dk.Protocol.LIFE;
 import static dtu.dk.Protocol.*;
-import static dtu.dk.UpdateToken.PLAYER_DROPPED;
-import static dtu.dk.UpdateToken.SEND_WORD;
-import static dtu.dk.UpdateToken.USERNAME;
+import static dtu.dk.UpdateToken.*;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
@@ -563,7 +562,7 @@ class UpdateChecker implements Runnable {
                         new FormalField(Integer.class) // PlayerID
                 );
                 switch ((UpdateToken) updateTup[1]) {
-                    case LIFE:
+                    case LIFE -> {
                         //get the id we need to check
                         //get the persons life and update it
                         for (int index = 1; index < activePLayerList.size(); index++) {
@@ -578,8 +577,8 @@ class UpdateChecker implements Runnable {
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
                         }
-                        break;
-                    case DEATH:
+                    }
+                    case DEATH -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
@@ -588,15 +587,14 @@ class UpdateChecker implements Runnable {
                                 break;
                             }
                         }
-                        break;
-                    case SEND_WORD:
+                    }
+                    case SEND_WORD -> {
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
                         gameController.ui.makeWordFall(new Word((String) extraWordTup[1]));
-                        break;
-
-                    case PLAYER_DROPPED:
+                    }
+                    case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
@@ -604,8 +602,8 @@ class UpdateChecker implements Runnable {
                                 System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
                         }
-                        break;
-                    case USERNAME:
+                    }
+                    case USERNAME -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 Object[] usernameTup = activePLayerList.get(index).getKey().getSpace().query(
@@ -616,9 +614,8 @@ class UpdateChecker implements Runnable {
 
                             }
                         }
-                        break;
-                    default:
-                        System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
+                    }
+                    default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
             } catch (InterruptedException e) {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
