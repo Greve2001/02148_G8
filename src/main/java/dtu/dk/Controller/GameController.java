@@ -215,11 +215,6 @@ public class GameController {
     }
 
     public void startGame() {
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         new Thread(this::spawnWords).start();
         // TODO: Should happen when a word hits the bottom of the screen
         localGameController.loseLife(myPair);
