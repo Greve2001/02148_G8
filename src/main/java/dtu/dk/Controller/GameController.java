@@ -22,6 +22,7 @@ import java.util.List;
 import static dtu.dk.Protocol.*;
 import static dtu.dk.UpdateToken.PLAYER_DROPPED;
 import static dtu.dk.UpdateToken.SEND_WORD;
+import static dtu.dk.UpdateToken.USERNAME;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
@@ -31,8 +32,8 @@ public class GameController {
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
     private final List<Word> commonWords = new ArrayList<>();
-    boolean gameEnded = false;
     private final ArrayList<Pair<Peer, Player>> allPeers;
+    boolean gameEnded = false;
     private String username;
     private String hostIP;
     private String localIP;
@@ -91,6 +92,10 @@ public class GameController {
         myPair.getValue().setUsername(username);
         try {
             myPair.getKey().getSpace().put(LIFE, myPair.getValue().getLives());
+            myPair.getKey().getSpace().put(GET_USERNAME, myPair.getValue().getUsername());
+            for (int i = 1; i < activePeers.size(); i++) {
+                activePeers.get(i).getKey().getSpace().put(UPDATE, USERNAME, myPair.getKey().getID());
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -507,8 +512,10 @@ class WordHitController implements Runnable {
 class DisconnectChecker implements Runnable {
 
     ArrayList<Pair<Peer, Player>> activePeerList;
+    GameController gameController;
 
     public DisconnectChecker(GameController gameController) {
+        this.gameController = gameController;
         activePeerList = gameController.getActivePeers();
     }
 
@@ -521,7 +528,6 @@ class DisconnectChecker implements Runnable {
                 //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
                 for (int index = 2; index < activePeerList.size(); index++) {
                     try {
-                        //TODO - this is not picked up by the other peers yet
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
                     } catch (InterruptedException ex) {
                         System.out.println("Another disconnect -.-");
@@ -530,6 +536,7 @@ class DisconnectChecker implements Runnable {
                 if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
+                gameController.updateUIPlayerList();
                 System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
@@ -556,7 +563,7 @@ class UpdateChecker implements Runnable {
                         new FormalField(Integer.class) // PlayerID
                 );
                 switch ((UpdateToken) updateTup[1]) {
-                    case LIFE -> {
+                    case LIFE:
                         //get the id we need to check
                         //get the persons life and update it
                         for (int index = 1; index < activePLayerList.size(); index++) {
@@ -571,8 +578,8 @@ class UpdateChecker implements Runnable {
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
                         }
-                    }
-                    case DEATH -> {
+                        break;
+                    case DEATH:
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
@@ -581,14 +588,37 @@ class UpdateChecker implements Runnable {
                                 break;
                             }
                         }
-                    }
-                    case SEND_WORD -> {
+                        break;
+                    case SEND_WORD:
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
                         gameController.ui.makeWordFall(new Word((String) extraWordTup[1]));
-                    }
-                    default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
+                        break;
+
+                    case PLAYER_DROPPED:
+                        for (int index = 1; index < activePLayerList.size(); index++) {
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
+                                activePLayerList.remove(index);
+                                gameController.updateUIPlayerList();
+                                System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
+                            }
+                        }
+                        break;
+                    case USERNAME:
+                        for (int index = 1; index < activePLayerList.size(); index++) {
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
+                                Object[] usernameTup = activePLayerList.get(index).getKey().getSpace().query(
+                                        new ActualField(GET_USERNAME),
+                                        new FormalField(String.class));
+                                activePLayerList.get(index).getValue().setUsername((String) usernameTup[1]);
+                                gameController.updateUIPlayerList();
+
+                            }
+                        }
+                        break;
+                    default:
+                        System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
             } catch (InterruptedException e) {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");

@@ -11,5 +11,6 @@ public enum Protocol {
     STARTED,
     UPDATE,
     EXTRA_WORD,
-    LIFE
+    LIFE,
+    GET_USERNAME
 }
