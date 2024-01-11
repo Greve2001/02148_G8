@@ -217,6 +217,7 @@ public class GameController {
 
     public void startGame() {
         new Thread(this::spawnWords).start();
+        updateUIPlayerList();
         // TODO: Should happen when a word hits the bottom of the screen
         localGameController.loseLife(myPair);
 
