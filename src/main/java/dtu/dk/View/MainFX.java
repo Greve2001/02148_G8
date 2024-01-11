@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class MainFX extends Application implements GUIInterface {
     // Used to prevent the program from continuing before the stage is shown
-    private static final CountDownLatch latch = new CountDownLatch(1);
+    private static CountDownLatch latch = new CountDownLatch(1);
     private static MainFX ui;
     // Used to change scene
     private static AnchorPane pane;
@@ -108,6 +108,7 @@ public class MainFX extends Application implements GUIInterface {
 
     @Override
     public void changeScene(String fxml) {
+        latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
             AnchorPane pane;
@@ -125,8 +126,8 @@ public class MainFX extends Application implements GUIInterface {
             stage.show();
             MainFX.pane = pane;
             MainFX.scene = scene;
-
             setPointers();
+            latch.countDown();
         });
     }
 
@@ -177,6 +178,7 @@ public class MainFX extends Application implements GUIInterface {
 
     @Override
     public void addTextToTextPane(String text) {
+        awaitLatch();
         Platform.runLater(() -> {
             Label label = new Label(text);
             label.getStyleClass().add("textOnPane");
@@ -186,6 +188,7 @@ public class MainFX extends Application implements GUIInterface {
 
     @Override
     public void changeNewestTextOnTextPane(String text) {
+        awaitLatch();
         Platform.runLater(() -> {
             Label label = new Label(text);
             textPane.getChildren().remove(textPane.getChildren().size() - 1);
@@ -209,6 +212,7 @@ public class MainFX extends Application implements GUIInterface {
         if (hearts[0][0] == null)
             throw new NullPointerException("hearts not initialized/found");
         int p = player + 2;
+        awaitLatch();
         Platform.runLater(() -> {
             for (int i = 0; i < 3; i++) {
                 if (i < life) {
@@ -228,7 +232,6 @@ public class MainFX extends Application implements GUIInterface {
             throw new NullPointerException("player 0 have no name");
         if (player > 2 || player < -2)
             throw new NullPointerException("No player " + player + " exists");
-
         switch (player) {
             case -2 -> player = 0;
             case -1 -> player = 1;
@@ -236,7 +239,7 @@ public class MainFX extends Application implements GUIInterface {
             case 2 -> player = 3;
             default -> throw new NullPointerException("No player " + player + " exists");
         }
-
+        awaitLatch();
         int p = player;
         Platform.runLater(() -> {
             playerNames[p].setText(name);
@@ -257,6 +260,7 @@ public class MainFX extends Application implements GUIInterface {
         if (!wordsFalling.contains(word)) {
             wordsFalling.add(word);
         }
+        awaitLatch();
         Platform.runLater(() -> {
             Label label = new Label(word.getText());
             label.getStyleClass().add("wordsFaling");
@@ -292,6 +296,7 @@ public class MainFX extends Application implements GUIInterface {
     public void removeWordFalling(Word word) {
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
+        awaitLatch();
         Platform.runLater(() -> {
             ObservableList children = wordPane.getChildren();
             for (int i = 0; i < children.size(); i++) {
@@ -310,6 +315,7 @@ public class MainFX extends Application implements GUIInterface {
     public void updateStreak(int streak) throws NullPointerException {
         if (this.streak == null)
             throw new NullPointerException("streak not initialized/found");
+        awaitLatch();
         Platform.runLater(() -> {
             this.streak.setText("" + streak);
         });
@@ -318,9 +324,18 @@ public class MainFX extends Application implements GUIInterface {
     public void updateLastWord(String word) throws NullPointerException {
         if (lastWord == null)
             throw new NullPointerException("lastWord not initialized/found");
+        awaitLatch();
         Platform.runLater(() -> {
             lastWord.setText(word);
         });
+    }
+
+    private void awaitLatch() {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private class KeyPrinter implements Runnable {
