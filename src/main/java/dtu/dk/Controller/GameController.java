@@ -181,7 +181,7 @@ public class GameController {
                 exitDoWhile = true;
             } else {
                 switch (typedIP) {
-                    case GameConfigs.GET_LOCAL_IP_Y, GameConfigs.GET_LOCAL_IP_YES, GameConfigs.EMPTY_STRING -> {
+                    case GameConfigs.Y, GameConfigs.YES, GameConfigs.EMPTY_STRING -> {
                         localIP = generatedIP;
                         exitDoWhile = true;
                     }
@@ -227,7 +227,29 @@ public class GameController {
                         ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
                 }
             }
+
+            if (exitDoWhile) {
+                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME + username);
+                String confirmation;
+                try {
+                    confirmation = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+                } catch (InterruptedException e) {
+                    System.err.println("Could not get confirmation");
+                    throw new RuntimeException(e);
+                }
+
+                switch (confirmation) {
+                    case GameConfigs.Y, GameConfigs.YES, GameConfigs.EMPTY_STRING -> {
+                    }
+                    default -> {
+                        ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME);
+                        exitDoWhile = false;
+                    }
+                }
+            }
         } while (!exitDoWhile);
+
+
         ui.addTextToTextPane(username);
     }
 
