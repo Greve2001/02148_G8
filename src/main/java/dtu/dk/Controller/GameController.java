@@ -214,15 +214,14 @@ class DisconnectChecker implements Runnable{
     }
     public void run(){
         int nextPeerIndex = 1;
-        while(true){
+        while(activePeerList.size() > 1){
             try { // get a non existing string in the remotespace of the person next in the disconnect line
-                if(activePeerList.size() > 1) {
                     activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
-                }
             } catch (InterruptedException e) {
                 //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
                 for(int index = 2; index < activePeerList.size(); index++){
                     try {
+                        //TODO - this is not picked up by the other peers yet
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
                     } catch (InterruptedException ex) {
                         System.out.println("Another disconnect -.-");
