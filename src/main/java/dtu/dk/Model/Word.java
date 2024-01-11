@@ -16,7 +16,7 @@ public class Word {
     }
 
     public double getFallDuration() {
-        return fallDuration;
+        return 1 + text.length() * 1.5;
     }
 
     public void setTranslateTransition(TranslateTransition tt) {

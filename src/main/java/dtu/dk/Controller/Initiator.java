@@ -75,7 +75,7 @@ public class Initiator implements Runnable {
     }
 
     private void sendWords() throws InterruptedException {
-        List<String> words = WordCreator.getSubset(GameConfigs.wordsInPLay);
+        List<String> words = WordCreator.getSubset(GameConfigs.WORDS_IN_PLAY);
 
         space.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
@@ -95,6 +95,7 @@ public class Initiator implements Runnable {
 
             doneLoadingURIs.add(uri);
         }
+
         System.out.println("Initiator: All loadings done");
     }
 

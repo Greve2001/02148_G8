@@ -30,7 +30,7 @@ public class GameController {
     private final ArrayList<Pair<Peer, Player>> activePeers;
     private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
-    private ArrayList<Pair<Peer, Player>> allPeers;
+    private final ArrayList<Pair<Peer, Player>> allPeers;
     private String username;
     private String hostIP;
     private String localIP;
@@ -47,36 +47,16 @@ public class GameController {
             throw new RuntimeException(e);
         }
 
-        String wordTyped = "";
-        boolean exitDoWhile = false;
-        do {
-            try {
-                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            switch (wordTyped.toLowerCase()) {
-                case "join" -> {
-                    ui.changeScene(GameConfigs.JAVA_FX_JOIN);
-                    isHost = false;
-                    exitDoWhile = true;
-                }
-                case "host" -> {
-                    ui.changeScene(GameConfigs.JAVA_FX_HOST);
-                    isHost = true;
-                    exitDoWhile = true;
-                }
-                case "exit", "quit" -> {
-                    Platform.exit();
-                    System.exit(0);
-                }
-                default -> System.out.println("Unknown command: " + wordTyped);
-            }
-        } while (!exitDoWhile);
-
-        joinOrHost(isHost);
         SetupController setupController = new SetupController();
+
+        // Initial Screen
+        typeHostOrJoin();
+
+        // Join and Host Screen
+        if (!isHost) typeHostIP();
+        typeMyIP();
+        typeUsername();
+
         try {
             if (isHost) {
                 setupController.host(localIP, GameConfigs.DEFAULT_PORT_HOST, localIP, GameConfigs.INIT_PORT);
@@ -85,39 +65,25 @@ public class GameController {
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");
-            //todo add Alert / messagebox
+            // TODO: Add Alert / Messagebox
             throw new RuntimeException(e);
         }
 
-        ui.addTextToTextPane("Type 'ready' to start the game");
-        exitDoWhile = false;
-        do {
-            try {
-                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        typeReady();
+        ui.changeNewestTextOnTextPane(GameConfigs.WAITING_FOR_PLAYERS_TO_TYPE_READY);
 
-            wordTyped = wordTyped.toLowerCase();
-
-            switch (wordTyped) {
-                case "ready" -> {
-                    exitDoWhile = true;
-                }
-                default -> System.out.println("Unknown command: " + wordTyped);
-            }
-        } while (!exitDoWhile);
-        ui.changeNewestTextOnTextPane("Waiting for other players to be ready");
         try {
             setupController.signalReady();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
+        // Set needed start variables before starting the game locally
         allPeers = setupController.getPeers();
-        activePeers = new ArrayList<>(List.copyOf(allPeers));
+        activePeers = new ArrayList<>(allPeers);
         new Thread(new DisconnectChecker(this)).start();
         new Thread(new UpdateChecker(this)).start();
+
         // Set needed start variables before starting the game locally
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
@@ -135,12 +101,46 @@ public class GameController {
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
     }
 
-    private void joinOrHost(boolean isHost) {
-        if (isHost) {
-            ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
-        } else {
-            ui.addTextToTextPane(GameConfigs.GET_HOST_IP);
-        }
+    /**
+     * On initial screen, the user should type "host" to host a game, and "join" to join a game
+     */
+    private void typeHostOrJoin() {
+        String wordTyped;
+        boolean exitDoWhile = false;
+
+        do {
+            try {
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            switch (wordTyped.toLowerCase()) {
+                case GameConfigs.JOIN -> {
+                    ui.changeScene(GameConfigs.JAVA_FX_JOIN);
+                    isHost = false;
+                    exitDoWhile = true;
+                }
+                case GameConfigs.HOST -> {
+                    ui.changeScene(GameConfigs.JAVA_FX_HOST);
+                    isHost = true;
+                    exitDoWhile = true;
+                }
+                case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                    Platform.exit();
+                    System.exit(0);
+                }
+                default -> System.out.println("Unknown command: " + wordTyped);
+            }
+        } while (!exitDoWhile);
+    }
+
+    /**
+     * The user joining the game should type the host's IP
+     */
+    private void typeHostIP() {
+        // Please enter the host IP
+        ui.addTextToTextPane(GameConfigs.GET_HOST_IP);
 
         boolean exitDoWhile = false;
         do {
@@ -150,51 +150,62 @@ public class GameController {
                 throw new RuntimeException(e);
             }
 
-            if (hostIP.matches(GameConfigs.REGEX_IP)) {
+            if (hostIP.matches(GameConfigs.REGEX_IP))
                 exitDoWhile = true;
-            } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
-                Platform.exit();
-                System.exit(0);
-            } else if (hostIP.equals(GameConfigs.GET_LOCAL_IP_Y) || hostIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
-                hostIP = getLocalIPAddress();
-                exitDoWhile = true;
-            } else {
-                if (isHost) {
-                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
-                } else {
-                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
+            else {
+                switch (hostIP) {
+                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                        Platform.exit();
+                        System.exit(0);
+                    }
+                    default ->
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
                 }
             }
         } while (!exitDoWhile);
 
         ui.addTextToTextPane(hostIP);
-        if (!isHost) {
-            ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
-            exitDoWhile = false;
-            do {
-                try {
-                    localIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+    }
 
-                if (localIP.matches(GameConfigs.REGEX_IP)) {
-                    exitDoWhile = true;
-                } else if (localIP.equals("exit") || localIP.equals("quit")) {
-                    Platform.exit();
-                    System.exit(0);
-                } else if (localIP.equals(GameConfigs.GET_LOCAL_IP_Y) || localIP.equals(GameConfigs.GET_LOCAL_IP_YES)) {
-                    localIP = getLocalIPAddress();
-                    exitDoWhile = true;
-                } else {
-                    ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
-                }
-            } while (!exitDoWhile);
-            ui.addTextToTextPane(localIP);
-        } else {
-            localIP = hostIP;
-        }
+    private void typeMyIP() {
+        // Is this your IP address?
+        String generatedIP = getLocalIPAddress();
+        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
 
+        boolean exitDoWhile = false;
+        String typedIP;
+        do {
+            try {
+                typedIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (typedIP.matches(GameConfigs.REGEX_IP)) {
+                localIP = typedIP;
+                exitDoWhile = true;
+            } else {
+                switch (typedIP) {
+                    case GameConfigs.Y, GameConfigs.YES, GameConfigs.EMPTY_STRING -> {
+                        localIP = generatedIP;
+                        exitDoWhile = true;
+                    }
+                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                        Platform.exit();
+                        System.exit(0);
+                    }
+                    default ->
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+                }
+            }
+        } while (!exitDoWhile);
+
+        ui.addTextToTextPane(localIP);
+    }
+
+    private void typeUsername() {
+        boolean exitDoWhile;
+        // Please enter your username
         ui.addTextToTextPane(GameConfigs.GET_USERNAME);
         exitDoWhile = false;
         do {
@@ -205,17 +216,65 @@ public class GameController {
                 throw new RuntimeException(e);
             }
 
-            if (username.equals("exit") || username.equals("quit")) {
-                Platform.exit();
-                System.exit(0);
+            switch (username) {
+                case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                    Platform.exit();
+                    System.exit(0);
+                }
+                case GameConfigs.EMPTY_STRING -> {
+                    username = GameConfigs.DEFAULT_USERNAME;
+                    exitDoWhile = true;
+                }
+                default -> {
+                    if (username.length() < 10)
+                        exitDoWhile = true;
+                    else
+                        ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
+                }
+            }
 
-            } else if (username.length() < 10) {
-                exitDoWhile = true;
-            } else {
-                ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
+            if (exitDoWhile) {
+                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME + username);
+                String confirmation;
+                try {
+                    confirmation = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+                } catch (InterruptedException e) {
+                    System.err.println("Could not get confirmation");
+                    throw new RuntimeException(e);
+                }
+
+                switch (confirmation) {
+                    case GameConfigs.Y, GameConfigs.YES, GameConfigs.EMPTY_STRING -> {
+                    }
+                    default -> {
+                        ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME);
+                        exitDoWhile = false;
+                    }
+                }
             }
         } while (!exitDoWhile);
+
+
         ui.addTextToTextPane(username);
+    }
+
+    private void typeReady() {
+        boolean exitDoWhile;
+        String wordTyped;
+        ui.addTextToTextPane(GameConfigs.TYPE_READY);
+        exitDoWhile = false;
+        do {
+            try {
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            switch (wordTyped.toLowerCase()) {
+                case GameConfigs.READY, GameConfigs.EMPTY_STRING -> exitDoWhile = true;
+                default -> System.out.println(GameConfigs.UNKNOWN_CMD + wordTyped);
+            }
+        } while (!exitDoWhile);
     }
 
     public void startGame() {
@@ -229,12 +288,15 @@ public class GameController {
 
     private void spawnWords() {
         int wpm = GameConfigs.START_WPM;
+        int wordsBeforeIncrease = GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
             ui.makeWordFall(commonWords.get(i));
 
-            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && wpm < GameConfigs.MAX_WPM) {
+            wordsBeforeIncrease = wpm / GameConfigs.SEND_WORD_RATIO;
+
+            if (fallenWords == wordsBeforeIncrease && wpm < GameConfigs.MAX_WPM) {
                 wpm += GameConfigs.WPM_INCREASE;
                 fallenWords = 0;
             }
@@ -254,7 +316,7 @@ public class GameController {
     }
 
     /**
-     * Also update player lifes
+     * Also update player lives
      * This only works for other players - not local life
      */
     protected void updateUIPlayerList() {
@@ -329,7 +391,7 @@ class WordTypedController implements Runnable {
 
     public void run() {
         //todo should exit when game ends
-        String wordTyped = "";
+        String wordTyped;
         while (!gameController.gameEnded) {
             try {
                 wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
@@ -341,10 +403,21 @@ class WordTypedController implements Runnable {
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(finalWordTyped)) {
-                    gameController.localGameController.myPlayer.removeWordFromScreen(word);
+
                     gameController.ui.removeWordFalling(word);
                     gameController.localGameController.correctlyTyped();
+
+                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+
+                    gameController.ui.updateLastWord(word.getText());
+
+
                     break;
+                }
+                else{
+                    gameController.localGameController.inCorrectlyTyped();
+                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+
                 }
             }
 
@@ -415,7 +488,7 @@ class DisconnectChecker implements Runnable {
     public void run() {
         int nextPeerIndex = 1;
         while (activePeerList.size() > 1) {
-            try { // get a non existing string in the remotespace of the person next in the disconnect line
+            try { // get a non-existing string in the RemoteSpace of the person next in the disconnect line
                 activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
@@ -430,7 +503,7 @@ class DisconnectChecker implements Runnable {
                 if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
-                System.out.println("Player disconnectet. Active peer list size = " + activePeerList.size());
+                System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
     }

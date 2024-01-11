@@ -39,4 +39,7 @@ public class Player {
     public void addStreak() {
         this.streak++;
     }
+    public void loseStreak() {
+        this.streak=0;
+    }
 }

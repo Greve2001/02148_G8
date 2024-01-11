@@ -43,6 +43,7 @@ public class LocalGameController {
     }
 
     public void correctlyTyped() {
+
         myPlayer.addStreak();
 
         if ((myPlayer.getStreak() % GameConfigs.REQUIRED_STREAK) == 0) {
@@ -52,5 +53,9 @@ public class LocalGameController {
 
     public void addWordToMyScreen(Word word) {
         myPlayer.addWordToScreen(word);
+    }
+
+    public void inCorrectlyTyped() {
+        myPlayer.loseStreak();
     }
 }
