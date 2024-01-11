@@ -226,12 +226,15 @@ public class GameController {
 
     private void spawnWords() {
         int wpm = GameConfigs.START_WPM;
+        int wordsBeforeIncrease = GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
             ui.makeWordFall(commonWords.get(i));
 
-            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && wpm < GameConfigs.MAX_WPM) {
+            wordsBeforeIncrease = wpm / GameConfigs.SEND_WORD_RATIO;
+
+            if (fallenWords == wordsBeforeIncrease && wpm < GameConfigs.MAX_WPM) {
                 wpm += GameConfigs.WPM_INCREASE;
                 fallenWords = 0;
             }

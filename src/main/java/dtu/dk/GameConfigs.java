@@ -2,9 +2,10 @@ package dtu.dk;
 
 public class GameConfigs {
     // Default game values
-    public static final int wordsInPLay = 1000;
+    public static final int WORDS_IN_PLAY = 1000;
     public static final int REQUIRED_STREAK = 10;
     public static final int FALLEN_WORDS_BEFORE_INCREASING_TEMPO = 5;
+    public static final int SEND_WORD_RATIO = 3; // Lower is slower
     public static final int WPM_INCREASE = 1;
     public static final int START_WPM = 20;
     public static final int MAX_WPM = 500;
