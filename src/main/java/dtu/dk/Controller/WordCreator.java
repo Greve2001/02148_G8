@@ -26,7 +26,7 @@ public class WordCreator {
 
         List<String> subset = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            int index = rng.nextInt(size);
+            int index = rng.nextInt(words.size());
             subset.add(words.get(index));
         }
 
