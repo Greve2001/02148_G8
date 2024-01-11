@@ -171,6 +171,8 @@ public class MainFX extends Application implements GUIInterface {
         this.wordsFalling = wordsFalling;
     }
 
+
+
     @Override
     public CountDownLatch getLatch() {
         return latch;
