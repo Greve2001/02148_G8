@@ -410,19 +410,21 @@ class WordTypedController implements Runnable {
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
+                    Me me = gameController.localGameController.myPlayer;
+
                     gameController.localGameController.correctlyTyped(word);
 
                     gameController.ui.removeWordFalling(word);
-                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
-                    gameController.ui.updateLastWord(word.getText());
+                    gameController.ui.updateStreak(me.getStreak());
 
-                    Me me = gameController.localGameController.myPlayer;
                     if (me.isCanSendExtraWord())
                         sendExtraWordToNextPlayer(word);
                     if (me.getLastWord().getText().equals(word.getText())) {
                         me.setLastWord(new Word(""));
                         sendExtraWordToNextPlayer(word);
                     }
+
+                    gameController.ui.updateLastWord(me.getLastWord().getText());
 
                     break;
                 }
