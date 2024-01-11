@@ -2,7 +2,6 @@ package dtu.dk.Controller;
 
 
 import dtu.dk.GameConfigs;
-import dtu.dk.Model.Word;
 import dtu.dk.Utils;
 import org.jspace.*;
 
@@ -76,9 +75,9 @@ public class Initiator implements Runnable {
     }
 
     private void sendWords() throws InterruptedException {
-        List<Word> words = WordCreator.getSubset(GameConfigs.wordsInPLay);
+        List<String> words = WordCreator.getSubset(GameConfigs.wordsInPLay);
 
-        space.put(WORDS, Utils.WordListToArray(words));
+        space.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
     }
 

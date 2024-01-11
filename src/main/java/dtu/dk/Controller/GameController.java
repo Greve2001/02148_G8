@@ -13,6 +13,7 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static dtu.dk.Utils.getLocalIPAddress;
@@ -24,7 +25,7 @@ public class GameController {
 
     private final List<Pair<Peer, Player>> peers;
     private final Pair<Peer, Player> myPair;
-    private final List<Word> commonWords;
+    private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
 
     private String username;
@@ -116,11 +117,12 @@ public class GameController {
         myPair = peers.get(0);
         localGameController = new LocalGameController(myPair);
         myPair.getValue().setUsername(username);
-        commonWords = setupController.getWords();
+        for (String word : setupController.getWords()) {
+            commonWords.add(new Word(word));
+        }
         ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
-        startGame();
     }
 
 
@@ -190,6 +192,7 @@ public class GameController {
             try {
                 username = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
+                System.err.println("Could not get username");
                 throw new RuntimeException(e);
             }
 
@@ -207,10 +210,25 @@ public class GameController {
     }
 
     public void startGame() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        new Thread(this::spawnWords);
+        // TODO: Should happen when a word hits the bottom of the screen
+        localGameController.loseLife(myPair);
+
+        // TODO: Should happen when typing a word correct
+        localGameController.correctlyTyped();
+    }
+
+    private void spawnWords() {
         int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
+            ui.makeWordFall(commonWords.get(i));
 
             if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
                 sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
@@ -223,14 +241,9 @@ public class GameController {
                 throw new RuntimeException(e);
             }
         }
-        // TODO: Should happen when a word hits the bottom of the screen
-        localGameController.loseLife(myPair);
-
-        // TODO: Should happen when typing a word correct
-        localGameController.correctlyTyped();
     }
-
 }
+
 
 class GUIRunner implements Runnable {
     public static void startGUI() {

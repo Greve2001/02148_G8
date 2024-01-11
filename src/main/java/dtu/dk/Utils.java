@@ -1,7 +1,5 @@
 package dtu.dk;
 
-import dtu.dk.Model.Word;
-
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.List;
@@ -9,15 +7,6 @@ import java.util.List;
 public class Utils {
     public static Integer[] IntegerListToArray(List<Integer> list) {
         Integer[] arr = new Integer[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            arr[i] = list.get(i);
-        }
-
-        return arr;
-    }
-
-    public static Word[] WordListToArray(List<Word> list) {
-        Word[] arr = new Word[list.size()];
         for (int i = 0; i < list.size(); i++) {
             arr[i] = list.get(i);
         }
