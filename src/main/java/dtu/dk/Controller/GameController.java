@@ -7,18 +7,24 @@ import dtu.dk.Model.Player;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
+import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
+import static dtu.dk.Protocol.PLAYER_DROPPED;
+import static dtu.dk.Protocol.UPDATE;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
     private final MainFX ui;
     private final SequentialSpace wordsTyped = new SequentialSpace();
 
-    private List<Pair<Peer, Player>> peers;
+    private ArrayList<Pair<Peer, Player>> activePeers;
+    private ArrayList<Pair<Peer, Player>> allPeers;
 
     private String username;
     private String hostIP;
@@ -104,7 +110,10 @@ public class GameController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        peers = setupController.getPeers();
+
+        allPeers = setupController.getPeers();
+        activePeers = new ArrayList<>(List.copyOf(allPeers));
+        new Thread(new DisconnectChecker(this)).start();
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
     }
 
@@ -192,6 +201,39 @@ public class GameController {
         ui.addTextToTextPane(username);
     }
 
+    public ArrayList<Pair<Peer, Player>> getActivePeers() {
+        return activePeers;
+    }
+}
+
+class DisconnectChecker implements Runnable{
+
+    ArrayList<Pair<Peer, Player>>  activePeerList;
+    public DisconnectChecker(GameController gameController){
+        activePeerList = gameController.getActivePeers();
+    }
+    public void run(){
+        int nextPeerIndex = 1;
+        while(activePeerList.size() > 1){
+            try { // get a non existing string in the remotespace of the person next in the disconnect line
+                    activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
+            } catch (InterruptedException e) {
+                //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
+                for(int index = 2; index < activePeerList.size(); index++){
+                    try {
+                        //TODO - this is not picked up by the other peers yet
+                        activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
+                    } catch (InterruptedException ex) {
+                        System.out.println("Another disconnect -.-");
+                    }
+                }
+                if(activePeerList.size() > 1) {
+                    activePeerList.remove(nextPeerIndex);
+                }
+                System.out.println("Player disconnectet. Active peer list size = " + activePeerList.size());
+            }
+        }
+    }
 }
 
 class GUIRunner implements Runnable {

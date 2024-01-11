@@ -4,6 +4,8 @@ import org.jspace.Space;
 
 public class Peer {
     private int id;
+
+
     private Space space;
 
     public Peer(int id, Space space) {
@@ -17,5 +19,8 @@ public class Peer {
 
     public Space getSpace() {
         return space;
+    }
+    public void setSpace(Space space) {
+        this.space = space;
     }
 }

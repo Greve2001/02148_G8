@@ -8,5 +8,7 @@ public enum Protocol {
     WORDS,
     LOADING_DONE,
     START,
-    STARTED
+    STARTED,
+    UPDATE,
+    PLAYER_DROPPED
 }
