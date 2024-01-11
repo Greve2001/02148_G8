@@ -573,7 +573,9 @@ class UpdateChecker implements Runnable {
                                 activePLayerList.remove(index);
                                 gameController.updateUIPlayerList();
                                 System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
-
+                            }
+                        }
+                        break;
                     case USERNAME:
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
@@ -583,7 +585,6 @@ class UpdateChecker implements Runnable {
                                 activePLayerList.get(index).getValue().setUsername((String) usernameTup[1]);
                                 gameController.updateUIPlayerList();
 
-                                break;
                             }
                         }
                         break;
