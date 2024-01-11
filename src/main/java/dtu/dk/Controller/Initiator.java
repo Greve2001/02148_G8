@@ -1,6 +1,5 @@
 package dtu.dk.Controller;
 
-
 import dtu.dk.GameConfigs;
 import dtu.dk.Utils;
 import org.jspace.*;
@@ -9,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dtu.dk.Protocol.*;
-
 
 public class Initiator implements Runnable {
     final static String errorSpaceNotAvailable = "The space used for initiating is not available";

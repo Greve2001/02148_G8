@@ -42,12 +42,12 @@ public class LocalGameController {
         }
     }
 
-    public void correctlyTyped() {
-
+    public void correctlyTyped(Word word) {
         myPlayer.addStreak();
+        myPlayer.setLastWord(word);
 
         if ((myPlayer.getStreak() % GameConfigs.REQUIRED_STREAK) == 0) {
-            // TODO: Send word to next player
+            myPlayer.setCanSendExtraWord(true);
         }
     }
 
