@@ -344,7 +344,11 @@ class WordTypedController implements Runnable {
 
                     gameController.ui.removeWordFalling(word);
                     gameController.localGameController.correctlyTyped();
+
                     gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+
+                    gameController.ui.updateLastWord(word.getText());
+
 
                     break;
                 }
