@@ -18,6 +18,10 @@ public class Player {
         return lives;
     }
 
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
     public void loseLife() {
         if (this.lives == 0) return;
         this.streak = 0;
