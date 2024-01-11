@@ -61,15 +61,15 @@ public class Initiator implements Runnable {
     private void sendPlayerList() throws InterruptedException {
         // Generate random player order
         // TODO make random
-        List<Integer> order = new ArrayList<>();
+        List<Integer> playerIDs = new ArrayList<>();
         for (int i = 0; i < playerURIs.size(); i++) {
-            order.add(i);
+            playerIDs.add(i);
         }
 
         space.put(
                 PLAYERS,
                 Utils.StringListToArray(playerURIs),
-                Utils.IntegerListToArray(order)
+                Utils.IntegerListToArray(playerIDs)
         );
         System.out.println("Initiator: Sent player list");
     }
@@ -116,7 +116,7 @@ public class Initiator implements Runnable {
 
             startedURIs.add(uri);
         }
-        System.out.println("Initiator: Recieved Started back from all peers");
+        System.out.println("Initiator: Received Started back from all peers");
     }
 }
 

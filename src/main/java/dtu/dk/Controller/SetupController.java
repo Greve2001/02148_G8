@@ -1,6 +1,7 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
+import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import javafx.util.Pair;
@@ -26,6 +27,12 @@ public class SetupController {
 
     List<Pair<Peer, Player>> peers = new ArrayList<>();
 
+    public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
+        new Thread(new Initiator(localIP, initiatorPort)).start();
+
+        join(localIP, localPort, initiatorIP, initiatorPort);
+    }
+
     public void join(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         try {
             prepareLocalRepository(localIP, localPort);
@@ -36,11 +43,6 @@ public class SetupController {
             e.printStackTrace();
             throw new NoGameSetupException();
         }
-    }
-
-    public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
-        new Thread(new Initiator(localIP, initiatorPort)).start();
-        join(localIP, localPort, initiatorIP, initiatorPort);
     }
 
     private void prepareLocalRepository(String localIP, String localPort) {
@@ -63,6 +65,7 @@ public class SetupController {
                 new ActualField(CONNECTED),
                 new ActualField(publicURI)
         );
+
         System.out.println("Peer: Connected to Initiator");
     }
 
@@ -90,7 +93,7 @@ public class SetupController {
         Object[] playerRes = setupSpace.query( // Player list
                 new ActualField(PLAYERS),
                 new FormalField(String[].class), // URIs
-                new FormalField(Integer[].class) // Order
+                new FormalField(Integer[].class) // PlayerIDs
         );
         playerURIs = new ArrayList<>(Arrays.asList((String[]) playerRes[1]));
         playerIDs = new ArrayList<>(Arrays.asList((Integer[]) playerRes[2]));
@@ -112,18 +115,19 @@ public class SetupController {
     }
 
     private void connectToPeers() {
+        // Add me first in the list og peers
         peers.add(new Pair<>(
                 new Peer(localID, localPeerSpace),
-                new Player()
+                new Me()
         ));
 
-        Pair<Peer, Player> pair;
         // Insert peers in correct order.
+        Pair<Peer, Player> pair;
+
         for (int i = localID + 1 % playerURIs.size(); i < playerURIs.size(); i++) {
             pair = createPeerPlayer(i);
             if (pair != null)
                 peers.add(pair);
-
         }
 
         for (int i = 0; i < localID; i++) {
@@ -150,6 +154,10 @@ public class SetupController {
 
     public ArrayList<Pair<Peer, Player>> getPeers() {
         return new ArrayList<>(peers);
+    }
+
+    public List<String> getWords() {
+        return words;
     }
 }
 

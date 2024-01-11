@@ -1,10 +1,12 @@
 package dtu.dk.Controller;
 
 import dtu.dk.Exceptions.NoGameSetupException;
+import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Protocol;
+import dtu.dk.Model.Word;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -22,21 +24,26 @@ import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
     private final MainFX ui;
-    private final SequentialSpace wordsTyped = new SequentialSpace();
+    private final SequentialSpace fxWords = new SequentialSpace();
+    private final LocalGameController localGameController;
 
-    private ArrayList<Pair<Peer, Player>> activePeers;
+    private final ArrayList<Pair<Peer, Player>> activePeers;
     private ArrayList<Pair<Peer, Player>> allPeers;
+    private final Pair<Peer, Player> myPair;
+    private final List<Word> commonWords = new ArrayList<>();
+    boolean gameEnded = false;
 
     private String username;
     private String hostIP;
     private String localIP;
     private boolean isHost;
 
+    // TODO: make strings and vars constant in gameSettings
     public GameController() {
         GUIRunner.startGUI();
         try {
             ui = MainFX.getUI();
-            ui.setSpace(wordsTyped);
+            ui.setSpace(fxWords);
         } catch (InterruptedException e) {
             System.err.println("Could not await latch");
             throw new RuntimeException(e);
@@ -46,24 +53,20 @@ public class GameController {
         boolean exitDoWhile = false;
         do {
             try {
-                wordTyped = (String) wordsTyped.get(new FormalField(String.class))[0];
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
-            wordTyped = wordTyped.toLowerCase();
-
-            switch (wordTyped) {
+            switch (wordTyped.toLowerCase()) {
                 case "join" -> {
                     ui.changeScene(GameConfigs.JAVA_FX_JOIN);
                     isHost = false;
-                    getInformation(isHost);
                     exitDoWhile = true;
                 }
                 case "host" -> {
                     ui.changeScene(GameConfigs.JAVA_FX_HOST);
                     isHost = true;
-                    getInformation(isHost);
                     exitDoWhile = true;
                 }
                 case "exit", "quit" -> {
@@ -74,6 +77,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
+        joinOrHost(isHost);
         SetupController setupController = new SetupController();
         try {
             if (isHost) {
@@ -83,15 +87,15 @@ public class GameController {
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");
-            //todo add Alert / messageox
+            //todo add Alert / messagebox
             throw new RuntimeException(e);
         }
+
         ui.addTextToTextPane("Type 'ready' to start the game");
-        wordTyped = "";
         exitDoWhile = false;
         do {
             try {
-                wordTyped = (String) wordsTyped.get(new FormalField(String.class))[0];
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -116,27 +120,33 @@ public class GameController {
         activePeers = new ArrayList<>(List.copyOf(allPeers));
         new Thread(new DisconnectChecker(this)).start();
         new Thread(new UpdateChecker(this)).start();
+        // Set needed start variables before starting the game locally
+        myPair = allPeers.get(0);
+        localGameController = new LocalGameController(myPair);
+        myPair.getValue().setUsername(username);
+        for (String word : setupController.getWords()) {
+            commonWords.add(new Word(word));
+        }
+        ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
+
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
     }
 
-    public void startGame() {
-    }
-    //todo make strings and vars constant in gameSettings
-
-
-    private void getInformation(boolean isHost) {
+    private void joinOrHost(boolean isHost) {
         if (isHost) {
             ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
         } else {
             ui.addTextToTextPane(GameConfigs.GET_HOST_IP);
         }
+
         boolean exitDoWhile = false;
         do {
             try {
-                hostIP = (String) wordsTyped.get(new FormalField(String.class))[0];
+                hostIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
             if (hostIP.matches(GameConfigs.REGEX_IP)) {
                 exitDoWhile = true;
             } else if (hostIP.equals("exit") || hostIP.equals("quit")) {
@@ -160,7 +170,7 @@ public class GameController {
             exitDoWhile = false;
             do {
                 try {
-                    localIP = (String) wordsTyped.get(new FormalField(String.class))[0];
+                    localIP = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -186,10 +196,12 @@ public class GameController {
         exitDoWhile = false;
         do {
             try {
-                username = (String) wordsTyped.get(new FormalField(String.class))[0];
+                username = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
             } catch (InterruptedException e) {
+                System.err.println("Could not get username");
                 throw new RuntimeException(e);
             }
+
             if (username.equals("exit") || username.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
@@ -203,10 +215,105 @@ public class GameController {
         ui.addTextToTextPane(username);
     }
 
+    public void startGame() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        new Thread(this::spawnWords).start();
+        // TODO: Should happen when a word hits the bottom of the screen
+        localGameController.loseLife(myPair);
+
+        // TODO: Should happen when typing a word correct
+        localGameController.correctlyTyped();
+    }
+
+    private void spawnWords() {
+        int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
+
+        for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
+            localGameController.addWordToMyScreen(commonWords.get(i));
+            ui.makeWordFall(commonWords.get(i));
+
+            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
+                sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
+                fallenWords = 0;
+            }
+
+            try {
+                Thread.sleep(sleepTempo);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public ArrayList<Pair<Peer, Player>> getActivePeers() {
         return activePeers;
     }
+
+    /**
+     * Also update player lifes
+     * This only works for other players - not local life
+     */
+    protected void updateUIPlayerList() {
+        switch (activePeers.size()) {
+            case 1 -> {
+                for (int index = -2; index < 3; index++) {
+                    if (index != 0) {
+                        ui.updatePlayerName(index, "");
+                        ui.updateLife(index, 0);
+                    }
+                }
+            }
+            case 2 -> {
+                ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
+                ui.updateLife(1, activePeers.get(1).getValue().getLives());
+                for (int index = -2; index < 3; index++) {
+                    if (index == 0 || index == 1) {
+                        continue;
+                    }
+                    ui.updatePlayerName(index, "");
+                    ui.updateLife(index, 0);
+                }
+            }
+            case 3 -> {
+                ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
+                ui.updateLife(1, activePeers.get(1).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
+                ui.updatePlayerName(-2, "");
+                ui.updateLife(-2, 0);
+                ui.updatePlayerName(2, "");
+                ui.updateLife(2, 0);
+
+            }
+            case 4 -> {
+                ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
+                ui.updateLife(1, activePeers.get(1).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
+                ui.updatePlayerName(-2, "");
+                ui.updateLife(-2, 0);
+                ui.updatePlayerName(2, activePeers.get(2).getValue().getUsername());
+                ui.updateLife(2, activePeers.get(2).getValue().getLives());
+            }
+
+            default -> {
+                ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
+                ui.updateLife(1, activePeers.get(1).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
+                ui.updatePlayerName(-2, activePeers.get(activePeers.size()-2).getValue().getUsername());
+                ui.updateLife(-2, activePeers.get(activePeers.size()-2).getValue().getLives());
+                ui.updatePlayerName(2, activePeers.get(2).getValue().getUsername());
+                ui.updateLife(2, activePeers.get(2).getValue().getLives());
+            }
+        }
+    }
 }
+
 
 class DisconnectChecker implements Runnable {
 
@@ -263,21 +370,22 @@ class UpdateChecker implements Runnable {
                     case UPDATE_LIFE:
                         //get the id we need to check
                         //get the persons life and update it
-                        for(int index = 1; index < activePLayerList.size(); index++){
+                        for (int index = 1; index < activePLayerList.size(); index++) {
                             //Check if the ID is correct
-                            if(activePLayerList.get(index).getKey().getID() == (Integer)updateTup[2]){
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 Object[] lifeTup = activePLayerList.get(index).getKey().getSpace().query(
                                         new ActualField(LIFE), // TODO - make each peer have LIFE in their space
                                         new FormalField(Integer.class));
-                                activePLayerList.get(index).getValue().setLives((Integer)lifeTup[1]);
+                                activePLayerList.get(index).getValue().setLives((Integer) lifeTup[1]);
+                               gameController.updateUIPlayerList();
                                 break;
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
                         }
                         break;
                     case UPDATE_DEATH:
-                        for(int index = 1; index < activePLayerList.size(); index++){
-                            if(activePLayerList.get(index).getKey().getID() == (Integer)updateTup[2]){
+                        for (int index = 1; index < activePLayerList.size(); index++) {
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
                                 break;
                             }
