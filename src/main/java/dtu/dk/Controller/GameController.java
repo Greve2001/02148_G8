@@ -20,6 +20,7 @@ import java.util.List;
 
 import static dtu.dk.Protocol.*;
 import static dtu.dk.UpdateToken.PLAYER_DROPPED;
+import static dtu.dk.UpdateToken.USERNAME;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
@@ -29,8 +30,8 @@ public class GameController {
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
     private final List<Word> commonWords = new ArrayList<>();
-    boolean gameEnded = false;
     private final ArrayList<Pair<Peer, Player>> allPeers;
+    boolean gameEnded = false;
     private String username;
     private String hostIP;
     private String localIP;
@@ -84,12 +85,15 @@ public class GameController {
         new Thread(new DisconnectChecker(this)).start();
         new Thread(new UpdateChecker(this)).start();
 
-        // Set needed start variables before starting the game locally
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
         myPair.getValue().setUsername(username);
         try {
             myPair.getKey().getSpace().put(LIFE, myPair.getValue().getLives());
+            myPair.getKey().getSpace().put(GET_USERNAME, myPair.getValue().getUsername());
+            for (int i = 1; i < activePeers.size(); i++) {
+                activePeers.get(i).getKey().getSpace().put(UPDATE, USERNAME, myPair.getKey().getID());
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -97,6 +101,7 @@ public class GameController {
             commonWords.add(new Word(word));
         }
         ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
+
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
     }
@@ -280,7 +285,6 @@ public class GameController {
     public void startGame() {
         new Thread(this::spawnWords).start();
         updateUIPlayerList();
-
         new Thread(new WordTypedController(this)).start();
         new Thread(new WordHitController(this)).start();
 
@@ -288,7 +292,7 @@ public class GameController {
 
     private void spawnWords() {
         int wpm = GameConfigs.START_WPM;
-        int wordsBeforeIncrease = GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO;
+        int wordsBeforeIncrease;
 
         for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
@@ -413,8 +417,7 @@ class WordTypedController implements Runnable {
 
 
                     break;
-                }
-                else{
+                } else {
                     gameController.localGameController.inCorrectlyTyped();
                     gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
 
@@ -560,6 +563,18 @@ class UpdateChecker implements Runnable {
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
                         //TODO actually send the word..
+                        break;
+                    case USERNAME:
+                        for (int index = 1; index < activePLayerList.size(); index++) {
+                            if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
+                                Object[] usernameTup = activePLayerList.get(index).getKey().getSpace().query(
+                                        new ActualField(GET_USERNAME),
+                                        new FormalField(String.class));
+                                activePLayerList.get(index).getValue().setUsername((String) usernameTup[1]);
+                                gameController.updateUIPlayerList();
+                                break;
+                            }
+                        }
                         break;
                     default:
                         System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
