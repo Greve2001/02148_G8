@@ -6,6 +6,7 @@ import dtu.dk.Model.Word;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -39,6 +40,8 @@ public class MainFX extends Application implements GUIInterface {
     private Label prompt;
     private VBox textPane;
     private Pane wordPane;
+    private Label streak;
+    private Label lastWord;
     private List<Word> wordsFalling;
 
     public static void startFX() {
@@ -149,6 +152,14 @@ public class MainFX extends Application implements GUIInterface {
         wordPane = (Pane) pane.lookup("#wordPane");
         if (wordPane != null)
             wordPane.getChildren().clear();
+
+        streak = (Label) pane.lookup("#streak");
+        if (streak != null)
+            streak.setText("0");
+
+        lastWord = (Label) pane.lookup("#lastWord");
+        if (lastWord != null)
+            lastWord.setText("");
     }
 
     public void setSpace(SequentialSpace space) {
@@ -266,9 +277,50 @@ public class MainFX extends Application implements GUIInterface {
                     throw new RuntimeException(ex);
                 }
             });
+            word.setTranslateTransition(transition);
             transition.play();
         });
 
+    }
+
+    /**
+     * Removes a word from the screen
+     * if the word is in the wordsFalling list it is removed from the list
+     *
+     * @param word
+     */
+    public void removeWordFalling(Word word) {
+        if (wordPane == null)
+            throw new NullPointerException("wordPane not initialized/found");
+        Platform.runLater(() -> {
+            ObservableList children = wordPane.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Label label = (Label) children.get(i);
+                if (label.getText().equals(word.getText())) {
+                    wordPane.getChildren().remove(label);
+                    if (wordsFalling.contains(word))
+                        wordsFalling.remove(word);
+                    word.getTranslateTransition().stop();
+                    break;
+                }
+            }
+        });
+    }
+
+    public void updateStreak(int streak) throws NullPointerException {
+        if (this.streak == null)
+            throw new NullPointerException("streak not initialized/found");
+        Platform.runLater(() -> {
+            this.streak.setText("" + streak);
+        });
+    }
+
+    public void updateLastWord(String word) throws NullPointerException {
+        if (lastWord == null)
+            throw new NullPointerException("lastWord not initialized/found");
+        Platform.runLater(() -> {
+            lastWord.setText(word);
+        });
     }
 
     private class KeyPrinter implements Runnable {

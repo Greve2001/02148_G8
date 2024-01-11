@@ -18,6 +18,8 @@ public interface GUIInterface {
 
     void makeWordFall(Word word);
 
+    void removeWordFalling(Word word);
+
     void addTextToTextPane(String text);
 
     void changeNewestTextOnTextPane(String text);
@@ -25,5 +27,9 @@ public interface GUIInterface {
     void updateLife(int player, int life) throws NullPointerException;
 
     void updatePlayerName(int player, String name) throws NullPointerException;
+
+    void updateStreak(int streak) throws NullPointerException;
+
+    void updateLastWord(String word) throws NullPointerException;
 
 }
