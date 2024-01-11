@@ -180,7 +180,7 @@ class ReadyHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while (readyCounter == playerURIs.size() && readyCounter < 2) {
+            while (readyCounter < playerURIs.size() || playerURIs.size() < 2) {
                 readyListen();
             }
             System.out.println("Initiator: All Peers are ready");
