@@ -1,13 +1,16 @@
 package dtu.dk.Controller;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
 
 
 public class WordCreator {
     private static final String wordFile = "words.csv";
 
-    public static List<String> getWords()  {
+    public static List<String> getWords() {
         InputStream inputStream = WordCreator.class.getClassLoader().getResourceAsStream(wordFile);
 
         Scanner scanner = new Scanner(inputStream);
