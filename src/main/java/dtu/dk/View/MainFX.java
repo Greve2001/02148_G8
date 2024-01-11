@@ -209,10 +209,11 @@ public class MainFX extends Application implements GUIInterface {
      * @param life   emount of life for player [0:3]
      */
     public void updateLife(int player, int life) throws NullPointerException {
+        awaitLatch();
         if (hearts[0][0] == null)
             throw new NullPointerException("hearts not initialized/found");
         int p = player + 2;
-        awaitLatch();
+
         Platform.runLater(() -> {
             for (int i = 0; i < 3; i++) {
                 if (i < life) {
@@ -225,6 +226,7 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     public void updatePlayerName(int player, String name) throws NullPointerException {
+        awaitLatch();
         if (playerNames[0] == null)
             throw new NullPointerException("playerNames not initialized/found");
 
@@ -239,7 +241,6 @@ public class MainFX extends Application implements GUIInterface {
             case 2 -> player = 3;
             default -> throw new NullPointerException("No player " + player + " exists");
         }
-        awaitLatch();
         int p = player;
         Platform.runLater(() -> {
             playerNames[p].setText(name);
@@ -255,12 +256,12 @@ public class MainFX extends Application implements GUIInterface {
      * @param word
      */
     public void makeWordFall(Word word) {
+        awaitLatch();
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
         if (!wordsFalling.contains(word)) {
             wordsFalling.add(word);
         }
-        awaitLatch();
         Platform.runLater(() -> {
             Label label = new Label(word.getText());
             label.getStyleClass().add("wordsFaling");
@@ -294,9 +295,9 @@ public class MainFX extends Application implements GUIInterface {
      * @param word
      */
     public void removeWordFalling(Word word) {
+        awaitLatch();
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
-        awaitLatch();
         Platform.runLater(() -> {
             ObservableList children = wordPane.getChildren();
             for (int i = 0; i < children.size(); i++) {
@@ -313,18 +314,18 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     public void updateStreak(int streak) throws NullPointerException {
+        awaitLatch();
         if (this.streak == null)
             throw new NullPointerException("streak not initialized/found");
-        awaitLatch();
         Platform.runLater(() -> {
             this.streak.setText("" + streak);
         });
     }
 
     public void updateLastWord(String word) throws NullPointerException {
+        awaitLatch();
         if (lastWord == null)
             throw new NullPointerException("lastWord not initialized/found");
-        awaitLatch();
         Platform.runLater(() -> {
             lastWord.setText(word);
         });
