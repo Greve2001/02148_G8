@@ -32,6 +32,7 @@ public class GameController {
     private String localIP;
     private boolean isHost;
 
+    // TODO: make strings and vars constant in gameSettings
     public GameController() {
         GUIRunner.startGUI();
 
@@ -52,9 +53,7 @@ public class GameController {
                 throw new RuntimeException(e);
             }
 
-            wordTyped = wordTyped.toLowerCase();
-
-            switch (wordTyped) {
+            switch (wordTyped.toLowerCase()) {
                 case "join" -> {
                     ui.changeScene(GameConfigs.JAVA_FX_JOIN);
                     isHost = false;
@@ -73,7 +72,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-        getInformation(isHost);
+        joinOrHost(isHost);
         SetupController setupController = new SetupController(this);
         try {
             if (isHost) {
@@ -83,7 +82,7 @@ public class GameController {
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");
-            //todo add Alert / messageox
+            //todo add Alert / messagebox
             throw new RuntimeException(e);
         }
 
@@ -124,35 +123,8 @@ public class GameController {
         startGame();
     }
 
-    public void startGame() {
-        int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
 
-        for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
-            localGameController.addWordToMyScreen(commonWords.get(i));
-
-            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
-                sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
-                fallenWords = 0;
-            }
-
-            try {
-                Thread.sleep(sleepTempo);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        // TODO: Should happen when a word hits the bottom of the screen
-        localGameController.loseLife(myPair);
-
-        // TODO: Should happen when typing a word correct
-        localGameController.correctlyTyped();
-    }
-
-
-
-    //todo make strings and vars constant in gameSettings
-
-    private void getInformation(boolean isHost) {
+    private void joinOrHost(boolean isHost) {
         if (isHost) {
             ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
         } else {
@@ -220,6 +192,7 @@ public class GameController {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
             if (username.equals("exit") || username.equals("quit")) {
                 Platform.exit();
                 System.exit(0);
@@ -232,6 +205,31 @@ public class GameController {
         } while (!exitDoWhile);
         ui.addTextToTextPane(username);
     }
+
+    public void startGame() {
+        int sleepTempo = GameConfigs.START_SLEEP_TEMPO;
+
+        for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
+            localGameController.addWordToMyScreen(commonWords.get(i));
+
+            if (fallenWords == GameConfigs.FALLEN_WORDS_BEFORE_INCREASING_TEMPO && sleepTempo > GameConfigs.MIN_SLEEP_TEMPO) {
+                sleepTempo -= GameConfigs.MIN_SLEEP_TEMPO;
+                fallenWords = 0;
+            }
+
+            try {
+                Thread.sleep(sleepTempo);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // TODO: Should happen when a word hits the bottom of the screen
+        localGameController.loseLife(myPair);
+
+        // TODO: Should happen when typing a word correct
+        localGameController.correctlyTyped();
+    }
+
 }
 
 class GUIRunner implements Runnable {
