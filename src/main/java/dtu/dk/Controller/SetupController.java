@@ -21,17 +21,11 @@ public class SetupController {
     RemoteSpace setupSpace;
     int localID;
 
-    GameController gameController;
-
     List<String> playerURIs;
     List<Integer> playerIDs;
     List<String> words;
 
     List<Pair<Peer, Player>> peers = new ArrayList<>();
-
-    public SetupController(GameController gameController) {
-        this.gameController = gameController;
-    }
 
     public void host(String localIP, String localPort, String initiatorIP, String initiatorPort) throws NoGameSetupException {
         new Thread(new Initiator(localIP, initiatorPort)).start();
@@ -92,7 +86,6 @@ public class SetupController {
 
         // Sent started
         setupSpace.put(STARTED, publicURI);
-        // TODO make gamecontroller start game
     }
 
     private void loadSetupRequirements() throws InterruptedException {
@@ -102,8 +95,8 @@ public class SetupController {
                 new FormalField(String[].class), // URIs
                 new FormalField(Integer[].class) // PlayerIDs
         );
-        playerURIs = Arrays.asList((String[]) playerRes[1]);
-        playerIDs = Arrays.asList((Integer[]) playerRes[2]);
+        playerURIs = new ArrayList<>(Arrays.asList((String[]) playerRes[1]));
+        playerIDs = new ArrayList<>(Arrays.asList((Integer[]) playerRes[2]));
         System.out.println("Peer: Got Players");
 
         // Find localID
@@ -159,8 +152,8 @@ public class SetupController {
         }
     }
 
-    public List<Pair<Peer, Player>> getPeers() {
-        return peers;
+    public ArrayList<Pair<Peer, Player>> getPeers() {
+        return new ArrayList<>(peers);
     }
 
     public List<String> getWords() {

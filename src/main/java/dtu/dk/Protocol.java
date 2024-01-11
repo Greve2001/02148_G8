@@ -9,5 +9,6 @@ public enum Protocol {
     LOADING_DONE,
     START,
     STARTED,
-    UPDATE
+    UPDATE,
+    PLAYER_DROPPED
 }
