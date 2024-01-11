@@ -27,7 +27,9 @@ public class GameConfigs {
     public static final String EXIT = "exit";
     public static final String QUIT = "quit";
     public static final String EMPTY_STRING = "";
-    public static final String GET_USERNAME = "Please enter your username";
+    public static final String GET_USERNAME = "Please enter your username. " +
+            "If you don't type anything, your username will be set to Charlie";
+    public static final String DEFAULT_USERNAME = "Charlie";
     public static final String GET_USERNAME_INVALID = "Invalid username - ";
     public static final String GET_HOST_IP = "Please enter the host IP";
     public static final String GET_LOCAL_IP = "Is this your IP address? ";

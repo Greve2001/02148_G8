@@ -216,6 +216,10 @@ public class GameController {
                     Platform.exit();
                     System.exit(0);
                 }
+                case GameConfigs.EMPTY_STRING -> {
+                    username = GameConfigs.DEFAULT_USERNAME;
+                    exitDoWhile = true;
+                }
                 default -> {
                     if (username.length() < 10)
                         exitDoWhile = true;
@@ -223,8 +227,6 @@ public class GameController {
                         ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
                 }
             }
-
-
         } while (!exitDoWhile);
         ui.addTextToTextPane(username);
     }
