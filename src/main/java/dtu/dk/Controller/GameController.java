@@ -5,8 +5,8 @@ import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
-import dtu.dk.Protocol;
 import dtu.dk.Model.Word;
+import dtu.dk.Protocol;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -15,7 +15,6 @@ import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 import org.jspace.Space;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,16 +22,14 @@ import static dtu.dk.Protocol.*;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
-    private final MainFX ui;
+    protected final LocalGameController localGameController;
+    protected final MainFX ui;
     private final SequentialSpace fxWords = new SequentialSpace();
-    private final LocalGameController localGameController;
-
     private final ArrayList<Pair<Peer, Player>> activePeers;
-    private ArrayList<Pair<Peer, Player>> allPeers;
     private final Pair<Peer, Player> myPair;
     private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
-
+    private ArrayList<Pair<Peer, Player>> allPeers;
     private String username;
     private String hostIP;
     private String localIP;
@@ -218,11 +215,13 @@ public class GameController {
     public void startGame() {
         new Thread(this::spawnWords).start();
         updateUIPlayerList();
+
+
         // TODO: Should happen when a word hits the bottom of the screen
         localGameController.loseLife(myPair);
 
-        // TODO: Should happen when typing a word correct
-        localGameController.correctlyTyped();
+        new Thread(new WordTypedController(this)).start();
+
     }
 
     private void spawnWords() {
@@ -279,8 +278,8 @@ public class GameController {
             case 3 -> {
                 ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
                 ui.updateLife(1, activePeers.get(1).getValue().getLives());
-                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
-                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size() - 1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size() - 1).getValue().getLives());
                 ui.updatePlayerName(-2, "");
                 ui.updateLife(-2, 0);
                 ui.updatePlayerName(2, "");
@@ -290,8 +289,8 @@ public class GameController {
             case 4 -> {
                 ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
                 ui.updateLife(1, activePeers.get(1).getValue().getLives());
-                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
-                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size() - 1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size() - 1).getValue().getLives());
                 ui.updatePlayerName(-2, "");
                 ui.updateLife(-2, 0);
                 ui.updatePlayerName(2, activePeers.get(2).getValue().getUsername());
@@ -301,13 +300,51 @@ public class GameController {
             default -> {
                 ui.updatePlayerName(1, activePeers.get(1).getValue().getUsername());
                 ui.updateLife(1, activePeers.get(1).getValue().getLives());
-                ui.updatePlayerName(-1, activePeers.get(activePeers.size()-1).getValue().getUsername());
-                ui.updateLife(-1, activePeers.get(activePeers.size()-1).getValue().getLives());
-                ui.updatePlayerName(-2, activePeers.get(activePeers.size()-2).getValue().getUsername());
-                ui.updateLife(-2, activePeers.get(activePeers.size()-2).getValue().getLives());
+                ui.updatePlayerName(-1, activePeers.get(activePeers.size() - 1).getValue().getUsername());
+                ui.updateLife(-1, activePeers.get(activePeers.size() - 1).getValue().getLives());
+                ui.updatePlayerName(-2, activePeers.get(activePeers.size() - 2).getValue().getUsername());
+                ui.updateLife(-2, activePeers.get(activePeers.size() - 2).getValue().getLives());
                 ui.updatePlayerName(2, activePeers.get(2).getValue().getUsername());
                 ui.updateLife(2, activePeers.get(2).getValue().getLives());
             }
+        }
+    }
+
+    protected SequentialSpace getFxWords() {
+        return fxWords;
+    }
+}
+
+class WordTypedController implements Runnable {
+    GameController gameController;
+    Space fxWords;
+
+    public WordTypedController(GameController gameController) {
+        this.gameController = gameController;
+        this.fxWords = gameController.getFxWords();
+    }
+
+    public void run() {
+        //todo should exit when game ends
+        String wordTyped = "";
+        while (!gameController.gameEnded) {
+            try {
+                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+            } catch (InterruptedException e) {
+                System.err.println("Could not get typed word");
+                throw new RuntimeException(e);
+            }
+            String finalWordTyped = wordTyped;
+            List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
+            for (Word word : wordsOnScreen) {
+                if (word.getText().equals(finalWordTyped)) {
+                    gameController.localGameController.myPlayer.removeWordFromScreen(word);
+                    gameController.ui.removeWordFalling(word);
+                    gameController.localGameController.correctlyTyped();
+                    break;
+                }
+            }
+
         }
     }
 }
@@ -375,7 +412,7 @@ class UpdateChecker implements Runnable {
                                         new ActualField(LIFE), // TODO - make each peer have LIFE in their space
                                         new FormalField(Integer.class));
                                 activePLayerList.get(index).getValue().setLives((Integer) lifeTup[1]);
-                               gameController.updateUIPlayerList();
+                                gameController.updateUIPlayerList();
                                 break;
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
