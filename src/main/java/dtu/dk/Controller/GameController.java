@@ -71,7 +71,7 @@ public class GameController {
         }
 
         typeReady();
-        ui.changeNewestTextOnTextPane("Waiting for other players to be ready");
+        ui.changeNewestTextOnTextPane(GameConfigs.WAITING_FOR_PLAYERS_TO_TYPE_READY);
 
         try {
             setupController.signalReady();
@@ -110,17 +110,17 @@ public class GameController {
             }
 
             switch (wordTyped.toLowerCase()) {
-                case "join" -> {
+                case GameConfigs.JOIN -> {
                     ui.changeScene(GameConfigs.JAVA_FX_JOIN);
                     isHost = false;
                     exitDoWhile = true;
                 }
-                case "host" -> {
+                case GameConfigs.HOST -> {
                     ui.changeScene(GameConfigs.JAVA_FX_HOST);
                     isHost = true;
                     exitDoWhile = true;
                 }
-                case "exit", "quit" -> {
+                case GameConfigs.EXIT, GameConfigs.QUIT -> {
                     Platform.exit();
                     System.exit(0);
                 }
@@ -146,12 +146,17 @@ public class GameController {
 
             if (hostIP.matches(GameConfigs.REGEX_IP))
                 exitDoWhile = true;
-            else if (hostIP.equals("exit") || hostIP.equals("quit")) {
-                Platform.exit();
-                System.exit(0);
-            } else
-                ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
-
+            else {
+                switch (hostIP) {
+                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                        Platform.exit();
+                        System.exit(0);
+                    }
+                    default -> {
+                        ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_HOST_IP);
+                    }
+                }
+            }
         } while (!exitDoWhile);
 
         ui.addTextToTextPane(hostIP);
@@ -176,11 +181,11 @@ public class GameController {
                 exitDoWhile = true;
             } else {
                 switch (typedIP) {
-                    case GameConfigs.GET_LOCAL_IP_Y, GameConfigs.GET_LOCAL_IP_YES, "" -> {
+                    case GameConfigs.GET_LOCAL_IP_Y, GameConfigs.GET_LOCAL_IP_YES, GameConfigs.EMPTY_STRING -> {
                         localIP = generatedIP;
                         exitDoWhile = true;
                     }
-                    case "exit", "quit" -> {
+                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
                         Platform.exit();
                         System.exit(0);
                     }
@@ -207,13 +212,18 @@ public class GameController {
                 throw new RuntimeException(e);
             }
 
-            if (username.equals("exit") || username.equals("quit")) {
-                Platform.exit();
-                System.exit(0);
-            } else if (username.length() < 10) {
+            if (username.length() < 10) {
                 exitDoWhile = true;
             } else {
-                ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
+                switch (username) {
+                    case GameConfigs.EXIT, GameConfigs.QUIT -> {
+                        Platform.exit();
+                        System.exit(0);
+                    }
+                    default -> {
+                        ui.changeNewestTextOnTextPane(GameConfigs.GET_USERNAME_INVALID + GameConfigs.GET_USERNAME);
+                    }
+                }
             }
         } while (!exitDoWhile);
         ui.addTextToTextPane(username);
@@ -222,7 +232,7 @@ public class GameController {
     private void typeReady() {
         boolean exitDoWhile;
         String wordTyped;
-        ui.addTextToTextPane("Type 'ready' to start the game");
+        ui.addTextToTextPane(GameConfigs.TYPE_READY);
         exitDoWhile = false;
         do {
             try {
@@ -232,10 +242,10 @@ public class GameController {
             }
 
             switch (wordTyped.toLowerCase()) {
-                case "ready", "" -> {
+                case GameConfigs.READY, GameConfigs.EMPTY_STRING -> {
                     exitDoWhile = true;
                 }
-                default -> System.out.println("Unknown command: " + wordTyped);
+                default -> System.out.println(GameConfigs.UNKNOWN_CMD + wordTyped);
             }
         } while (!exitDoWhile);
     }
