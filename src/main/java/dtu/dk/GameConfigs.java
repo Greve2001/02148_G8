@@ -4,7 +4,7 @@ public class GameConfigs {
     // Default game values
     public static final int wordsInPLay = 1000;
     public static final int REQUIRED_STREAK = 10;
-    public static final int FALLEN_WORDS_BEFORE_INCREASING_TEMPO = 10;
+    public static final int FALLEN_WORDS_BEFORE_INCREASING_TEMPO = 5;
     public static final int WPM_INCREASE = 1;
     public static final int START_WPM = 20; // Milliseconds
     public static final int MAX_WPM = 500;
