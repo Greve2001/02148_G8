@@ -22,4 +22,9 @@ public class WordCreatorTest {
         }
         assert true;
     }
+
+    public static void main(String[] args) {
+        List<String> words = WordCreator.getSubset(1000);
+        System.out.println(words);
+    }
 }
