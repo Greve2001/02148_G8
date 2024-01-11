@@ -10,10 +10,6 @@ public enum Protocol {
     START,
     STARTED,
     UPDATE,
-    PLAYER_DROPPED,
-    UPDATE_LIFE,
-    UPDATE_DEATH,
-    UPDATE_SEND_WORD,
     EXTRA_WORD,
     LIFE
 }

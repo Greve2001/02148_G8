@@ -6,7 +6,7 @@ import dtu.dk.GameConfigs;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Model.Word;
-import dtu.dk.Protocol;
+import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
 import javafx.util.Pair;
@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dtu.dk.Protocol.*;
+import static dtu.dk.UpdateToken.PLAYER_DROPPED;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
     protected final LocalGameController localGameController;
     protected final MainFX ui;
+    protected final Pair<Peer, Player> myPair;
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
-    private final Pair<Peer, Player> myPair;
     private final List<Word> commonWords = new ArrayList<>();
     boolean gameEnded = false;
     private ArrayList<Pair<Peer, Player>> allPeers;
@@ -121,6 +122,11 @@ public class GameController {
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
         myPair.getValue().setUsername(username);
+        try {
+            myPair.getKey().getSpace().put(LIFE, myPair.getValue().getLives());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         for (String word : setupController.getWords()) {
             commonWords.add(new Word(word));
         }
@@ -216,11 +222,8 @@ public class GameController {
         new Thread(this::spawnWords).start();
         updateUIPlayerList();
 
-
-        // TODO: Should happen when a word hits the bottom of the screen
-        localGameController.loseLife(myPair);
-
         new Thread(new WordTypedController(this)).start();
+        new Thread(new WordHitController(this)).start();
 
     }
 
@@ -349,6 +352,57 @@ class WordTypedController implements Runnable {
     }
 }
 
+class WordHitController implements Runnable {
+    GameController gameController;
+    Space fxWords;
+
+    public WordHitController(GameController gameController) {
+        this.gameController = gameController;
+        this.fxWords = gameController.getFxWords();
+    }
+
+    public void run() {
+        //todo should exit when game ends
+        String wordHit = null;
+        while (!gameController.gameEnded) {
+            try {
+                wordHit = (String) fxWords.get(new ActualField(FxWordsToken.HIT), new FormalField(String.class))[1];
+            } catch (InterruptedException e) {
+                System.err.println("Could not get word that hit the bottom of wordPane");
+                throw new RuntimeException(e);
+            }
+            gameController.localGameController.loseLife(gameController.myPair);
+            gameController.ui.updateLife(0, gameController.myPair.getValue().getLives());
+            gameController.ui.updateStreak(gameController.myPair.getValue().getStreak());
+
+            List<Pair<Peer, Player>> activePeerList = gameController.getActivePeers();
+
+            for (int index = 1; index < activePeerList.size(); index++) {
+                try {
+                    activePeerList.get(index).getKey().getSpace().put(UPDATE, gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE, gameController.myPair.getKey().getID());
+                } catch (InterruptedException e) {
+                    System.out.println("Could not update life");
+                }
+            }
+
+            if (gameController.myPair.getValue().getLives() == 0) {
+                gameController.gameEnded = true;
+                List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
+                for (Word word : wordsOnScreen) {
+                    gameController.ui.removeWordFalling(word);
+                }
+                gameController.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
+                if (gameController.getActivePeers().size() == 1) {
+                    gameController.ui.addTextToTextPane("You won the game");
+                } else {
+                    gameController.ui.addTextToTextPane("You lost the game");
+                }
+
+            }
+
+        }
+    }
+}
 
 class DisconnectChecker implements Runnable {
 
@@ -398,18 +452,18 @@ class UpdateChecker implements Runnable {
             try {
                 Object[] updateTup = localSpace.get( // Player list
                         new ActualField(UPDATE),
-                        new FormalField(Protocol.class), // URIs
+                        new FormalField(UpdateToken.class), // URIs
                         new FormalField(Integer.class) // Order
                 );
-                switch ((Protocol) updateTup[1]) {
-                    case UPDATE_LIFE:
+                switch ((UpdateToken) updateTup[1]) {
+                    case LIFE:
                         //get the id we need to check
                         //get the persons life and update it
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             //Check if the ID is correct
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 Object[] lifeTup = activePLayerList.get(index).getKey().getSpace().query(
-                                        new ActualField(LIFE), // TODO - make each peer have LIFE in their space
+                                        new ActualField(LIFE),
                                         new FormalField(Integer.class));
                                 activePLayerList.get(index).getValue().setLives((Integer) lifeTup[1]);
                                 gameController.updateUIPlayerList();
@@ -418,15 +472,17 @@ class UpdateChecker implements Runnable {
                             }
                         }
                         break;
-                    case UPDATE_DEATH:
+                    case DEATH:
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
+                                gameController.updateUIPlayerList();
+                                System.out.println("Player died. Active peer list size = " + activePLayerList.size());
                                 break;
                             }
                         }
                         break;
-                    case UPDATE_SEND_WORD:
+                    case SEND_WORD:
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
