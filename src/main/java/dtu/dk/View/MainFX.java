@@ -276,8 +276,9 @@ public class MainFX extends Application implements GUIInterface {
                 wordPane.getChildren().remove(label);
                 wordsFalling.remove(word);
                 try {
-                    fxWords.put(FxWordsToken.HIT, word);
+                    fxWords.put(FxWordsToken.HIT, word.getText());
                 } catch (InterruptedException ex) {
+                    System.err.println("Could not put word.getText() in fxWords space");
                     throw new RuntimeException(ex);
                 }
             });

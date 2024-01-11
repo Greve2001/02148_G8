@@ -32,6 +32,10 @@ public class Player {
         return streak;
     }
 
+    public void zeroStreak() {
+        this.streak = 0;
+    }
+
     public void addStreak() {
         this.streak++;
     }
