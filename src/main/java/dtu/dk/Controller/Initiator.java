@@ -95,6 +95,7 @@ public class Initiator implements Runnable {
 
             doneLoadingURIs.add(uri);
         }
+
         System.out.println("Initiator: All loadings done");
     }
 

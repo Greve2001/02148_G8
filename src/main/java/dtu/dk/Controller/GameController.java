@@ -338,10 +338,17 @@ class WordTypedController implements Runnable {
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(finalWordTyped)) {
-                    gameController.localGameController.myPlayer.removeWordFromScreen(word);
+
                     gameController.ui.removeWordFalling(word);
                     gameController.localGameController.correctlyTyped();
+                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+
                     break;
+                }
+                else{
+                    gameController.localGameController.inCorrectlyTyped();
+                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+
                 }
             }
 
