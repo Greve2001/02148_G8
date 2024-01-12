@@ -8,6 +8,10 @@ public class Me extends Player {
     private Word lastWord;
     private boolean canSendExtraWord;
 
+    public Me() {
+        lastWord = null;
+    }
+
     public void addWordToScreen(Word word) {
         wordOnScreen.add(word);
     }

@@ -135,7 +135,7 @@ public class GameController {
                     Platform.exit();
                     System.exit(0);
                 }
-                default -> System.out.println("Unknown command: " + wordTyped);
+                default -> System.err.println("Unknown command: " + wordTyped);
             }
         } while (!exitDoWhile);
     }
@@ -408,27 +408,27 @@ class WordTypedController implements Runnable {
             }
 
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
+            Me me = gameController.localGameController.myPlayer;
+            boolean flag = true;
+            if (me.getLastWord() != null && me.getLastWord().getText().equals(wordTyped) && gameController.getActivePeers().size() > 1) {
+                me.setLastWord(null);
+                sendExtraWordToNextPlayer(new Word(wordTyped));
+                gameController.ui.updateLastWord("");
+                flag = false;
+            }
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
-                    Me me = gameController.localGameController.myPlayer;
-
                     gameController.localGameController.correctlyTyped(word);
-
                     gameController.ui.removeWordFalling(word);
                     gameController.ui.updateStreak(me.getStreak());
-
-                    if (me.isCanSendExtraWord())
-                        sendExtraWordToNextPlayer(word);
-                    if (me.getLastWord().getText().equals(word.getText())) {
-                        me.setLastWord(new Word(""));
-                        sendExtraWordToNextPlayer(word);
-                    }
-
                     gameController.ui.updateLastWord(me.getLastWord().getText());
-
+                    if (me.isCanSendExtraWord() && gameController.getActivePeers().size() > 1)
+                        sendExtraWordToNextPlayer(word);
+                    flag = false;
                     break;
                 }
-
+            }
+            if (flag) {
                 gameController.localGameController.inCorrectlyTyped();
                 gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
             }

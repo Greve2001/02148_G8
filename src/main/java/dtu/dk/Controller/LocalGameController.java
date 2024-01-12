@@ -26,19 +26,10 @@ public class LocalGameController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        if (pair.getValue().getLives() == 0) {
-            try {
-                pair.getKey().getSpace().put(Protocol.LIFE, 0);
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            try {
-                pair.getKey().getSpace().put(Protocol.LIFE, pair.getValue().getLives());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            pair.getKey().getSpace().put(Protocol.LIFE, pair.getValue().getLives());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
