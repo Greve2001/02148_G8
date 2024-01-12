@@ -15,7 +15,7 @@ public class Initiator implements Runnable {
     public final String setupSpaceName = "setup";
     private final String uri;
     private final SpaceRepository repo = new SpaceRepository();
-    private final Space space = new SequentialSpace();
+    private final Space initialSpace = new SequentialSpace();
 
     protected List<String> playerURIs = new ArrayList<>();
 
@@ -26,28 +26,32 @@ public class Initiator implements Runnable {
     @Override
     public void run() {
         repo.addGate(uri);
-        repo.add(setupSpaceName, space);
+        repo.add(setupSpaceName, initialSpace);
 
-        Thread connHandler = new Thread(new ConnectionHandler(space, playerURIs));
-        Thread readyHandler = new Thread(new ReadyHandler(space, playerURIs));
+        Thread connHandler = new Thread(new ConnectionHandler(initialSpace, playerURIs));
+        Thread readyHandler = new Thread(new ReadyHandler(initialSpace, playerURIs));
 
         connHandler.start();
         readyHandler.start();
 
         try {
-            space.get(
+            initialSpace.get(
                     new ActualField("local"),
                     new ActualField("allReady")
             );
             System.out.println("Initiator: Got allReady locally");
 
-            // TODO: Should have safe way to stop or interrupt threads. They just run forever now
-            //connHandler.stop();
-
             sendPlayerList();
             sendWords();
             waitForLoadingDone();
             startGame();
+
+            repo.closeGate(uri);
+            System.out.println("Initiator: Closed gate");
+            repo.remove(setupSpaceName);
+            System.out.println("Initiator: Removed space");
+            repo.shutDown();
+            System.out.println("Initiator: Shut down repo");
 
         } catch (InterruptedException e) {
             System.err.println("Space does not exists");
@@ -64,7 +68,7 @@ public class Initiator implements Runnable {
             playerIDs.add(i);
         }
 
-        space.put(
+        initialSpace.put(
                 PLAYERS,
                 Utils.StringListToArray(playerURIs),
                 Utils.IntegerListToArray(playerIDs)
@@ -75,7 +79,7 @@ public class Initiator implements Runnable {
     private void sendWords() throws InterruptedException {
         List<String> words = WordCreator.getSubset(GameConfigs.WORDS_IN_PLAY);
 
-        space.put(WORDS, Utils.StringListToArray(words));
+        initialSpace.put(WORDS, Utils.StringListToArray(words));
         System.out.println("Initiator: Sent words");
     }
 
@@ -83,7 +87,7 @@ public class Initiator implements Runnable {
         List<String> doneLoadingURIs = new ArrayList<>();
 
         while (doneLoadingURIs.size() != playerURIs.size()) {
-            String uri = (String) space.get(
+            String uri = (String) initialSpace.get(
                     new ActualField(LOADING_DONE),
                     new FormalField(String.class)
             )[1];
@@ -99,13 +103,13 @@ public class Initiator implements Runnable {
 
     private void startGame() throws InterruptedException {
         for (String peerURI : playerURIs) {
-            space.put(START, peerURI);
+            initialSpace.put(START, peerURI);
         }
         System.out.println("Initiator: Sent Start to all peers");
 
         List<String> startedURIs = new ArrayList<>();
         while (startedURIs.size() < playerURIs.size()) {
-            String uri = (String) space.get(
+            String uri = (String) initialSpace.get(
                     new ActualField(STARTED),
                     new FormalField(String.class)
             )[1];
@@ -116,6 +120,7 @@ public class Initiator implements Runnable {
             startedURIs.add(uri);
         }
         System.out.println("Initiator: Received Started back from all peers");
+
     }
 }
 

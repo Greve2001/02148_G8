@@ -28,9 +28,9 @@ public class GameController {
     protected final LocalGameController localGameController;
     protected final MainFX ui;
     protected final Pair<Peer, Player> myPair;
+    protected final List<Word> commonWords = new ArrayList<>();
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
-    protected final List<Word> commonWords = new ArrayList<>();
     private final ArrayList<Pair<Peer, Player>> allPeers;
     boolean gameEnded = false;
     private String username;
@@ -38,7 +38,6 @@ public class GameController {
     private String localIP;
     private boolean isHost;
 
-    // TODO: make strings and vars constant in gameSettings
     public GameController() {
         GUIRunner.startGUI();
         try {
@@ -394,7 +393,6 @@ class WordTypedController implements Runnable {
     }
 
     public void run() {
-        //todo should exit when game ends
         String wordTyped;
 
         while (!gameController.gameEnded) {
@@ -463,7 +461,6 @@ class WordHitController implements Runnable {
     }
 
     public void run() {
-        //todo should exit when game ends
         String wordHit = null;
         while (!gameController.gameEnded) {
             try {
@@ -526,7 +523,7 @@ class DisconnectChecker implements Runnable {
             try { // get a non-existing string in the RemoteSpace of the person next in the disconnect line
                 activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
-                //Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
+                // Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
                 for (int index = 2; index < activePeerList.size(); index++) {
                     try {
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
@@ -537,7 +534,8 @@ class DisconnectChecker implements Runnable {
                 if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
-                gameController.updateUIPlayerList();
+                if (!gameController.gameEnded)
+                    gameController.updateUIPlayerList();
                 System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
