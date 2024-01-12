@@ -6,7 +6,7 @@ public class GameConfigs {
     public static final int REQUIRED_STREAK = 10;
     public static final int SEND_WORD_RATIO = 3; // Lower is slower
     public static final int WPM_INCREASE = 1;
-    public static final int START_WPM = 12;
+    public static final int START_WPM = 7;
     public static final int MAX_WPM = 500;
 
     /*

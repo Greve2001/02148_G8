@@ -3,6 +3,7 @@ package dtu.dk.Controller;
 import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
+import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Model.Word;
@@ -18,9 +19,9 @@ import org.jspace.Space;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dtu.dk.Protocol.LIFE;
 import static dtu.dk.Protocol.*;
-import static dtu.dk.UpdateToken.PLAYER_DROPPED;
-import static dtu.dk.UpdateToken.USERNAME;
+import static dtu.dk.UpdateToken.*;
 import static dtu.dk.Utils.getLocalIPAddress;
 
 public class GameController {
@@ -29,7 +30,7 @@ public class GameController {
     protected final Pair<Peer, Player> myPair;
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
-    private final List<Word> commonWords = new ArrayList<>();
+    protected final List<Word> commonWords = new ArrayList<>();
     private final ArrayList<Pair<Peer, Player>> allPeers;
     boolean gameEnded = false;
     private String username;
@@ -83,7 +84,6 @@ public class GameController {
         allPeers = setupController.getPeers();
         activePeers = new ArrayList<>(allPeers);
         new Thread(new DisconnectChecker(this)).start();
-        new Thread(new UpdateChecker(this)).start();
 
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
@@ -102,8 +102,8 @@ public class GameController {
         }
         ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
 
-
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
+
     }
 
     /**
@@ -135,7 +135,7 @@ public class GameController {
                     Platform.exit();
                     System.exit(0);
                 }
-                default -> System.out.println("Unknown command: " + wordTyped);
+                default -> System.err.println("Unknown command: " + wordTyped);
             }
         } while (!exitDoWhile);
     }
@@ -285,9 +285,9 @@ public class GameController {
     public void startGame() {
         new Thread(this::spawnWords).start();
         updateUIPlayerList();
+        new Thread(new UpdateChecker(this)).start();
         new Thread(new WordTypedController(this)).start();
         new Thread(new WordHitController(this)).start();
-
     }
 
     private void spawnWords() {
@@ -396,34 +396,59 @@ class WordTypedController implements Runnable {
     public void run() {
         //todo should exit when game ends
         String wordTyped;
+
         while (!gameController.gameEnded) {
             try {
-                wordTyped = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
+                wordTyped = (String) fxWords.get(
+                        new ActualField(FxWordsToken.TYPED),
+                        new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 System.err.println("Could not get typed word");
                 throw new RuntimeException(e);
             }
-            String finalWordTyped = wordTyped;
+
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
+            Me me = gameController.localGameController.myPlayer;
+            boolean flag = true;
+            if (me.getLastWord() != null && me.getLastWord().getText().equals(wordTyped) && gameController.getActivePeers().size() > 1) {
+                me.setLastWord(null);
+                sendExtraWordToNextPlayer(new Word(wordTyped));
+                gameController.ui.updateLastWord("");
+                flag = false;
+            }
             for (Word word : wordsOnScreen) {
-                if (word.getText().equals(finalWordTyped)) {
-
+                if (word.getText().equals(wordTyped)) {
+                    gameController.localGameController.correctlyTyped(word);
                     gameController.ui.removeWordFalling(word);
-                    gameController.localGameController.correctlyTyped();
-
-                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
-
-                    gameController.ui.updateLastWord(word.getText());
-
-
+                    gameController.ui.updateStreak(me.getStreak());
+                    gameController.ui.updateLastWord(me.getLastWord().getText());
+                    if (me.isCanSendExtraWord() && gameController.getActivePeers().size() > 1)
+                        sendExtraWordToNextPlayer(word);
+                    flag = false;
                     break;
-                } else {
-                    gameController.localGameController.inCorrectlyTyped();
-                    gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
-
                 }
             }
+            if (flag) {
+                gameController.localGameController.inCorrectlyTyped();
+                gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
+            }
+        }
+    }
 
+    private void sendExtraWordToNextPlayer(Word word) {
+        try {
+            Space nextPlayerSpace = gameController.getActivePeers().get(1).getKey().getSpace();
+            nextPlayerSpace.put(
+                    EXTRA_WORD,
+                    word.getText()
+            );
+            nextPlayerSpace.put(
+                    UPDATE,
+                    SEND_WORD,
+                    gameController.myPair.getKey().getID()
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }
@@ -442,7 +467,9 @@ class WordHitController implements Runnable {
         String wordHit = null;
         while (!gameController.gameEnded) {
             try {
-                wordHit = (String) fxWords.get(new ActualField(FxWordsToken.HIT), new FormalField(String.class))[1];
+                wordHit = (String) fxWords.get(
+                        new ActualField(FxWordsToken.HIT),
+                        new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 System.err.println("Could not get word that hit the bottom of wordPane");
                 throw new RuntimeException(e);
@@ -455,9 +482,12 @@ class WordHitController implements Runnable {
 
             for (int index = 1; index < activePeerList.size(); index++) {
                 try {
-                    activePeerList.get(index).getKey().getSpace().put(UPDATE, gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE, gameController.myPair.getKey().getID());
+                    activePeerList.get(index).getKey().getSpace().put(
+                            UPDATE,
+                            gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE,
+                            gameController.myPair.getKey().getID());
                 } catch (InterruptedException e) {
-                    System.out.println("Could not update life");
+                    System.err.println("Could not update life");
                 }
             }
 
@@ -526,15 +556,15 @@ class UpdateChecker implements Runnable {
     }
 
     public void run() {
-        while (activePLayerList.size() > 1) {
+        while (!gameController.gameEnded && activePLayerList.size() > 1) {
             try {
                 Object[] updateTup = localSpace.get( // Player list
                         new ActualField(UPDATE),
                         new FormalField(UpdateToken.class), // URIs
-                        new FormalField(Integer.class) // Order
+                        new FormalField(Integer.class) // PlayerID
                 );
                 switch ((UpdateToken) updateTup[1]) {
-                    case LIFE:
+                    case LIFE -> {
                         //get the id we need to check
                         //get the persons life and update it
                         for (int index = 1; index < activePLayerList.size(); index++) {
@@ -549,8 +579,8 @@ class UpdateChecker implements Runnable {
                                 //TODO - COULD HAVE - make this only check the people we display
                             }
                         }
-                        break;
-                    case DEATH:
+                    }
+                    case DEATH -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
@@ -559,15 +589,14 @@ class UpdateChecker implements Runnable {
                                 break;
                             }
                         }
-                        break;
-                    case SEND_WORD:
+                    }
+                    case SEND_WORD -> {
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
-                        //TODO actually send the word..
-                        break;
-
-                    case PLAYER_DROPPED:
+                        gameController.ui.makeWordFall(new Word(gameController.commonWords.get((int) (Math.random() * gameController.commonWords.size())).getText()));
+                    }
+                    case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
@@ -575,8 +604,8 @@ class UpdateChecker implements Runnable {
                                 System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
                         }
-                        break;
-                    case USERNAME:
+                    }
+                    case USERNAME -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 Object[] usernameTup = activePLayerList.get(index).getKey().getSpace().query(
@@ -587,12 +616,11 @@ class UpdateChecker implements Runnable {
 
                             }
                         }
-                        break;
-                    default:
-                        System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
+                    }
+                    default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
             } catch (InterruptedException e) {
-                System.out.println("UpdateChecker error - Cant get local space - something is wrong??");
+                System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
             }
         }
     }

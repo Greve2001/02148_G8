@@ -8,7 +8,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -36,7 +35,7 @@ public class MainFX extends Application implements GUIInterface {
     // Keylogger space
     SequentialSpace fxWords = new SequentialSpace();
     private final Pane[][] hearts = new Pane[5][3];
-    private final Label[] playerNames = new Label[4];
+    private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
     private Pane wordPane;
@@ -66,7 +65,7 @@ public class MainFX extends Application implements GUIInterface {
         }
         scene = new Scene(pane, 1280, 720);
         stage.setResizable(false);
-        scene.setCursor(Cursor.NONE);
+        //scene.setCursor(Cursor.NONE);
         scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
 
 
@@ -118,7 +117,7 @@ public class MainFX extends Application implements GUIInterface {
             Scene scene = new Scene(pane, 1280, 720);
             scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
             stage.setScene(scene);
-            scene.setCursor(Cursor.NONE);
+            //scene.setCursor(Cursor.NONE);
             stage.setResizable(false);
             stage.show();
             MainFX.pane = pane;
