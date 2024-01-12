@@ -84,7 +84,6 @@ public class GameController {
         allPeers = setupController.getPeers();
         activePeers = new ArrayList<>(allPeers);
         new Thread(new DisconnectChecker(this)).start();
-        new Thread(new UpdateChecker(this)).start();
 
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
@@ -104,6 +103,7 @@ public class GameController {
         ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
 
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
+
     }
 
     /**
@@ -285,7 +285,7 @@ public class GameController {
     public void startGame() {
         new Thread(this::spawnWords).start();
         updateUIPlayerList();
-
+        new Thread(new UpdateChecker(this)).start();
         new Thread(new WordTypedController(this)).start();
         new Thread(new WordHitController(this)).start();
     }

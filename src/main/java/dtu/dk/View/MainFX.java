@@ -35,7 +35,7 @@ public class MainFX extends Application implements GUIInterface {
     // Keylogger space
     SequentialSpace fxWords = new SequentialSpace();
     private final Pane[][] hearts = new Pane[5][3];
-    private final Label[] playerNames = new Label[4];
+    private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
     private Pane wordPane;
