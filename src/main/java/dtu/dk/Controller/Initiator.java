@@ -20,7 +20,7 @@ public class Initiator implements Runnable {
     protected List<String> playerURIs = new ArrayList<>();
 
     public Initiator(String initiatorIP, String initiatorPort) {
-        uri = "tcp://" + initiatorIP + ":" + initiatorPort + "/?keep";
+        uri = "tcp://" + initiatorIP + ":" + initiatorPort + "/?conn";
     }
 
     @Override

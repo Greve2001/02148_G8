@@ -46,8 +46,8 @@ public class SetupController {
     }
 
     private void prepareLocalRepository(String localIP, String localPort) {
-        localURI = "tcp://" + localIP + ":" + localPort + "/?keep";
-        publicURI = "tcp://" + localIP + ":" + localPort + "/peer?keep";
+        localURI = "tcp://" + localIP + ":" + localPort + "/?conn";
+        publicURI = "tcp://" + localIP + ":" + localPort + "/peer?conn";
 
         repo = new SpaceRepository();
         localPeerSpace = new SequentialSpace();
@@ -57,7 +57,7 @@ public class SetupController {
     }
 
     private void connectToInitiator(String initiatorIP, String initiatorPort) throws IOException, InterruptedException {
-        String initiatorURI = "tcp://" + initiatorIP + ":" + initiatorPort + "/setup?keep";
+        String initiatorURI = "tcp://" + initiatorIP + ":" + initiatorPort + "/setup?conn";
         setupSpace = new RemoteSpace(initiatorURI);
 
         setupSpace.put(CONNECT, publicURI);
