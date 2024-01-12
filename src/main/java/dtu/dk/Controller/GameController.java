@@ -536,7 +536,7 @@ class DisconnectChecker implements Runnable {
                 }
                 if (!gameController.gameEnded)
                     gameController.updateUIPlayerList();
-                System.out.println("Player disconnected. Active peer list size = " + activePeerList.size());
+                System.out.println("DisconnectChecker: Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
     }
@@ -583,7 +583,7 @@ class UpdateChecker implements Runnable {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
                                 gameController.updateUIPlayerList();
-                                System.out.println("Player died. Active peer list size = " + activePLayerList.size());
+                                System.out.println("UpdateChecker: Player died. Active peer list size = " + activePLayerList.size());
                                 break;
                             }
                         }
@@ -599,7 +599,7 @@ class UpdateChecker implements Runnable {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
                                 gameController.updateUIPlayerList();
-                                System.out.println("Player disconnected. Active peer list size = " + activePLayerList.size());
+                                System.out.println("UpdateChecker: Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
                         }
                     }
