@@ -30,7 +30,7 @@ public class GameController {
     protected final Pair<Peer, Player> myPair;
     private final SequentialSpace fxWords = new SequentialSpace();
     private final ArrayList<Pair<Peer, Player>> activePeers;
-    private final List<Word> commonWords = new ArrayList<>();
+    protected final List<Word> commonWords = new ArrayList<>();
     private final ArrayList<Pair<Peer, Player>> allPeers;
     boolean gameEnded = false;
     private String username;
@@ -556,7 +556,7 @@ class UpdateChecker implements Runnable {
     }
 
     public void run() {
-        while (activePLayerList.size() > 1) {
+        while (!gameController.gameEnded && activePLayerList.size() > 1) {
             try {
                 Object[] updateTup = localSpace.get( // Player list
                         new ActualField(UPDATE),
@@ -594,7 +594,7 @@ class UpdateChecker implements Runnable {
                         Object[] extraWordTup = localSpace.get(
                                 new ActualField(EXTRA_WORD),
                                 new FormalField(String.class));
-                        gameController.ui.makeWordFall(new Word((String) extraWordTup[1]));
+                        gameController.ui.makeWordFall(new Word(gameController.commonWords.get((int) (Math.random() * gameController.commonWords.size())).getText()));
                     }
                     case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
