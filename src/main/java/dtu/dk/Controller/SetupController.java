@@ -61,6 +61,7 @@ public class SetupController {
         setupSpace = new RemoteSpace(initiatorURI);
 
         setupSpace.put(CONNECT, publicURI);
+        System.out.println("Peer: Sent (connect, " + publicURI + ")");
         setupSpace.get(
                 new ActualField(CONNECTED),
                 new ActualField(publicURI)
