@@ -96,3 +96,8 @@
     -fx-font-size: 24px;
 
 }
+
+.hjletter {
+    -fx-text-fill: white;
+    -fx-font-size: 48px;
+}

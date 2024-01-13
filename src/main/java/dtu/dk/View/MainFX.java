@@ -172,7 +172,7 @@ public class MainFX extends Application implements GUIInterface {
 
         wordPane = (Pane) pane.lookup("#wordPane");
         if (wordPane != null)
-            wordPane.getChildren().clear();
+            //wordPane.getChildren().clear();
 
         streak = (Label) pane.lookup("#streak");
         if (streak != null)
