@@ -8,13 +8,16 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jspace.FormalField;
@@ -82,13 +85,18 @@ public class MainFX extends Application implements GUIInterface {
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
-
+                    //se if any elements on the wordpane starts with the promt and update them
+                String currentInput = prompt.getText();
+                for (Node node : wordPane.getChildren()) {
+                    if (node.getId().startsWith(currentInput)) {
+                        updateWordColor((HBox) node, currentInput);
+                    }}
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        // Setting up the stage to close when the x is pressed
+
         stage.onCloseRequestProperty().setValue(e -> {
             Platform.exit();
             System.exit(0);
@@ -101,6 +109,22 @@ public class MainFX extends Application implements GUIInterface {
         this.ui = this;
         latch.countDown();
     }
+
+    private void updateWordColor(HBox wordBox, String currentInput) {
+        //check if the letters match the letters in the prompt and make them green if they do
+        int i = 0;
+        for (Node node : wordBox.getChildren()) {
+                Label letter = (Label) node;
+                if (i < currentInput.length() && letter.getText().equals(String.valueOf(currentInput.charAt(i)))) {
+                    letter.setTextFill(Color.GREEN);
+                    i++;
+                } else {
+                    letter.setTextFill(Color.WHITE); // could make sometihng cool idk
+
+                }
+            }
+        }
+
 
     @Override
     public void changeScene(String fxml) {
@@ -261,18 +285,23 @@ public class MainFX extends Application implements GUIInterface {
             wordsFalling.add(word);
         }
         Platform.runLater(() -> {
-            Label label = new Label(word.getText());
-            label.getStyleClass().add("wordsFaling");
-            wordPane.getChildren().add(label);
-            int x = (int) (Math.random() * (wordPane.getWidth() - label.getWidth()));
-            label.setLayoutX(x);
+            HBox wordBox = new HBox();
+            wordBox.setId(word.getText());
+            for (char letter : word.getText().toCharArray()) {
+                Label letterLabel = new Label(String.valueOf(letter));
+                letterLabel.getStyleClass().add("fallingLetter");
+                wordBox.getChildren().add(letterLabel);
+            }
+            wordPane.getChildren().add(wordBox);
+            int x = (int) (Math.random() * (wordPane.getWidth() - wordBox.getWidth()));
+            wordBox.setLayoutX(x);
             TranslateTransition transition = new TranslateTransition();
             transition.setDuration(Duration.seconds(word.getFallDuration()));
-            transition.setNode(label);
+            transition.setNode(wordBox);
             transition.setToY(wordPane.getHeight() - 24);
             transition.setInterpolator(javafx.animation.Interpolator.LINEAR);
             transition.setOnFinished(e -> {
-                wordPane.getChildren().remove(label);
+                wordPane.getChildren().remove(wordBox);
                 wordsFalling.remove(word);
                 try {
                     fxWords.put(FxWordsToken.HIT, word.getText());
