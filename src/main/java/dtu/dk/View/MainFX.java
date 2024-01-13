@@ -327,18 +327,27 @@ public class MainFX extends Application implements GUIInterface {
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
         Platform.runLater(() -> {
-            ObservableList children = wordPane.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                Label label = (Label) children.get(i);
-                if (label.getText().equals(word.getText())) {
-                    wordPane.getChildren().remove(label);
-                    if (wordsFalling.contains(word))
-                        wordsFalling.remove(word);
-                    word.getTranslateTransition().stop();
-                    break;
+                    List<Node> children = wordPane.getChildren();
+                    for (int i = 0; i < children.size(); i++) {
+                        Node node = children.get(i);
+                        if (getWordFromHBox((HBox) node).equals(word.getText())) {
+                            wordPane.getChildren().remove(node);
+                            if (wordsFalling.contains(word))
+                                wordsFalling.remove(word);
+                            word.getTranslateTransition().stop();
+                            break;
+                        }
+                    }
                 }
-            }
-        });
+        );
+    }
+
+    public String getWordFromHBox(HBox wordBox) {
+        StringBuilder word = new StringBuilder();
+        for (Node node : wordBox.getChildren()) {
+                word.append(((Label) node).getText());
+        }
+        return word.toString();
     }
 
     public void updateStreak(int streak) throws NullPointerException {
