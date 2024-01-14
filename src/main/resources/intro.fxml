@@ -28,7 +28,7 @@
                       <Label styleClass="hjletter" text="n" />
                   </children>
               </HBox>
-              <HBox fx:id="host" layoutX="595.0" layoutY="60.0" style="-fx-alignment: center;" styleClass="writefield">
+              <HBox fx:id="Host" layoutX="595.0" layoutY="60.0" style="-fx-alignment: center;" styleClass="writefield">
                   <children>
                       <Label styleClass="hjletter" text="H" />
                       <Label styleClass="hjletter" text="o" />
