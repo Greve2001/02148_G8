@@ -111,19 +111,22 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
-        //check if the letters match the letters in the prompt and make them green if they do
-        int i = 0;
-        for (Node node : wordBox.getChildren()) {
-                Label letter = (Label) node;
-                if (i < currentInput.length() && letter.getText().equals(String.valueOf(currentInput.charAt(i)))) {
-                    letter.setTextFill(Color.GREEN);
-                    i++;
-                } else {
-                    letter.setTextFill(Color.WHITE); // could make sometihng cool idk
+        for (int i = 0; i < wordBox.getChildren().size(); i++) {
+            Label letter = (Label) wordBox.getChildren().get(i);
 
+            if (i < currentInput.length()) {
+                String l = letter.getText();
+                String l2 = String.valueOf(currentInput.charAt(i));
+                if (l.equals(l2)) {
+                    letter.setTextFill(Color.GREEN);
+                } else {
+                    break;
                 }
+            } else {
+                letter.setTextFill(Color.WHITE);
             }
         }
+    }
 
 
     @Override
