@@ -43,7 +43,7 @@ public class MainFX extends Application implements GUIInterface {
     private VBox textPane;
     private Pane wordPane;
     private Label streak;
-    private Label lastWord;
+    private HBox lastWord;
     private List<Word> wordsFalling;
 
     public static void startFX() {
@@ -85,11 +85,16 @@ public class MainFX extends Application implements GUIInterface {
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
-                    //se if any elements on the wordpane starts with the promt and update them
                 String currentInput = prompt.getText();
-                for (Node node : wordPane.getChildren()) {
-                    if (node.getId().startsWith(currentInput)) {
+                    //update elemets on wordPane
+                if(this.wordPane!=null){
+                    for (Node node : wordPane.getChildren()) {
                         updateWordColor((HBox) node, currentInput);
+                    }}
+                // and last word
+                if(lastWord!=null){
+                    if(getWordFromHBox(lastWord).startsWith(currentInput)){
+                        updateWordColor(lastWord,currentInput);
                     }}
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -111,13 +116,11 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
+        // could add red if start is correct and then some is incorrect
         for (int i = 0; i < wordBox.getChildren().size(); i++) {
             Label letter = (Label) wordBox.getChildren().get(i);
-
             if (i < currentInput.length()) {
-                String l = letter.getText();
-                String l2 = String.valueOf(currentInput.charAt(i));
-                if (l.equals(l2)) {
+                if (letter.getText().equals(String.valueOf(currentInput.charAt(i)))) {
                     letter.setTextFill(Color.GREEN);
                 } else {
                     break;
@@ -181,9 +184,9 @@ public class MainFX extends Application implements GUIInterface {
         if (streak != null)
             streak.setText("0");
 
-        lastWord = (Label) pane.lookup("#lastWord");
+        lastWord = (HBox) pane.lookup("#lastWord");
         if (lastWord != null)
-            lastWord.setText("");
+            updateLastWord("");
     }
 
     public void setSpace(SequentialSpace space) {
@@ -364,10 +367,17 @@ public class MainFX extends Application implements GUIInterface {
 
     public void updateLastWord(String word) throws NullPointerException {
         awaitLatch();
-        if (lastWord == null)
-            throw new NullPointerException("lastWord not initialized/found");
+        HBox hBoxLastWord = (HBox) pane.lookup("#hBoxLastWord");
+        if (hBoxLastWord == null)
+            throw new NullPointerException("hBoxLastWord not initialized/found");
         Platform.runLater(() -> {
-            lastWord.setText(word);
+            hBoxLastWord.getChildren().clear();
+            for (char letterChar : word.toCharArray()) {
+                Label letterLabel = new Label(String.valueOf(letterChar));
+                letterLabel.getStyleClass().add("fallingLetter");
+                hBoxLastWord.getChildren().add(letterLabel);
+                lastWord=hBoxLastWord;
+            }
         });
     }
 
