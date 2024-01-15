@@ -88,13 +88,26 @@ public class MainFX extends Application implements GUIInterface {
                     //update elemets on wordPane
                 if(this.wordPane!=null){
                     for (Node node : wordPane.getChildren()) {
+                        if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))){
                         updateWordColor((HBox) node, currentInput);
-                    }}
+                        }
+                        else {
+                            resetWordColor((HBox) node);
+                        }
+                    }
+                }
+
                 // and last word
-                if(lastWord!=null){
-                    if(getWordFromHBox(lastWord).startsWith(currentInput)){
-                        updateWordColor(lastWord,currentInput);
-                    }}
+                if (lastWord != null) {
+                    if (!currentInput.isEmpty() && ((getWordFromHBox(lastWord).startsWith(String.valueOf(currentInput.charAt(0)))))){
+                    updateWordColor(lastWord, currentInput);
+                }
+                    else {
+                        resetWordColor(lastWord);
+                    }
+                }
+
+
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -115,17 +128,25 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
-        // could add red if start is correct and then some is incorrect
         for (int i = 0; i < wordBox.getChildren().size(); i++) {
             Label letter = (Label) wordBox.getChildren().get(i);
             if (i < currentInput.length()) {
-                if (letter.getText().toLowerCase().equals(String.valueOf(currentInput.toLowerCase().charAt(i)))) {
+                if (letter.getText().equalsIgnoreCase(String.valueOf(currentInput.charAt(i)))) {
                     letter.setTextFill(Color.GREEN);
                 } else {
-                    break;
+                    letter.setTextFill(Color.RED);
+
                 }
             } else {
                 letter.setTextFill(Color.WHITE);
+            }
+        }
+    }
+
+    private void resetWordColor(HBox wordBox) {
+        for (Node node : wordBox.getChildren()) {
+            if (node instanceof Label) {
+                ((Label) node).setTextFill(Color.WHITE);
             }
         }
     }
