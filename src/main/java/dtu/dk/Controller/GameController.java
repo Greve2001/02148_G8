@@ -323,6 +323,8 @@ public class GameController {
      * This only works for other players - not local life
      */
     protected void updateUIPlayerList() {
+        if (gameEnded)
+            return;
         switch (activePeers.size()) {
             case 1 -> {
                 for (int index = -2; index < 3; index++) {
@@ -380,6 +382,22 @@ public class GameController {
 
     protected SequentialSpace getFxWords() {
         return fxWords;
+    }
+
+    public void endGame() {
+        if (gameEnded)
+            return;
+        this.gameEnded = true;
+        List<Word> wordsOnScreen = this.localGameController.myPlayer.getWordsOnScreen();
+        for (Word word : wordsOnScreen) {
+            this.ui.removeWordFalling(word);
+        }
+        this.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
+        if (this.getActivePeers().size() == 1) {
+            this.ui.addTextToTextPane("You won the game");
+        } else {
+            this.ui.addTextToTextPane("You lost the game");
+        }
     }
 }
 
@@ -489,20 +507,8 @@ class WordHitController implements Runnable {
             }
 
             if (gameController.myPair.getValue().getLives() == 0) {
-                gameController.gameEnded = true;
-                List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
-                for (Word word : wordsOnScreen) {
-                    gameController.ui.removeWordFalling(word);
-                }
-                gameController.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
-                if (gameController.getActivePeers().size() == 1) {
-                    gameController.ui.addTextToTextPane("You won the game");
-                } else {
-                    gameController.ui.addTextToTextPane("You lost the game");
-                }
-
+                gameController.endGame();
             }
-
         }
     }
 }
@@ -524,21 +530,25 @@ class DisconnectChecker implements Runnable {
                 activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 // Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
-                for (int index = 2; index < activePeerList.size(); index++) {
+                for (int index = 0; index < activePeerList.size(); index++) {
                     try {
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
                     } catch (InterruptedException ex) {
                         System.out.println("Another disconnect -.-");
                     }
                 }
-                if (activePeerList.size() > 1) {
+
+                /*if (activePeerList.size() > 1) {
                     activePeerList.remove(nextPeerIndex);
                 }
                 if (!gameController.gameEnded)
                     gameController.updateUIPlayerList();
+
+                 */
                 System.out.println("DisconnectChecker: Player disconnected. Active peer list size = " + activePeerList.size());
             }
         }
+        //gameController.endGame();
     }
 }
 
@@ -616,6 +626,9 @@ class UpdateChecker implements Runnable {
                         }
                     }
                     default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
+                }
+                if (activePLayerList.size() == 1) {
+                    gameController.endGame();
                 }
             } catch (InterruptedException e) {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
