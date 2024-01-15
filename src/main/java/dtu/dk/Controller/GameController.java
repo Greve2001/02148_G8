@@ -10,6 +10,8 @@ import dtu.dk.Model.Word;
 import dtu.dk.UpdateToken;
 import dtu.dk.View.MainFX;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.util.Pair;
 import org.jspace.ActualField;
 import org.jspace.FormalField;
@@ -66,8 +68,22 @@ public class GameController {
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");
-            // TODO: Add Alert / Messagebox
-            throw new RuntimeException(e);
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Error");
+                alert.setHeaderText("Could not connect to host\n");
+                alert.setContentText("Make sure the host is running\n" +
+                        "If it is please check the host IP and try again\n" +
+                        "If the problem persists check the fire wall for port " +
+                        GameConfigs.INIT_PORT + " " + GameConfigs.DEFAULT_PORT_HOST + " " + GameConfigs.DEFAULT_PORT_JOIN);
+                alert.showAndWait().ifPresent(rs -> {
+                    if (rs == ButtonType.OK) {
+                        Platform.exit();
+                        System.exit(1);
+                    }
+                });
+            });
+            //throw new RuntimeException(e);
         }
 
         typeReady();
