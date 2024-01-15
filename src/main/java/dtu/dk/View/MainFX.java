@@ -6,7 +6,6 @@ import dtu.dk.Model.Word;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -120,7 +119,7 @@ public class MainFX extends Application implements GUIInterface {
         for (int i = 0; i < wordBox.getChildren().size(); i++) {
             Label letter = (Label) wordBox.getChildren().get(i);
             if (i < currentInput.length()) {
-                if (letter.getText().equals(String.valueOf(currentInput.charAt(i)))) {
+                if (letter.getText().toLowerCase().equals(String.valueOf(currentInput.toLowerCase().charAt(i)))) {
                     letter.setTextFill(Color.GREEN);
                 } else {
                     break;
