@@ -160,8 +160,11 @@ public class MainFX extends Application implements GUIInterface {
 
     @Override
     public void changeScene(String fxml) {
+        System.out.println("Setting latch");
         latch = new CountDownLatch(1);
+        System.out.println("Changing scene to: " + fxml);
         Platform.runLater(() -> {
+            System.out.println("FX: Changing scene to: " + fxml);
             FXMLLoader loader = new FXMLLoader(MainFX.class.getClassLoader().getResource(fxml));
             AnchorPane pane;
             try {
@@ -180,10 +183,12 @@ public class MainFX extends Application implements GUIInterface {
             MainFX.scene = scene;
             setPointers();
             latch.countDown();
+            System.out.println("FX: Changed scene to: " + fxml);
         });
     }
 
     private void setPointers() {
+        System.out.println("FX: Setting pointers");
         prompt = (Label) pane.lookup("#prompt");
         if (prompt != null)
             prompt.setText("");
@@ -210,9 +215,14 @@ public class MainFX extends Application implements GUIInterface {
         if (streak != null)
             streak.setText("0");
 
+        System.out.println("FX: finding hBoxLastWord");
+
         hBoxLastWord = (HBox) pane.lookup("#hBoxLastWord");
+        System.out.println("FX: found hBoxLastWord");
         if (hBoxLastWord != null)
-            updateLastWord("");
+            Platform.runLater(() -> updateLastWord(""));
+
+        System.out.println("FX: Set pointers done");
     }
 
     public void setSpace(SequentialSpace space) {

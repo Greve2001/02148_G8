@@ -96,28 +96,41 @@ public class GameController {
         }
 
         // Set needed start variables before starting the game locally
+        System.out.println("1");
         allPeers = setupController.getPeers();
+        System.out.println("2");
         activePeers = new ArrayList<>(allPeers);
+        System.out.println("3");
         new Thread(new DisconnectChecker(this)).start();
-
+        System.out.println("4");
         myPair = allPeers.get(0);
+        System.out.println("5");
         localGameController = new LocalGameController(myPair);
+        System.out.println("6");
         myPair.getValue().setUsername(username);
+        System.out.println("7");
         try {
             myPair.getKey().getSpace().put(LIFE, myPair.getValue().getLives());
+            System.out.println("8");
             myPair.getKey().getSpace().put(GET_USERNAME, myPair.getValue().getUsername());
+            System.out.println("9");
             for (int i = 1; i < activePeers.size(); i++) {
+                System.out.println("10." + i + ":" + activePeers.size());
                 activePeers.get(i).getKey().getSpace().put(UPDATE, USERNAME, myPair.getKey().getID());
             }
+            System.out.println("11");
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("12");
         for (String word : setupController.getWords()) {
             commonWords.add(new Word(word));
         }
+        System.out.println("13");
         ui.setWordsFallingList(localGameController.myPlayer.getWordsOnScreen());
-
+        System.out.println("14");
         ui.changeScene(GameConfigs.JAVA_FX_GAMESCREEN);
+        System.out.println("15");
 
     }
 
