@@ -42,7 +42,7 @@ public class MainFX extends Application implements GUIInterface {
     private VBox textPane;
     private Pane wordPane;
     private Label streak;
-    private HBox lastWord;
+    private HBox hBoxLastWord;
     private List<Word> wordsFalling;
 
     public static void startFX() {
@@ -97,11 +97,11 @@ public class MainFX extends Application implements GUIInterface {
                 }
 
                 // and last word
-                if (lastWord != null) {
-                    if (!currentInput.isEmpty() && ((getWordFromHBox(lastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
-                        updateWordColor(lastWord, currentInput);
+                if (hBoxLastWord != null) {
+                    if (!currentInput.isEmpty() && ((getWordFromHBox(hBoxLastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
+                        updateWordColor(hBoxLastWord, currentInput);
                     } else {
-                        resetWordColor(lastWord);
+                        resetWordColor(hBoxLastWord);
                     }
                 }
 
@@ -210,8 +210,8 @@ public class MainFX extends Application implements GUIInterface {
         if (streak != null)
             streak.setText("0");
 
-        lastWord = (HBox) pane.lookup("#lastWord");
-        if (lastWord != null)
+        hBoxLastWord = (HBox) pane.lookup("#hBoxLastWord");
+        if (hBoxLastWord != null)
             updateLastWord("");
     }
 
@@ -399,7 +399,6 @@ public class MainFX extends Application implements GUIInterface {
 
     public void updateLastWord(String word) throws NullPointerException {
         awaitLatch();
-        HBox hBoxLastWord = (HBox) pane.lookup("#hBoxLastWord");
         if (hBoxLastWord == null)
             throw new NullPointerException("hBoxLastWord not initialized/found");
         Platform.runLater(() -> {
@@ -408,7 +407,6 @@ public class MainFX extends Application implements GUIInterface {
                 Label letterLabel = new Label(String.valueOf(letterChar));
                 letterLabel.getStyleClass().add("fallingLetter");
                 hBoxLastWord.getChildren().add(letterLabel);
-                lastWord = hBoxLastWord;
             }
         });
     }
