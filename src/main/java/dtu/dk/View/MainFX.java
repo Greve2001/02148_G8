@@ -34,9 +34,9 @@ public class MainFX extends Application implements GUIInterface {
     private static AnchorPane pane;
     private static Scene scene;
     private static Stage stage;
+    private final Pane[][] hearts = new Pane[5][3];
     // Keylogger space
     SequentialSpace fxWords = new SequentialSpace();
-    private final Pane[][] hearts = new Pane[5][3];
     private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
@@ -85,13 +85,12 @@ public class MainFX extends Application implements GUIInterface {
                     prompt.setText(prompt.getText() + key);
                 }
                 String currentInput = prompt.getText();
-                    //update elemets on wordPane
-                if(this.wordPane!=null){
+                //update elemets on wordPane
+                if (this.wordPane != null) {
                     for (Node node : wordPane.getChildren()) {
-                        if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))){
-                        updateWordColor((HBox) node, currentInput);
-                        }
-                        else {
+                        if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
+                            updateWordColor((HBox) node, currentInput);
+                        } else {
                             resetWordColor((HBox) node);
                         }
                     }
@@ -99,14 +98,12 @@ public class MainFX extends Application implements GUIInterface {
 
                 // and last word
                 if (lastWord != null) {
-                    if (!currentInput.isEmpty() && ((getWordFromHBox(lastWord).startsWith(String.valueOf(currentInput.charAt(0)))))){
-                    updateWordColor(lastWord, currentInput);
-                }
-                    else {
+                    if (!currentInput.isEmpty() && ((getWordFromHBox(lastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
+                        updateWordColor(lastWord, currentInput);
+                    } else {
                         resetWordColor(lastWord);
                     }
                 }
-
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -200,7 +197,7 @@ public class MainFX extends Application implements GUIInterface {
         if (wordPane != null)
             //wordPane.getChildren().clear();
 
-        streak = (Label) pane.lookup("#streak");
+            streak = (Label) pane.lookup("#streak");
         if (streak != null)
             streak.setText("0");
 
@@ -216,7 +213,6 @@ public class MainFX extends Application implements GUIInterface {
     public void setWordsFallingList(List<Word> wordsFalling) {
         this.wordsFalling = wordsFalling;
     }
-
 
 
     @Override
@@ -319,10 +315,9 @@ public class MainFX extends Application implements GUIInterface {
                 wordBox.getChildren().add(letterLabel);
             }
             String currentInput = prompt.getText();
-            if (!currentInput.isEmpty() && ((getWordFromHBox(wordBox).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))){
+            if (!currentInput.isEmpty() && ((getWordFromHBox(wordBox).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
                 updateWordColor(wordBox, currentInput);
-            }
-            else {
+            } else {
                 resetWordColor(wordBox);
             }
 
@@ -379,7 +374,7 @@ public class MainFX extends Application implements GUIInterface {
     public String getWordFromHBox(HBox wordBox) {
         StringBuilder word = new StringBuilder();
         for (Node node : wordBox.getChildren()) {
-                word.append(((Label) node).getText());
+            word.append(((Label) node).getText());
         }
         return word.toString();
     }
@@ -404,7 +399,7 @@ public class MainFX extends Application implements GUIInterface {
                 Label letterLabel = new Label(String.valueOf(letterChar));
                 letterLabel.getStyleClass().add("fallingLetter");
                 hBoxLastWord.getChildren().add(letterLabel);
-                lastWord=hBoxLastWord;
+                lastWord = hBoxLastWord;
             }
         });
     }
