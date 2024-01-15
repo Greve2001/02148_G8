@@ -234,7 +234,8 @@
               </rowConstraints>
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" styleClass="lastwordhead" text="Last word" wrappingWidth="222.52142333984375" />
-                  <Label fx:id="lastWord" prefHeight="39.0" prefWidth="213.0" styleClass="lastword" text="Label" GridPane.rowIndex="1" />
+                   <HBox fx:id="hBoxLastWord" prefHeight="39.0" prefWidth="213.0" styleClass="lastword"  GridPane.rowIndex="1" >
+                   </HBox>
                </children>
             </GridPane>
          </children>

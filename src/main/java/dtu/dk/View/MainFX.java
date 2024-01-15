@@ -6,15 +6,17 @@ import dtu.dk.Model.Word;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jspace.FormalField;
@@ -32,15 +34,15 @@ public class MainFX extends Application implements GUIInterface {
     private static AnchorPane pane;
     private static Scene scene;
     private static Stage stage;
+    private final Pane[][] hearts = new Pane[5][3];
     // Keylogger space
     SequentialSpace fxWords = new SequentialSpace();
-    private final Pane[][] hearts = new Pane[5][3];
     private Label[] playerNames = new Label[4];
     private Label prompt;
     private VBox textPane;
     private Pane wordPane;
     private Label streak;
-    private Label lastWord;
+    private HBox lastWord;
     private List<Word> wordsFalling;
 
     public static void startFX() {
@@ -82,13 +84,33 @@ public class MainFX extends Application implements GUIInterface {
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
+                String currentInput = prompt.getText();
+                //update elemets on wordPane
+                if (this.wordPane != null) {
+                    for (Node node : wordPane.getChildren()) {
+                        if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
+                            updateWordColor((HBox) node, currentInput);
+                        } else {
+                            resetWordColor((HBox) node);
+                        }
+                    }
+                }
+
+                // and last word
+                if (lastWord != null) {
+                    if (!currentInput.isEmpty() && ((getWordFromHBox(lastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
+                        updateWordColor(lastWord, currentInput);
+                    } else {
+                        resetWordColor(lastWord);
+                    }
+                }
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        // Setting up the stage to close when the x is pressed
+
         stage.onCloseRequestProperty().setValue(e -> {
             Platform.exit();
             System.exit(0);
@@ -101,6 +123,40 @@ public class MainFX extends Application implements GUIInterface {
         this.ui = this;
         latch.countDown();
     }
+
+    private void updateWordColor(HBox wordBox, String currentInput) {
+        if (currentInput.length() <= wordBox.getChildren().size()) {
+            ((Label) wordBox.getChildren().get(0)).setTextFill(Color.GREEN);
+            for (int i = 0; i < wordBox.getChildren().size(); i++) {
+                Label letter = (Label) wordBox.getChildren().get(i);
+                if (i < currentInput.length()) {
+                    if (letter.getText().equalsIgnoreCase(String.valueOf(currentInput.charAt(i)))) {
+                        letter.setTextFill(Color.GREEN);
+                    } else {
+                        letter.setTextFill(Color.RED);
+
+                    }
+                } else {
+                    letter.setTextFill(Color.WHITE);
+                }
+            }
+        } else {
+            for (Node node : wordBox.getChildren()) {
+                if (node instanceof Label) {
+                    ((Label) node).setTextFill(Color.RED);
+                }
+            }
+        }
+    }
+
+    private void resetWordColor(HBox wordBox) {
+        for (Node node : wordBox.getChildren()) {
+            if (node instanceof Label) {
+                ((Label) node).setTextFill(Color.WHITE);
+            }
+        }
+    }
+
 
     @Override
     public void changeScene(String fxml) {
@@ -148,15 +204,15 @@ public class MainFX extends Application implements GUIInterface {
 
         wordPane = (Pane) pane.lookup("#wordPane");
         if (wordPane != null)
-            wordPane.getChildren().clear();
+            //wordPane.getChildren().clear();
 
-        streak = (Label) pane.lookup("#streak");
+            streak = (Label) pane.lookup("#streak");
         if (streak != null)
             streak.setText("0");
 
-        lastWord = (Label) pane.lookup("#lastWord");
+        lastWord = (HBox) pane.lookup("#lastWord");
         if (lastWord != null)
-            lastWord.setText("");
+            updateLastWord("");
     }
 
     public void setSpace(SequentialSpace space) {
@@ -166,7 +222,6 @@ public class MainFX extends Application implements GUIInterface {
     public void setWordsFallingList(List<Word> wordsFalling) {
         this.wordsFalling = wordsFalling;
     }
-
 
 
     @Override
@@ -261,18 +316,30 @@ public class MainFX extends Application implements GUIInterface {
             wordsFalling.add(word);
         }
         Platform.runLater(() -> {
-            Label label = new Label(word.getText());
-            label.getStyleClass().add("wordsFaling");
-            wordPane.getChildren().add(label);
-            int x = (int) (Math.random() * (wordPane.getWidth() - label.getWidth()));
-            label.setLayoutX(x);
+            HBox wordBox = new HBox();
+            wordBox.setId(word.getText());
+            for (char letter : word.getText().toCharArray()) {
+                Label letterLabel = new Label(String.valueOf(letter));
+                letterLabel.getStyleClass().add("fallingLetter");
+                wordBox.getChildren().add(letterLabel);
+            }
+            String currentInput = prompt.getText();
+            if (!currentInput.isEmpty() && ((getWordFromHBox(wordBox).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
+                updateWordColor(wordBox, currentInput);
+            } else {
+                resetWordColor(wordBox);
+            }
+
+            wordPane.getChildren().add(wordBox);
+            int x = (int) (Math.random() * (wordPane.getWidth() - wordBox.getWidth()));
+            wordBox.setLayoutX(x);
             TranslateTransition transition = new TranslateTransition();
             transition.setDuration(Duration.seconds(word.getFallDuration()));
-            transition.setNode(label);
+            transition.setNode(wordBox);
             transition.setToY(wordPane.getHeight() - 24);
             transition.setInterpolator(javafx.animation.Interpolator.LINEAR);
             transition.setOnFinished(e -> {
-                wordPane.getChildren().remove(label);
+                wordPane.getChildren().remove(wordBox);
                 wordsFalling.remove(word);
                 try {
                     fxWords.put(FxWordsToken.HIT, word.getText());
@@ -298,18 +365,27 @@ public class MainFX extends Application implements GUIInterface {
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
         Platform.runLater(() -> {
-            ObservableList children = wordPane.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                Label label = (Label) children.get(i);
-                if (label.getText().equals(word.getText())) {
-                    wordPane.getChildren().remove(label);
-                    if (wordsFalling.contains(word))
-                        wordsFalling.remove(word);
-                    word.getTranslateTransition().stop();
-                    break;
+                    List<Node> children = wordPane.getChildren();
+                    for (int i = 0; i < children.size(); i++) {
+                        Node node = children.get(i);
+                        if (getWordFromHBox((HBox) node).equals(word.getText())) {
+                            wordPane.getChildren().remove(node);
+                            if (wordsFalling.contains(word))
+                                wordsFalling.remove(word);
+                            word.getTranslateTransition().stop();
+                            break;
+                        }
+                    }
                 }
-            }
-        });
+        );
+    }
+
+    public String getWordFromHBox(HBox wordBox) {
+        StringBuilder word = new StringBuilder();
+        for (Node node : wordBox.getChildren()) {
+            word.append(((Label) node).getText());
+        }
+        return word.toString();
     }
 
     public void updateStreak(int streak) throws NullPointerException {
@@ -323,10 +399,17 @@ public class MainFX extends Application implements GUIInterface {
 
     public void updateLastWord(String word) throws NullPointerException {
         awaitLatch();
-        if (lastWord == null)
-            throw new NullPointerException("lastWord not initialized/found");
+        HBox hBoxLastWord = (HBox) pane.lookup("#hBoxLastWord");
+        if (hBoxLastWord == null)
+            throw new NullPointerException("hBoxLastWord not initialized/found");
         Platform.runLater(() -> {
-            lastWord.setText(word);
+            hBoxLastWord.getChildren().clear();
+            for (char letterChar : word.toCharArray()) {
+                Label letterLabel = new Label(String.valueOf(letterChar));
+                letterLabel.getStyleClass().add("fallingLetter");
+                hBoxLastWord.getChildren().add(letterLabel);
+                lastWord = hBoxLastWord;
+            }
         });
     }
 
