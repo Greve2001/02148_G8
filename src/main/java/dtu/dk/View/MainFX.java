@@ -125,17 +125,26 @@ public class MainFX extends Application implements GUIInterface {
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
-        for (int i = 0; i < wordBox.getChildren().size(); i++) {
-            Label letter = (Label) wordBox.getChildren().get(i);
-            if (i < currentInput.length()) {
-                if (letter.getText().equalsIgnoreCase(String.valueOf(currentInput.charAt(i)))) {
-                    letter.setTextFill(Color.GREEN);
-                } else {
-                    letter.setTextFill(Color.RED);
+        if (currentInput.length() <= wordBox.getChildren().size()) {
+            ((Label) wordBox.getChildren().get(0)).setTextFill(Color.GREEN);
+            for (int i = 0; i < wordBox.getChildren().size(); i++) {
+                Label letter = (Label) wordBox.getChildren().get(i);
+                if (i < currentInput.length()) {
+                    if (letter.getText().equalsIgnoreCase(String.valueOf(currentInput.charAt(i)))) {
+                        letter.setTextFill(Color.GREEN);
+                    } else {
+                        letter.setTextFill(Color.RED);
 
+                    }
+                } else {
+                    letter.setTextFill(Color.WHITE);
                 }
-            } else {
-                letter.setTextFill(Color.WHITE);
+            }
+        } else {
+            for (Node node : wordBox.getChildren()) {
+                if (node instanceof Label) {
+                    ((Label) node).setTextFill(Color.RED);
+                }
             }
         }
     }
