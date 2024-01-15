@@ -8,7 +8,9 @@ target/
 *.iws
 *.iml
 *.ipr
+*.MF
 out/
+
 
 ### Eclipse ###
 .apt_generated
