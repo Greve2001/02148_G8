@@ -77,8 +77,12 @@ public class MainFX extends Application implements GUIInterface {
                     key = "";
                     fxWords.put(FxWordsToken.TYPED, prompt.getText());
                     prompt.setText(key);
-                } else if (event.getCode() == KeyCode.BACK_SPACE && prompt.getText().length() > 0) {
-                    prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
+                } else if (event.getCode() == KeyCode.BACK_SPACE) {
+                    if (prompt.getText().length() > 0) {
+                        prompt.setText(prompt.getText().substring(0, prompt.getText().length() - 1));
+                    } else {
+                        prompt.setText("");
+                    }
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
