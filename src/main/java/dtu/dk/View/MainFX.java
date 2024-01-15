@@ -318,6 +318,14 @@ public class MainFX extends Application implements GUIInterface {
                 letterLabel.getStyleClass().add("fallingLetter");
                 wordBox.getChildren().add(letterLabel);
             }
+            String currentInput = prompt.getText();
+            if (!currentInput.isEmpty() && ((getWordFromHBox(wordBox).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))){
+                updateWordColor(wordBox, currentInput);
+            }
+            else {
+                resetWordColor(wordBox);
+            }
+
             wordPane.getChildren().add(wordBox);
             int x = (int) (Math.random() * (wordPane.getWidth() - wordBox.getWidth()));
             wordBox.setLayoutX(x);
