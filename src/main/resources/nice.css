@@ -60,7 +60,7 @@
     -fx-text-fill: white;
     -fx-font-size: 48px;
 }
-
+\\can be deleted i think
 .wordsFaling {
     -fx-text-fill: -fx-white;
     -fx-font-size: 24px;
@@ -89,4 +89,15 @@
     -fx-rotate: 270;
     -fx-scale-x: 0.5;
     -fx-scale-y: 0.5;
+}
+
+.fallingLetter{
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 24px;
+
+}
+
+.hjletter {
+    -fx-text-fill: white;
+    -fx-font-size: 48px;
 }
