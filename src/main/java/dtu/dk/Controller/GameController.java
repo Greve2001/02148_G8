@@ -546,7 +546,7 @@ class DisconnectChecker implements Runnable {
                 activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 // Communicate to all others that the person has disconnected - start from index 2 to exclude disconnected person
-                for (int index = 2; index < activePeerList.size(); index++) {
+                for (int index = 0; index < activePeerList.size(); index++) {
                     try {
                         activePeerList.get(index).getKey().getSpace().put(UPDATE, PLAYER_DROPPED, activePeerList.get(nextPeerIndex).getKey().getID());
                     } catch (InterruptedException ex) {
@@ -554,9 +554,9 @@ class DisconnectChecker implements Runnable {
                     }
                 }
 
-                if (activePeerList.size() > 1) {
-                    activePeerList.remove(nextPeerIndex);
-                }
+                //if (activePeerList.size() > 1) {
+                //activePeerList.remove(nextPeerIndex);
+                //}
                 /*if (!gameController.gameEnded)
                     gameController.updateUIPlayerList();
 
