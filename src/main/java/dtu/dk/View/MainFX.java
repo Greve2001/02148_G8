@@ -88,9 +88,10 @@ public class MainFX extends Application implements GUIInterface {
                     }
                 } else if (event.getCode() == KeyCode.INSERT) {
                     Clipboard clipboard = Clipboard.getSystemClipboard();
-                    prompt.setText(clipboard.getString());
+                    prompt.setText(prompt.getText() + clipboard.getString());
                 } else {
                     prompt.setText(prompt.getText() + key);
+                    System.out.println(event.getCode());
                 }
                 String currentInput = prompt.getText();
                 //update elemets on wordPane
