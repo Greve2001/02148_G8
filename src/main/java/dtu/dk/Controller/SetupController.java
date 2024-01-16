@@ -4,6 +4,7 @@ import dtu.dk.Exceptions.NoGameSetupException;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
+import dtu.dk.Protocol;
 import javafx.util.Pair;
 import org.jspace.*;
 
@@ -62,11 +63,35 @@ public class SetupController {
 
         setupSpace.put(CONNECT, publicURI);
         System.out.println("Peer: Sent (connect, " + publicURI + ")");
-        setupSpace.get(
+        Object[] gotten = setupSpace.get(
                 new ActualField(CONNECTED),
+                new FormalField(Protocol.class),
                 new ActualField(publicURI)
         );
-
+        Protocol protocol = (Protocol) gotten[1];
+        switch (protocol) {
+            case CONNECT_ACCEPTED -> System.out.println("Peer: Connected to Initiator");
+            case CONNECT_DUPLICATE_URI -> {
+                System.out.println("Peer: URI already connected");
+                repo.shutDown();
+                throw new IOException("URI already connected");
+            }
+            case CONNECT_DENIED -> {
+                System.out.println("Peer: Connection denied");
+                repo.shutDown();
+                throw new IOException("Connection denied");
+            }
+            case CONNECT_PORT_NOT_AVAILABLE -> {
+                System.out.println("Peer: Port not available");
+                repo.shutDown();
+                throw new IOException("Port not available");
+            }
+            default -> {
+                System.out.println("Peer: Unknown protocol");
+                repo.shutDown();
+                throw new IOException("Unknown protocol");
+            }
+        }
         System.out.println("Peer: Connected to Initiator");
     }
 

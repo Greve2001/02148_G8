@@ -3,6 +3,10 @@ package dtu.dk;
 public enum Protocol {
     CONNECT,
     CONNECTED,
+    CONNECT_DENIED,
+    CONNECT_DUPLICATE_URI,
+    CONNECT_PORT_NOT_AVAILABLE,
+    CONNECT_ACCEPTED,
     READY,
     PLAYERS,
     WORDS,
