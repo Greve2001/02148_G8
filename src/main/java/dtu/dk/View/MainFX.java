@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -85,6 +86,9 @@ public class MainFX extends Application implements GUIInterface {
                     } else {
                         prompt.setText("");
                     }
+                } else if (event.getCode() == KeyCode.INSERT) {
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    prompt.setText(clipboard.getString());
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
