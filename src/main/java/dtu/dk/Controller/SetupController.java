@@ -92,7 +92,6 @@ public class SetupController {
                 throw new IOException("Unknown protocol");
             }
         }
-        System.out.println("Peer: Connected to Initiator");
     }
 
     public void signalReady() throws InterruptedException {

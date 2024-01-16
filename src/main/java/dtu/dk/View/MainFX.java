@@ -91,7 +91,6 @@ public class MainFX extends Application implements GUIInterface {
                     prompt.setText(prompt.getText() + clipboard.getString());
                 } else {
                     prompt.setText(prompt.getText() + key);
-                    System.out.println(event.getCode());
                 }
                 String currentInput = prompt.getText();
                 //update elemets on wordPane

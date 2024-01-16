@@ -67,7 +67,7 @@ public class GameController {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Error");
-                alert.setHeaderText("Could not connect to host\n");
+                alert.setHeaderText("Could not connect to host" + (e.getMessage() != null ? "\n" + e.getMessage() : ""));
                 alert.setContentText("Make sure the host is running\n" +
                         "If it is please check the host IP and try again\n" +
                         "If the problem persists check the fire wall for port " +
