@@ -49,6 +49,7 @@ public class DisconnectChecker implements Runnable {
         }
     }
     void sendDisconnectToIndex(int index, int nextPeerIndex){
+        if(index >= activePeerList.size()) return;
         try {
             activePeerList.get(index).getKey().getSpace().put(
                     UPDATE,
