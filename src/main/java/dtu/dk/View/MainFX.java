@@ -94,25 +94,26 @@ public class MainFX extends Application implements GUIInterface {
                 }
                 String currentInput = prompt.getText();
                 //update elemets on wordPane
-                if (this.wordPane != null) {
-                    for (Node node : wordPane.getChildren()) {
-                        if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
-                            updateWordColor((HBox) node, currentInput);
-                        } else {
-                            resetWordColor((HBox) node);
+                Platform.runLater(() -> {
+                    if (this.wordPane != null) {
+                        for (Node node : wordPane.getChildren()) {
+                            if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {
+                                updateWordColor((HBox) node, currentInput);
+                            } else {
+                                resetWordColor((HBox) node);
+                            }
                         }
                     }
-                }
 
-                // and last word
-                if (hBoxLastWord != null) {
-                    if (!currentInput.isEmpty() && ((getWordFromHBox(hBoxLastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
-                        updateWordColor(hBoxLastWord, currentInput);
-                    } else {
-                        resetWordColor(hBoxLastWord);
+                    // and last word
+                    if (hBoxLastWord != null) {
+                        if (!currentInput.isEmpty() && ((getWordFromHBox(hBoxLastWord).startsWith(String.valueOf(currentInput.charAt(0)))))) {
+                            updateWordColor(hBoxLastWord, currentInput);
+                        } else {
+                            resetWordColor(hBoxLastWord);
+                        }
                     }
-                }
-
+                });
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -142,17 +143,15 @@ public class MainFX extends Application implements GUIInterface {
                         letter.setTextFill(Color.GREEN);
                     } else {
                         letter.setTextFill(Color.RED);
-
                     }
                 } else {
                     letter.setTextFill(Color.WHITE);
+                    break;
                 }
             }
         } else {
             for (Node node : wordBox.getChildren()) {
-                if (node instanceof Label) {
-                    ((Label) node).setTextFill(Color.RED);
-                }
+                ((Label) node).setTextFill(Color.RED);
             }
         }
     }
