@@ -47,7 +47,7 @@ public class ConnectionHandler implements Runnable {
 
     private String listenForPeerURI() throws InterruptedException, DuplicateURI, PortNotAvailable {
         String peerURI = (String) space.get(new ActualField(CONNECT), new FormalField(String.class))[1];
-        if (!checkPort(peerURI) {
+        if (!checkPort(peerURI)) {
             throw new PortNotAvailable("Port is not available", peerURI);
         }
         if (!playerURIs.contains(peerURI)) {
