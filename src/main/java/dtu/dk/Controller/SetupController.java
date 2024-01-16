@@ -42,7 +42,7 @@ public class SetupController {
         } catch (Exception e) {
             repo.shutDown();
             e.printStackTrace();
-            throw new NoGameSetupException();
+            throw new NoGameSetupException(e.getMessage());
         }
     }
 
