@@ -37,22 +37,29 @@ public class WordHitController implements Runnable {
             gameController.ui.updateLife(0, gameController.myPair.getValue().getLives());
             gameController.ui.updateStreak(gameController.myPair.getValue().getStreak());
 
-            List<Pair<Peer, Player>> activePeerList = gameController.getActivePeers();
-
-            for (int index = 1; index < activePeerList.size(); index++) {
-                try {
-                    activePeerList.get(index).getKey().getSpace().put(
-                            UPDATE,
-                            gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE,
-                            gameController.myPair.getKey().getID());
-                } catch (InterruptedException e) {
-                    System.err.println("Could not update life");
-                }
-            }
+            sendUpdateLifeOrDeath(1);
+            sendUpdateLifeOrDeath(2);
+            sendUpdateLifeOrDeath(gameController.getActivePeers().size()-2);
+            sendUpdateLifeOrDeath(gameController.getActivePeers().size()-1);
 
             if (gameController.myPair.getValue().getLives() == 0) {
                 gameController.endGame();
             }
+        }
+    }
+
+    void sendUpdateLifeOrDeath(int index) {
+        List<Pair<Peer, Player>> activePeerList = gameController.getActivePeers();
+        //check if valid index
+        if(index >= activePeerList.size() || index < 1) return;
+        try {
+            activePeerList.get(index).getKey().getSpace().put(
+                    UPDATE,
+                    gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE,
+                    gameController.myPair.getKey().getID());
+        } catch (InterruptedException e) {
+            System.err.println("Could not update life");
+            // TODO update peer list, as this happens when disconnect has happened?
         }
     }
 }
