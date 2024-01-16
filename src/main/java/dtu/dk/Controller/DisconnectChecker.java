@@ -56,7 +56,7 @@ public class DisconnectChecker implements Runnable {
                     PLAYER_DROPPED,
                     activePeerList.get(nextPeerIndex).getKey().getID());
         } catch (InterruptedException ex) {
-            System.out.println("Another disconnect -.-");
+            System.out.println("Another disconnect when trying to send disconnect to adjecent peers - from DisconnectChecker");
         }
     }
 }
