@@ -4,7 +4,10 @@ import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import javafx.util.Pair;
 import org.jspace.ActualField;
+import org.jspace.RemoteSpace;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import static dtu.dk.Protocol.UPDATE;
@@ -24,7 +27,11 @@ public class DisconnectChecker implements Runnable {
         int nextPeerIndex = 1;
         while (activePeerList.size() > 1) {
             try { // get a non-existing string in the RemoteSpace of the person next in the disconnect line
-                activePeerList.get(nextPeerIndex).getKey().getSpace().get(new ActualField("nonexist"));
+                String connURI = activePeerList.get(nextPeerIndex).getKey().getURI();
+                String keepURI = connURI.replace("?conn", "?keep");
+                System.out.println("keepURI is: " + keepURI);
+                RemoteSpace keepSpace = new RemoteSpace(keepURI);
+                keepSpace.get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 // Communicate to one behind and 3 in front of disconnect that there was a disconnect
                 sendDisconnectToIndex(0, nextPeerIndex);
@@ -32,6 +39,12 @@ public class DisconnectChecker implements Runnable {
                 sendDisconnectToIndex(3, nextPeerIndex);
                 sendDisconnectToIndex(activePeerList.size()-1, nextPeerIndex);
                 System.out.println("DisconnectChecker: Player disconnected. Active peer list size = " + activePeerList.size());
+            } catch (UnknownHostException e) {
+                System.out.println("Trying to connect with keepURI in DisconnectChecker - Unknown host");
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                System.out.println("Trying to connect with keepURI in DisconnectChecker - IO");
+                throw new RuntimeException(e);
             }
         }
     }

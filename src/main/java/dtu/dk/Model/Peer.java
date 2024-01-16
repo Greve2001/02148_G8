@@ -8,11 +8,17 @@ public class Peer {
 
     private Space space;
 
-    public Peer(int id, Space space) {
+    private String URI;
+
+    public Peer(int id, Space space, String URI) {
         this.id = id;
         this.space = space;
+        this.URI = URI;
     }
 
+    public String getURI(){
+        return this.URI;
+    }
     public int getID() {
         return id;
     }

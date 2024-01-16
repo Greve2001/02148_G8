@@ -21,7 +21,7 @@ public class LocalGameControllerTest {
         myPlayer = new Me();
 
         pair = new Pair<>(
-                new Peer(0, new SequentialSpace()),
+                new Peer(0, new SequentialSpace(), ""),
                 myPlayer
         );
 
