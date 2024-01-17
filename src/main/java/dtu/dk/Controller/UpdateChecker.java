@@ -104,7 +104,7 @@ public class UpdateChecker implements Runnable {
     }
 
 
-    private void updateNabourLife(int index) {
+    private void updateNeighbourLife(int index) {
         if (index >= activePLayerList.size()) return;
         try {
             activePLayerList.get(0).getKey().getSpace().put(
@@ -123,13 +123,13 @@ public class UpdateChecker implements Runnable {
     private void updateNeighbourLifeAutomatic() {
         switch (activePLayerList.size()) {
             default:
-                updateNabourLife(activePLayerList.size() - 2);
+                updateNeighbourLife(activePLayerList.size() - 2);
             case 4:
-                updateNabourLife(2);
+                updateNeighbourLife(2);
             case 3:
-                updateNabourLife(activePLayerList.size() - 1);
+                updateNeighbourLife(activePLayerList.size() - 1);
             case 2:
-                updateNabourLife(1);
+                updateNeighbourLife(1);
             case 1:
         }
     }
