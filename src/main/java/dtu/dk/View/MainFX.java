@@ -71,7 +71,6 @@ public class MainFX extends Application implements GUIInterface {
         //scene.setCursor(Cursor.NONE);
         scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
 
-
         // Setting up keylogger
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {

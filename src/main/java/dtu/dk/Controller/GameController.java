@@ -186,7 +186,7 @@ public class GameController {
     private void typeMyIP() {
         // Is this your IP address?
         String generatedIP = getLocalIPAddress();
-        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + " " + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
 
         boolean exitDoWhile = false;
         String typedIP;
@@ -211,12 +211,12 @@ public class GameController {
                         System.exit(0);
                     }
                     default ->
-                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 }
             }
         } while (!exitDoWhile);
 
-        ui.addTextToTextPane(localIP);
+        ui.addTextToTextPane("IP: " + localIP);
     }
 
     private void typeUsername() {
@@ -250,7 +250,7 @@ public class GameController {
             }
 
             if (exitDoWhile) {
-                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME + username);
+                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME1 + username + GameConfigs.CONFIRM_USERNAME2);
                 String confirmation;
                 try {
                     confirmation = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
@@ -270,8 +270,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-
-        ui.addTextToTextPane(username);
+        ui.addTextToTextPane("Username: " + username);
     }
 
     private void typeReady() {
