@@ -194,7 +194,7 @@ public class GameController {
     private void typeMyIP() {
         // Is this your IP address?
         String generatedIP = getLocalIPAddress();
-        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + " " + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
 
         boolean exitDoWhile = false;
         String typedIP;
@@ -219,12 +219,12 @@ public class GameController {
                         System.exit(0);
                     }
                     default ->
-                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 }
             }
         } while (!exitDoWhile);
 
-        ui.addTextToTextPane(localIP);
+        ui.addTextToTextPane("IP: " + localIP);
     }
 
     private void typeUsername() {
@@ -258,7 +258,7 @@ public class GameController {
             }
 
             if (exitDoWhile) {
-                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME + username);
+                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME1 + username + GameConfigs.CONFIRM_USERNAME2);
                 String confirmation;
                 try {
                     confirmation = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
@@ -278,8 +278,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-
-        ui.addTextToTextPane(username);
+        ui.addTextToTextPane("Username: " + username);
     }
 
     private void typeReady() {
@@ -318,9 +317,7 @@ public class GameController {
         int wpm = GameConfigs.START_WPM;
         int wordsBeforeIncrease;
 
-
         for (int i = 0, fallenWords = 0; activePeers.size() > 1; i = (i + 1) % commonWords.size(), fallenWords++) {
-
             localGameController.addWordToMyScreen(commonWords.get(i));
             ui.makeWordFall(commonWords.get(i));
 
@@ -413,7 +410,6 @@ public class GameController {
     }
 
     public void endGame() {
-
         if (gameEnded)
             return;
         gameEnded = true;
@@ -423,11 +419,21 @@ public class GameController {
             this.ui.removeWordFalling(word);
         }
         this.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
-        if (this.getActivePeers().size() == 1) {
+        if (this.activePeers.size() == 1) {
             this.ui.addTextToTextPane("You won the game");
         } else {
             this.ui.addTextToTextPane("You lost the game");
         }
+
+        localGameController.myPlayer.setMaxStreak(localGameController.myPlayer.getStreak());
+
+        this.ui.addTextToTextPane("");
+        this.ui.addTextToTextPane("Stats:");
+        this.ui.addTextToTextPane("You have typed " + localGameController.myPlayer.getWordsTypedCorrectCounter() + " words correct.");
+        this.ui.addTextToTextPane("You have sent " + localGameController.myPlayer.getWordsSentCounter() + " words to other player.");
+        this.ui.addTextToTextPane("Your placement: " + activePeers.size());
+        this.ui.addTextToTextPane("You had a maximum streak of: " + localGameController.myPlayer.getMaxStreak());
+
         Pair<Peer, Player> temp = activePeers.get(0);
         activePeers.clear();
         activePeers.add(temp);
