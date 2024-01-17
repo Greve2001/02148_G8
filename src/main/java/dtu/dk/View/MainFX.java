@@ -71,7 +71,6 @@ public class MainFX extends Application implements GUIInterface {
         //scene.setCursor(Cursor.NONE);
         scene.getStylesheets().add(GameConfigs.JAVA_FX_CSS);
 
-
         // Setting up keylogger
         stage.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
             try {
@@ -131,6 +130,9 @@ public class MainFX extends Application implements GUIInterface {
         setPointers();
         this.ui = this;
         latch.countDown();
+
+       // Set instructional text
+       prompt.setText("Type the actions to navigate the menu");
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
