@@ -150,7 +150,7 @@ public class MainFX extends Application implements GUIInterface {
             }
         } else {
             for (Node node : wordBox.getChildren()) {
-                if (node instanceof Label){
+                if (node instanceof Label) {
                     ((Label) node).setTextFill(Color.RED);
                 }
             }

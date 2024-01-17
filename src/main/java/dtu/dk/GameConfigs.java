@@ -29,7 +29,7 @@ public class GameConfigs {
     public static final String GET_HOST_IP = "Please enter the host IP";
     public static final String GET_LOCAL_IP = "Is this your IP address? ";
     public static final String GET_LOCAL_IP_IF_NOT = "If not type your IP address";
-    public static final String Y = "Y";
+    public static final String Y = "y";
     public static final String YES = "yes";
     public static final String Y_YES = "(" + Y + "/" + YES + ") ";
     public static final String GET_LOCAL_IP_INVALID = "Invalid - ";
