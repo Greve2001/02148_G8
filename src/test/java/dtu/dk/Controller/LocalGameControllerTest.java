@@ -4,6 +4,7 @@ import dtu.dk.Model.Me;
 import dtu.dk.Model.Peer;
 import dtu.dk.Model.Player;
 import dtu.dk.Model.Word;
+import dtu.dk.Protocol;
 import javafx.util.Pair;
 import org.jspace.SequentialSpace;
 import org.junit.Before;
@@ -19,9 +20,14 @@ public class LocalGameControllerTest {
     @Before
     public void setUp() {
         myPlayer = new Me();
-
+        SequentialSpace space = new SequentialSpace();
+        try {
+            space.put(Protocol.LIFE, myPlayer.getLives());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         pair = new Pair<>(
-                new Peer(0, new SequentialSpace(), ""),
+                new Peer(0, space, ""),
                 myPlayer
         );
 
