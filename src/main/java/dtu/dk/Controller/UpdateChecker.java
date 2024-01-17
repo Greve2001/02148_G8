@@ -53,6 +53,7 @@ public class UpdateChecker implements Runnable {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
+                                updateNabourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player died. Active peer list size = " + activePLayerList.size());
                                 break;
@@ -68,7 +69,7 @@ public class UpdateChecker implements Runnable {
                     case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
-                                activePLayerList.remove(index);
+                                updateNabourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
@@ -94,6 +95,37 @@ public class UpdateChecker implements Runnable {
             } catch (InterruptedException e) {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
             }
+        }
+    }
+
+
+    private void updateNabourLife(int index) {
+        if (index >= activePLayerList.size()) return;
+        try {
+            activePLayerList.get(0).getKey().getSpace().put(
+                    UPDATE,
+                    LIFE,
+                    activePLayerList.get(index).getKey().getID());
+        } catch (InterruptedException ex) {
+            System.out.println("Another disconnect when trying to send disconnect to adjecent peers - from DisconnectChecker");
+        }
+    }
+
+    /**
+     * updates by putting update life in my space and getting the life from the nabour
+     * when updateChecker gets to it
+     */
+    private void updateNabourLifeAutomatic() {
+        switch (activePLayerList.size()) {
+            default:
+                updateNabourLife(activePLayerList.size() - 2);
+            case 4:
+                updateNabourLife(2);
+            case 3:
+                updateNabourLife(activePLayerList.size() - 1);
+            case 2:
+                updateNabourLife(1);
+            case 1:
         }
     }
 }
