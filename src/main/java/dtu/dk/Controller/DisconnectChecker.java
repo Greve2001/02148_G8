@@ -35,9 +35,9 @@ public class DisconnectChecker implements Runnable {
             } catch (InterruptedException e) {
                 // Communicate to one behind and 3 in front of disconnect that there was a disconnect
                 sendDisconnectToIndex(0, nextPeerIndex);
-                sendDisconnectToIndex(2, nextPeerIndex);
-                sendDisconnectToIndex(3, nextPeerIndex);
-                sendDisconnectToIndex(activePeerList.size()-1, nextPeerIndex);
+                for (int i = 2; i < activePeerList.size(); i++) {
+                    sendDisconnectToIndex(i, nextPeerIndex);
+                }
                 System.out.println("DisconnectChecker: Player disconnected. Active peer list size = " + activePeerList.size());
             } catch (UnknownHostException e) {
                 System.out.println("Trying to connect with keepURI in DisconnectChecker - Unknown host");

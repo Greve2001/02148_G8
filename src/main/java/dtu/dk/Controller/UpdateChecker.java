@@ -69,6 +69,7 @@ public class UpdateChecker implements Runnable {
                     case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
+                                activePLayerList.remove(index);
                                 updateNabourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player disconnected. Active peer list size = " + activePLayerList.size());
