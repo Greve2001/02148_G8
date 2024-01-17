@@ -53,7 +53,7 @@ public class UpdateChecker implements Runnable {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
-                                updateNabourLifeAutomatic();
+                                updateNeighbourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player died. Active peer list size = " + activePLayerList.size());
                                 break;
@@ -70,7 +70,7 @@ public class UpdateChecker implements Runnable {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
-                                updateNabourLifeAutomatic();
+                                updateNeighbourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
@@ -120,7 +120,7 @@ public class UpdateChecker implements Runnable {
      * updates by putting update life in my space and getting the life from the nabour
      * when updateChecker gets to it
      */
-    private void updateNabourLifeAutomatic() {
+    private void updateNeighbourLifeAutomatic() {
         switch (activePLayerList.size()) {
             default:
                 updateNabourLife(activePLayerList.size() - 2);
