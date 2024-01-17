@@ -91,10 +91,9 @@ public class MainFX extends Application implements GUIInterface {
                     prompt.setText(prompt.getText() + clipboard.getString());
                 } else {
                     prompt.setText(prompt.getText() + key);
-                    System.out.println(event.getCode());
                 }
                 String currentInput = prompt.getText();
-                //update elemets on wordPane
+                //update elements on wordPane
                 if (this.wordPane != null) {
                     for (Node node : wordPane.getChildren()) {
                         if (!currentInput.isEmpty() && ((getWordFromHBox((HBox) node).toLowerCase().startsWith(String.valueOf(currentInput.charAt(0)).toLowerCase())))) {

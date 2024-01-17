@@ -36,10 +36,7 @@ public class Player {
         this.streak = 0;
     }
 
-    public void addStreak() {
+    public void increaseStreak() {
         this.streak++;
-    }
-    public void loseStreak() {
-        this.streak=0;
     }
 }
