@@ -180,7 +180,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-        ui.addTextToTextPane(hostIP);
+        ui.addTextToTextPane("Host IP: " + hostIP);
     }
 
     private void typeMyIP() {
@@ -216,7 +216,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-        ui.addTextToTextPane("IP: " + localIP);
+        ui.addTextToTextPane("Local IP: " + localIP);
     }
 
     private void typeUsername() {
