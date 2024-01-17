@@ -1,6 +1,7 @@
 package dtu.dk.Controller;
 
 import dtu.dk.FxWordsToken;
+import dtu.dk.GameConfigs;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Word;
 import org.jspace.ActualField;
@@ -42,7 +43,7 @@ public class WordTypedController implements Runnable {
             // If the player retype their last typed word
             if (me.getLastWord() != null && me.getLastWord().getText().equals(wordTyped) && gameController.getActivePeers().size() > 1) {
                 me.setLastWord(null);
-                sendExtraWordToNextPlayer(new Word(wordTyped));
+                attemptExtraWordSend(new Word(wordTyped));
                 gameController.ui.updateLastWord("");
                 flag = false;
             }
@@ -54,7 +55,7 @@ public class WordTypedController implements Runnable {
                     gameController.ui.updateStreak(me.getStreak());
                     gameController.ui.updateLastWord(me.getLastWord().getText());
                     if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
-                        sendExtraWordToNextPlayer(word);
+                        attemptExtraWordSend(word);
                     flag = false;
                     break;
                 }
@@ -65,6 +66,17 @@ public class WordTypedController implements Runnable {
                 gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
             }
         }
+    }
+
+    private void attemptExtraWordSend(Word word) {
+        int streak = gameController.localGameController.myPlayer.getStreak();
+        double timesToSend = streak * GameConfigs.SEND_LAST_WORD_CHANCE;
+
+        for (int i = 0; i < (int) timesToSend; i++) {
+            sendExtraWordToNextPlayer(word);
+        }
+        if (timesToSend % 1 >= Math.random())
+            sendExtraWordToNextPlayer(word);
     }
 
     private void sendExtraWordToNextPlayer(Word word) {
