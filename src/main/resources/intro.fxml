@@ -65,6 +65,6 @@
             </GridPane>
          </children>
       </HBox>
-       <Text fx:id="text" fill="WHITE" layoutX="581.0" layoutY="214.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-text-alignment: center;" styleClass="writefield" text="Write your actions:" />
+       <Text fx:id="text" fill="WHITE" layoutX="581.0" layoutY="214.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-text-alignment: center;" styleClass="writefield" text="Write:" />
    </children>
 </AnchorPane>
