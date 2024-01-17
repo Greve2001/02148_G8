@@ -396,7 +396,7 @@ public class GameController {
     }
 
     public void endGame() {
-        if (gameEnded)
+        if (this.gameEnded)
             return;
         this.gameEnded = true;
         List<Word> wordsOnScreen = this.localGameController.myPlayer.getWordsOnScreen();
@@ -404,10 +404,20 @@ public class GameController {
             this.ui.removeWordFalling(word);
         }
         this.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
-        if (this.getActivePeers().size() == 1) {
+        if (this.activePeers.size() == 1) {
             this.ui.addTextToTextPane("You won the game");
         } else {
             this.ui.addTextToTextPane("You lost the game");
         }
+
+        localGameController.myPlayer.setMaxStreak(localGameController.myPlayer.getStreak());
+
+        this.ui.addTextToTextPane("");
+        this.ui.addTextToTextPane("Stats:");
+        this.ui.addTextToTextPane("You have typed " + localGameController.myPlayer.getWordsTypedCorrectCounter() + " words correct.");
+        this.ui.addTextToTextPane("You have sent " + localGameController.myPlayer.getWordsSentCounter() + " words to other player.");
+        this.ui.addTextToTextPane("Your placement: " + activePeers.size());
+        this.ui.addTextToTextPane("You had a maximum streak of: " + localGameController.myPlayer.getMaxStreak());
+
     }
 }

@@ -8,6 +8,7 @@ public class GameConfigs {
     public static final int WPM_INCREASE = 1;
     public static final int START_WPM = 7;
     public static final int MAX_WPM = 500;
+    public static final double SEND_LAST_WORD_CHANCE = 1. / 20.;
 
     /*
      *************** GameController settings ***************
