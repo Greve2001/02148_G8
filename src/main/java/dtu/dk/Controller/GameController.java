@@ -41,7 +41,6 @@ public class GameController {
         try {
             ui = MainFX.getUI();
             ui.setSpace(fxWords);
-            ui.
         } catch (InterruptedException e) {
             System.err.println("Could not await latch");
             throw new RuntimeException(e);

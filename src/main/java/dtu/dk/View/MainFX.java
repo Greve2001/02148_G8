@@ -130,9 +130,6 @@ public class MainFX extends Application implements GUIInterface {
         setPointers();
         this.ui = this;
         latch.countDown();
-
-       // Set instructional text
-       prompt.setText("Type the actions to navigate the menu");
     }
 
     private void updateWordColor(HBox wordBox, String currentInput) {
@@ -153,7 +150,7 @@ public class MainFX extends Application implements GUIInterface {
             }
         } else {
             for (Node node : wordBox.getChildren()) {
-                if (node instanceof Label) {
+                if (node instanceof Label){
                     ((Label) node).setTextFill(Color.RED);
                 }
             }
