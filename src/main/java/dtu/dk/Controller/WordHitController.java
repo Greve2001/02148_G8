@@ -23,15 +23,18 @@ public class WordHitController implements Runnable {
     }
 
     public void run() {
-        while (!gameController.gameEnded) {
+        while (gameController.getActivePeers().size() > 1) {
+            String word;
             try {
-                fxWords.get(
+                word = (String) fxWords.get(
                         new ActualField(FxWordsToken.HIT),
-                        new FormalField(String.class));
+                        new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 System.err.println("Could not get word that hit the bottom of wordPane");
                 throw new RuntimeException(e);
             }
+            if (word.equals(""))
+                break;
             gameController.localGameController.loseLife(gameController.myPair);
             gameController.ui.updateLife(0, gameController.myPair.getValue().getLives());
             gameController.ui.updateStreak(gameController.myPair.getValue().getStreak());
@@ -44,10 +47,11 @@ public class WordHitController implements Runnable {
             } else {
                 for (int i = 1; i < gameController.getActivePeers().size(); i++) {
                     sendUpdateLifeOrDeath(i, true);
-                    gameController.endGame();
                 }
+                gameController.endGame();
             }
         }
+        System.out.println("WordHitController terminated successfully");
     }
 
     void sendUpdateLifeOrDeath(int index, boolean death) {

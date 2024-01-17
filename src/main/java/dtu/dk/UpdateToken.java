@@ -5,6 +5,7 @@ public enum UpdateToken {
     DEATH,
     SEND_WORD,
     PLAYER_DROPPED,
-    USERNAME
+    USERNAME,
+    NOP
 
 }

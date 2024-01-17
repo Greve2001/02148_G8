@@ -12,6 +12,7 @@ import static dtu.dk.Protocol.CONNECTED;
 public class ConnectionHandler implements Runnable {
     List<String> playerURIs;
     Space space;
+    private boolean gameStarted = false;
 
     public ConnectionHandler(Space space, List<String> playerURIs) {
         this.playerURIs = playerURIs;
@@ -21,7 +22,7 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while (true) {
+            while (!gameStarted) {
                 String uri = listenForPeerURI();
                 if (!uri.isEmpty())
                     sendPeerConformation(uri);
@@ -29,6 +30,7 @@ public class ConnectionHandler implements Runnable {
         } catch (InterruptedException e) {
             System.out.println(Initiator.errorSpaceNotAvailable);
         }
+        System.out.println("ConnectionHandler Thread terminated successfully");
     }
 
     private String listenForPeerURI() throws InterruptedException {
@@ -39,19 +41,23 @@ public class ConnectionHandler implements Runnable {
 
         if (!playerURIs.contains(peerURI)) {
             playerURIs.add(peerURI);
-            System.out.println("Initiator: Peer connected: " + peerURI);
+            System.out.println("ConnectionHandler: Peer connected: " + peerURI);
             return peerURI;
 
         } else {
-            System.out.println("Initiator: Duplicate peerURI");
+            System.out.println("ConnectionHandler: Duplicate peerURI");
             return "";
         }
+    }
+
+    public void setGameStarted() {
+        gameStarted = true;
     }
 
     private void sendPeerConformation(String uri) {
         try {
             space.put(CONNECTED, uri);
-            System.out.println("Initiator sent " + CONNECT + " to peer: " + uri);
+            System.out.println("ConnectionHandler sent " + CONNECT + " to peer: " + uri);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }

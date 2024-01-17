@@ -25,7 +25,7 @@ public class UpdateChecker implements Runnable {
     }
 
     public void run() {
-        while (!gameController.gameEnded && activePLayerList.size() > 1) {
+        while (activePLayerList.size() > 1) {
             try {
                 Object[] updateTup = localSpace.get( // Player list
                         new ActualField(UPDATE),
@@ -88,6 +88,9 @@ public class UpdateChecker implements Runnable {
                             }
                         }
                     }
+                    case NOP -> {
+                        System.out.println("UpdateChecker: NOP");
+                    }
                     default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
                 if (activePLayerList.size() == 1) {
@@ -97,6 +100,7 @@ public class UpdateChecker implements Runnable {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
             }
         }
+        System.out.println("UpdateChecker: Thread terminated successfully.");
     }
 
 
