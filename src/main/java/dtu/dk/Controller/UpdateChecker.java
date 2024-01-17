@@ -25,7 +25,7 @@ public class UpdateChecker implements Runnable {
     }
 
     public void run() {
-        while (!gameController.gameEnded && activePLayerList.size() > 1) {
+        while (activePLayerList.size() > 1) {
             try {
                 Object[] updateTup = localSpace.get( // Player list
                         new ActualField(UPDATE),
@@ -53,7 +53,7 @@ public class UpdateChecker implements Runnable {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
                                 activePLayerList.remove(index);
-                                updateNabourLifeAutomatic();
+                                updateNeighbourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player died. Active peer list size = " + activePLayerList.size());
                                 break;
@@ -69,7 +69,8 @@ public class UpdateChecker implements Runnable {
                     case PLAYER_DROPPED -> {
                         for (int index = 1; index < activePLayerList.size(); index++) {
                             if (activePLayerList.get(index).getKey().getID() == (Integer) updateTup[2]) {
-                                updateNabourLifeAutomatic();
+                                activePLayerList.remove(index);
+                                updateNeighbourLifeAutomatic();
                                 gameController.updateUIPlayerList();
                                 System.out.println("UpdateChecker: Player disconnected. Active peer list size = " + activePLayerList.size());
                             }
@@ -87,6 +88,9 @@ public class UpdateChecker implements Runnable {
                             }
                         }
                     }
+                    case NOP -> {
+                        System.out.println("UpdateChecker: NOP");
+                    }
                     default -> System.out.println("UpdateChecker error - wrong update protocol - did nothing..");
                 }
                 if (activePLayerList.size() == 1) {
@@ -96,10 +100,11 @@ public class UpdateChecker implements Runnable {
                 System.err.println("UpdateChecker error - Can't get local space - Something is wrong??");
             }
         }
+        System.out.println("UpdateChecker: Thread terminated successfully.");
     }
 
 
-    private void updateNabourLife(int index) {
+    private void updateNeighbourLife(int index) {
         if (index >= activePLayerList.size()) return;
         try {
             activePLayerList.get(0).getKey().getSpace().put(
@@ -115,16 +120,16 @@ public class UpdateChecker implements Runnable {
      * updates by putting update life in my space and getting the life from the nabour
      * when updateChecker gets to it
      */
-    private void updateNabourLifeAutomatic() {
+    private void updateNeighbourLifeAutomatic() {
         switch (activePLayerList.size()) {
             default:
-                updateNabourLife(activePLayerList.size() - 2);
+                updateNeighbourLife(activePLayerList.size() - 2);
             case 4:
-                updateNabourLife(2);
+                updateNeighbourLife(2);
             case 3:
-                updateNabourLife(activePLayerList.size() - 1);
+                updateNeighbourLife(activePLayerList.size() - 1);
             case 2:
-                updateNabourLife(1);
+                updateNeighbourLife(1);
             case 1:
         }
     }

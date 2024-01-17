@@ -25,7 +25,7 @@ public class WordTypedController implements Runnable {
     public void run() {
         String wordTyped;
 
-        while (!gameController.gameEnded) {
+        while (gameController.getActivePeers().size() > 1) {
             try {
                 wordTyped = (String) fxWords.get(
                         new ActualField(FxWordsToken.TYPED),
@@ -38,29 +38,34 @@ public class WordTypedController implements Runnable {
             List<Word> wordsOnScreen = gameController.localGameController.myPlayer.getWordsOnScreen();
             Me me = gameController.localGameController.myPlayer;
             boolean flag = true;
+
+            // If the player retype their last typed word
             if (me.getLastWord() != null && me.getLastWord().getText().equals(wordTyped) && gameController.getActivePeers().size() > 1) {
                 me.setLastWord(null);
                 sendExtraWordToNextPlayer(new Word(wordTyped));
                 gameController.ui.updateLastWord("");
                 flag = false;
             }
+            // Try to match the player's typed word with a word on the screen
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
                     gameController.localGameController.correctlyTyped(word);
                     gameController.ui.removeWordFalling(word);
                     gameController.ui.updateStreak(me.getStreak());
                     gameController.ui.updateLastWord(me.getLastWord().getText());
-                    if (me.isCanSendExtraWord() && gameController.getActivePeers().size() > 1)
+                    if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
                         sendExtraWordToNextPlayer(word);
                     flag = false;
                     break;
                 }
             }
+            // If no match to the player's typed word was found
             if (flag) {
                 gameController.localGameController.inCorrectlyTyped();
                 gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
             }
         }
+        System.out.println("WordTypedController terminated successfully");
     }
 
     private void sendExtraWordToNextPlayer(Word word) {

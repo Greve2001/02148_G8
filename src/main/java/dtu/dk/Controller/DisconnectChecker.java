@@ -18,6 +18,8 @@ public class DisconnectChecker implements Runnable {
     ArrayList<Pair<Peer, Player>> activePeerList;
     GameController gameController;
 
+    private RemoteSpace keepSpace;
+
     public DisconnectChecker(GameController gameController) {
         this.gameController = gameController;
         activePeerList = gameController.getActivePeers();
@@ -30,14 +32,16 @@ public class DisconnectChecker implements Runnable {
                 String connURI = activePeerList.get(nextPeerIndex).getKey().getURI();
                 String keepURI = connURI.replace("?conn", "?keep");
                 System.out.println("keepURI is: " + keepURI);
-                RemoteSpace keepSpace = new RemoteSpace(keepURI);
+                keepSpace = new RemoteSpace(keepURI);
                 keepSpace.get(new ActualField("nonexist"));
             } catch (InterruptedException e) {
                 // Communicate to one behind and 3 in front of disconnect that there was a disconnect
+                if (activePeerList.size() <= 1)
+                    break;
                 sendDisconnectToIndex(0, nextPeerIndex);
-                sendDisconnectToIndex(2, nextPeerIndex);
-                sendDisconnectToIndex(3, nextPeerIndex);
-                sendDisconnectToIndex(activePeerList.size()-1, nextPeerIndex);
+                for (int i = 2; i < activePeerList.size(); i++) {
+                    sendDisconnectToIndex(i, nextPeerIndex);
+                }
                 System.out.println("DisconnectChecker: Player disconnected. Active peer list size = " + activePeerList.size());
             } catch (UnknownHostException e) {
                 System.out.println("Trying to connect with keepURI in DisconnectChecker - Unknown host");
@@ -47,9 +51,15 @@ public class DisconnectChecker implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("DisconnectChecker: Thread terminated successfully");
     }
-    void sendDisconnectToIndex(int index, int nextPeerIndex){
-        if(index >= activePeerList.size()) return;
+
+    public RemoteSpace getKeepSpace() {
+        return keepSpace;
+    }
+
+    void sendDisconnectToIndex(int index, int nextPeerIndex) {
+        if (index >= activePeerList.size()) return;
         try {
             activePeerList.get(index).getKey().getSpace().put(
                     UPDATE,

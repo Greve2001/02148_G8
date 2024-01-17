@@ -23,43 +23,48 @@ public class WordHitController implements Runnable {
     }
 
     public void run() {
-        String wordHit = null;
-        while (!gameController.gameEnded) {
+        while (gameController.getActivePeers().size() > 1) {
+            String word;
             try {
-                wordHit = (String) fxWords.get(
+                word = (String) fxWords.get(
                         new ActualField(FxWordsToken.HIT),
                         new FormalField(String.class))[1];
             } catch (InterruptedException e) {
                 System.err.println("Could not get word that hit the bottom of wordPane");
                 throw new RuntimeException(e);
             }
+            if (word.equals(""))
+                break;
             gameController.localGameController.loseLife(gameController.myPair);
             gameController.ui.updateLife(0, gameController.myPair.getValue().getLives());
             gameController.ui.updateStreak(gameController.myPair.getValue().getStreak());
 
-            sendUpdateLifeOrDeath(1);
-            sendUpdateLifeOrDeath(2);
-            sendUpdateLifeOrDeath(gameController.getActivePeers().size()-2);
-            sendUpdateLifeOrDeath(gameController.getActivePeers().size()-1);
-
-            if (gameController.myPair.getValue().getLives() == 0) {
+            if (gameController.myPair.getValue().getLives() != 0) {
+                sendUpdateLifeOrDeath(1, false);
+                sendUpdateLifeOrDeath(2, false);
+                sendUpdateLifeOrDeath(gameController.getActivePeers().size() - 2, false);
+                sendUpdateLifeOrDeath(gameController.getActivePeers().size() - 1, false);
+            } else {
+                for (int i = 1; i < gameController.getActivePeers().size(); i++) {
+                    sendUpdateLifeOrDeath(i, true);
+                }
                 gameController.endGame();
             }
         }
+        System.out.println("WordHitController terminated successfully");
     }
 
-    void sendUpdateLifeOrDeath(int index) {
+    void sendUpdateLifeOrDeath(int index, boolean death) {
         List<Pair<Peer, Player>> activePeerList = gameController.getActivePeers();
         //check if valid index
-        if(index >= activePeerList.size() || index < 1) return;
+        if (index >= activePeerList.size() || index < 1) return;
         try {
             activePeerList.get(index).getKey().getSpace().put(
                     UPDATE,
-                    gameController.myPair.getValue().getLives() == 0 ? UpdateToken.DEATH : UpdateToken.LIFE,
+                    death ? UpdateToken.DEATH : UpdateToken.LIFE,
                     gameController.myPair.getKey().getID());
         } catch (InterruptedException e) {
             System.err.println("Could not update life");
-            // TODO update peer list, as this happens when disconnect has happened?
         }
     }
 }

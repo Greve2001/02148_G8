@@ -15,10 +15,12 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.SequentialSpace;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static dtu.dk.Protocol.*;
+import static dtu.dk.UpdateToken.NOP;
 import static dtu.dk.UpdateToken.USERNAME;
 import static dtu.dk.Utils.getLocalIPAddress;
 
@@ -31,6 +33,11 @@ public class GameController {
     private final ArrayList<Pair<Peer, Player>> activePeers;
     private final ArrayList<Pair<Peer, Player>> allPeers;
     boolean gameEnded = false;
+    Thread spawnWordsThread = null;
+    Thread updateCheckerThread = null;
+    Thread wordTypedControllerThread = null;
+    Thread wordHitControllerThread = null;
+    DisconnectChecker disconnectChecker;
     private String username;
     private String hostIP;
     private String localIP;
@@ -98,7 +105,8 @@ public class GameController {
         // Set needed start variables before starting the game locally
         allPeers = setupController.getPeers();
         activePeers = new ArrayList<>(allPeers);
-        new Thread(new DisconnectChecker(this)).start();
+        disconnectChecker = new DisconnectChecker(this);
+        new Thread(disconnectChecker).start();
 
         myPair = allPeers.get(0);
         localGameController = new LocalGameController(myPair);
@@ -190,7 +198,7 @@ public class GameController {
     private void typeMyIP() {
         // Is this your IP address?
         String generatedIP = getLocalIPAddress();
-        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+        ui.addTextToTextPane(GameConfigs.GET_LOCAL_IP + generatedIP + " " + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
 
         boolean exitDoWhile = false;
         String typedIP;
@@ -215,12 +223,12 @@ public class GameController {
                         System.exit(0);
                     }
                     default ->
-                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.GET_LOCAL_IP_Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
+                            ui.changeNewestTextOnTextPane(GameConfigs.GET_LOCAL_IP_INVALID + GameConfigs.GET_LOCAL_IP + getLocalIPAddress() + GameConfigs.Y_YES + GameConfigs.GET_LOCAL_IP_IF_NOT);
                 }
             }
         } while (!exitDoWhile);
 
-        ui.addTextToTextPane(localIP);
+        ui.addTextToTextPane("IP: " + localIP);
     }
 
     private void typeUsername() {
@@ -254,7 +262,7 @@ public class GameController {
             }
 
             if (exitDoWhile) {
-                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME + username);
+                ui.changeNewestTextOnTextPane(GameConfigs.CONFIRM_USERNAME1 + username + GameConfigs.CONFIRM_USERNAME2);
                 String confirmation;
                 try {
                     confirmation = (String) fxWords.get(new ActualField(FxWordsToken.TYPED), new FormalField(String.class))[1];
@@ -274,8 +282,7 @@ public class GameController {
             }
         } while (!exitDoWhile);
 
-
-        ui.addTextToTextPane(username);
+        ui.addTextToTextPane("Username: " + username);
     }
 
     private void typeReady() {
@@ -298,18 +305,23 @@ public class GameController {
     }
 
     public void startGame() {
-        new Thread(this::spawnWords).start();
+        spawnWordsThread = new Thread(this::spawnWords);
+        spawnWordsThread.start();
+        updateCheckerThread = new Thread(new UpdateChecker(this));
+        updateCheckerThread.start();
+        wordTypedControllerThread = new Thread(new WordTypedController(this));
+        wordTypedControllerThread.start();
+        wordHitControllerThread = new Thread(new WordHitController(this));
+        wordHitControllerThread.start();
+
         updateUIPlayerList();
-        new Thread(new UpdateChecker(this)).start();
-        new Thread(new WordTypedController(this)).start();
-        new Thread(new WordHitController(this)).start();
     }
 
     private void spawnWords() {
         int wpm = GameConfigs.START_WPM;
         int wordsBeforeIncrease;
 
-        for (int i = 0, fallenWords = 0; !gameEnded; i = (i + 1) % commonWords.size(), fallenWords++) {
+        for (int i = 0, fallenWords = 0; activePeers.size() > 1; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
             ui.makeWordFall(commonWords.get(i));
 
@@ -328,6 +340,7 @@ public class GameController {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("SpawnWords: Thread terminated successfully");
     }
 
     public ArrayList<Pair<Peer, Player>> getActivePeers() {
@@ -339,7 +352,7 @@ public class GameController {
      * This only works for other players - not local life
      */
     protected void updateUIPlayerList() {
-        if (gameEnded)
+        if (activePeers.size() <= 1)
             return;
         switch (activePeers.size()) {
             case 1 -> {
@@ -403,16 +416,42 @@ public class GameController {
     public void endGame() {
         if (gameEnded)
             return;
-        this.gameEnded = true;
+        gameEnded = true;
+
         List<Word> wordsOnScreen = this.localGameController.myPlayer.getWordsOnScreen();
         for (Word word : wordsOnScreen) {
             this.ui.removeWordFalling(word);
         }
         this.ui.changeScene(GameConfigs.JAVA_FX_JOIN);
-        if (this.getActivePeers().size() == 1) {
+        if (this.activePeers.size() == 1) {
             this.ui.addTextToTextPane("You won the game");
         } else {
             this.ui.addTextToTextPane("You lost the game");
+        }
+
+        localGameController.myPlayer.setMaxStreak(localGameController.myPlayer.getStreak());
+
+        this.ui.addTextToTextPane("");
+        this.ui.addTextToTextPane("Stats:");
+        this.ui.addTextToTextPane("You have typed " + localGameController.myPlayer.getWordsTypedCorrectCounter() + " words correct.");
+        this.ui.addTextToTextPane("You have sent " + localGameController.myPlayer.getWordsSentCounter() + " words to other player.");
+        this.ui.addTextToTextPane("Your placement: " + activePeers.size());
+        this.ui.addTextToTextPane("You had a maximum streak of: " + localGameController.myPlayer.getMaxStreak());
+
+        Pair<Peer, Player> temp = activePeers.get(0);
+        activePeers.clear();
+        activePeers.add(temp);
+        try {
+            fxWords.put(FxWordsToken.TYPED, "");
+            fxWords.put(FxWordsToken.HIT, "");
+            localGameController.peer.getSpace().put(UPDATE, NOP, 0);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            disconnectChecker.getKeepSpace().close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
