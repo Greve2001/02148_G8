@@ -4,10 +4,10 @@ public class GameConfigs {
     // Default game values
     public static final int WORDS_IN_PLAY = 1000;
     public static final int REQUIRED_STREAK = 10;
-    public static final int SEND_WORD_RATIO = 3; // Lower is slower
+    public static final double SEND_WORD_RATIO = 3; // Lower is slower
     public static final int WPM_INCREASE = 1;
-    public static final int START_WPM = 7; //tobo back to 7
-    public static final int MAX_WPM = 500;
+    public static final double START_WPM = 10;
+    public static final double MAX_WPM = 500;
     public static final double SEND_LAST_WORD_CHANCE = 1. / 20.;
 
     //this is the chance of an effect word being generated for now only extra life
