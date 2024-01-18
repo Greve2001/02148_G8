@@ -59,7 +59,6 @@ public class WordTypedController implements Runnable {
                         default:
                             System.out.println("WordTypedController: Unknown word type");
                     }
-                    normalWordTyped(me, word);
                     flag = false;
                     break;
                 }
@@ -122,6 +121,8 @@ public class WordTypedController implements Runnable {
                     SEND_WORD,
                     gameController.myPair.getKey().getID()
             );
+
+            gameController.localGameController.myPlayer.increaseWordSentCounter();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
