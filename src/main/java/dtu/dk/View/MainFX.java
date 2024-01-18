@@ -330,8 +330,10 @@ public class MainFX extends Application implements GUIInterface {
         awaitLatch();
         if (wordPane == null)
             throw new NullPointerException("wordPane not initialized/found");
-        if (!wordsFalling.contains(word)) {
-            wordsFalling.add(word);
+        synchronized (wordsFalling) {
+            if (!wordsFalling.contains(word)) {
+                wordsFalling.add(word);
+            }
         }
         Platform.runLater(() -> {
             HBox wordBox = new HBox();
@@ -352,7 +354,7 @@ public class MainFX extends Application implements GUIInterface {
             wordPane.getChildren().add(wordBox);
             int wordLength = word.getText().length();
             int x = (int) (Math.random() * (wordPane.getWidth() - wordLength * 14));
-            x = Math.max(0,x);
+            x = Math.max(0, x);
             wordBox.setLayoutX(x);
             TranslateTransition transition = new TranslateTransition();
             transition.setDuration(Duration.seconds(word.getFallDuration()));
@@ -361,7 +363,9 @@ public class MainFX extends Application implements GUIInterface {
             transition.setInterpolator(javafx.animation.Interpolator.LINEAR);
             transition.setOnFinished(e -> {
                 wordPane.getChildren().remove(wordBox);
-                wordsFalling.remove(word);
+                synchronized (wordsFalling) {
+                    wordsFalling.remove(word);
+                }
                 try {
                     fxWords.put(FxWordsToken.HIT, word.getText(), word.getType());
                 } catch (InterruptedException ex) {
@@ -378,6 +382,7 @@ public class MainFX extends Application implements GUIInterface {
     private void setHBoxColorFromWord(HBox wordBox, Word word) {
         switch (word.getType()) {
             case EXRTA_LIFE -> wordBox.getStyleClass().add("wordBoxExtraLife");
+            case FALL_SLOW -> wordBox.getStyleClass().add("wordBoxFallSlow");
         }
     }
 
@@ -397,8 +402,10 @@ public class MainFX extends Application implements GUIInterface {
                         Node node = children.get(i);
                         if (getWordFromHBox((HBox) node).equals(word.getText())) {
                             wordPane.getChildren().remove(node);
-                            if (wordsFalling.contains(word))
-                                wordsFalling.remove(word);
+                            synchronized (wordsFalling) {
+                                if (wordsFalling.contains(word))
+                                    wordsFalling.remove(word);
+                            }
                             word.getTranslateTransition().stop();
                             break;
                         }
