@@ -350,7 +350,9 @@ public class MainFX extends Application implements GUIInterface {
             }
 
             wordPane.getChildren().add(wordBox);
-            int x = (int) (Math.random() * (wordPane.getWidth() - wordBox.getWidth()));
+            int wordLength = word.getText().length();
+            int x = (int) (Math.random() * (wordPane.getWidth() - wordLength * 12));
+            x = Math.max(0,x);
             wordBox.setLayoutX(x);
             TranslateTransition transition = new TranslateTransition();
             transition.setDuration(Duration.seconds(word.getFallDuration()));
