@@ -70,7 +70,7 @@ public class Initiator implements Runnable {
 
     private void sendPlayerList() throws InterruptedException {
         // Generate random player order
-        //TODO make random
+        // TODO make random
         List<Integer> playerIDs = new ArrayList<>();
         for (int i = 0; i < playerURIs.size(); i++) {
             playerIDs.add(i);
