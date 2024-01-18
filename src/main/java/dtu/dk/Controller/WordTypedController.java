@@ -26,7 +26,7 @@ public class WordTypedController implements Runnable {
     public void run() {
         String wordTyped;
 
-        while (!gameController.gameEnded) {
+        while (gameController.getActivePeers().size() > 1) {
             try {
                 wordTyped = (String) fxWords.get(
                         new ActualField(FxWordsToken.TYPED),
@@ -66,6 +66,7 @@ public class WordTypedController implements Runnable {
                 gameController.ui.updateStreak(gameController.localGameController.myPlayer.getStreak());
             }
         }
+        System.out.println("WordTypedController terminated successfully");
     }
 
     private void attemptExtraWordSend(Word word) {

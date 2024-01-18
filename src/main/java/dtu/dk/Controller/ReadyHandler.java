@@ -24,12 +24,13 @@ public class ReadyHandler implements Runnable {
             while (readyCounter < playerURIs.size() || playerURIs.size() < 2) {
                 readyListen();
             }
-            System.out.println("Initiator: All Peers are ready");
+            System.out.println("ReadyHandler: All Peers are ready");
 
             space.put("local", "allReady");
         } catch (InterruptedException e) {
             System.out.println(Initiator.errorSpaceNotAvailable);
         }
+        System.out.println("ReadyHandler Thread terminated successfully");
 
     }
 
@@ -41,7 +42,7 @@ public class ReadyHandler implements Runnable {
 
         if (playerURIs.contains(peerURI)) {
             readyCounter++;
-            System.out.println("Initiator: " + peerURI + " is ready");
+            System.out.println("ReadyHandler: " + peerURI + " is ready");
 
         }
     }

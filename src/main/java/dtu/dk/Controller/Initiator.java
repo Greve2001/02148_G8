@@ -28,11 +28,10 @@ public class Initiator implements Runnable {
         repo.addGate(uri);
         repo.add(setupSpaceName, initialSpace);
 
-        Thread connHandler = new Thread(new ConnectionHandler(initialSpace, playerURIs));
-        Thread readyHandler = new Thread(new ReadyHandler(initialSpace, playerURIs));
+        ConnectionHandler connHandler = new ConnectionHandler(initialSpace, playerURIs);
+        new Thread(connHandler).start();
+        new Thread(new ReadyHandler(initialSpace, playerURIs)).start();
 
-        connHandler.start();
-        readyHandler.start();
 
         try {
             initialSpace.get(
@@ -57,6 +56,15 @@ public class Initiator implements Runnable {
             System.err.println("Space does not exists");
             System.exit(1);
         }
+
+        connHandler.setGameStarted();
+        try {
+            initialSpace.put(CONNECT, "");
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Initiator Thread terminated successfully");
 
     }
 
