@@ -335,6 +335,7 @@ public class MainFX extends Application implements GUIInterface {
         }
         Platform.runLater(() -> {
             HBox wordBox = new HBox();
+            setHBoxColorFromWord(wordBox, word);
             wordBox.setId(word.getText());
             for (char letter : word.getText().toCharArray()) {
                 Label letterLabel = new Label(String.valueOf(letter));
@@ -360,7 +361,7 @@ public class MainFX extends Application implements GUIInterface {
                 wordPane.getChildren().remove(wordBox);
                 wordsFalling.remove(word);
                 try {
-                    fxWords.put(FxWordsToken.HIT, word.getText());
+                    fxWords.put(FxWordsToken.HIT, word.getText(), word.getType());
                 } catch (InterruptedException ex) {
                     System.err.println("Could not put word.getText() in fxWords space");
                     throw new RuntimeException(ex);
@@ -370,6 +371,12 @@ public class MainFX extends Application implements GUIInterface {
             transition.play();
         });
 
+    }
+
+    private void setHBoxColorFromWord(HBox wordBox, Word word) {
+        switch (word.getType()) {
+            case EXRTA_LIFE -> wordBox.getStyleClass().add("wordBoxExtraLife");
+        }
     }
 
     /**

@@ -22,6 +22,11 @@ public class Player {
         this.lives = lives;
     }
 
+    public void addLife() {
+        if (this.lives < 3)
+            this.lives++;
+    }
+
     public void loseLife() {
         if (this.lives == 0) return;
         this.streak = 0;

@@ -91,7 +91,7 @@
     -fx-scale-y: 0.5;
 }
 
-.fallingLetter{
+.fallingLetter {
     -fx-text-fill: -fx-white;
     -fx-font-size: 24px;
 
@@ -100,4 +100,9 @@
 .hjletter {
     -fx-text-fill: white;
     -fx-font-size: 48px;
+}
+
+.wordBoxExtraLife {
+    -fx-border-color: -fx-red;
+    -fx-border-radius: 10px;
 }

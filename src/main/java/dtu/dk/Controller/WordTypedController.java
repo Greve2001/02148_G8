@@ -10,8 +10,7 @@ import org.jspace.Space;
 
 import java.util.List;
 
-import static dtu.dk.Protocol.EXTRA_WORD;
-import static dtu.dk.Protocol.UPDATE;
+import static dtu.dk.Protocol.*;
 import static dtu.dk.UpdateToken.SEND_WORD;
 
 public class WordTypedController implements Runnable {
@@ -50,12 +49,17 @@ public class WordTypedController implements Runnable {
             // Try to match the player's typed word with a word on the screen
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
-                    gameController.localGameController.correctlyTyped(word);
-                    gameController.ui.removeWordFalling(word);
-                    gameController.ui.updateStreak(me.getStreak());
-                    gameController.ui.updateLastWord(me.getLastWord().getText());
-                    if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
-                        attemptExtraWordSend(word);
+                    switch (word.getType()) {
+                        case NORMAL:
+                            normalWordTyped(me, word);
+                            break;
+                        case EXRTA_LIFE:
+                            extraLifeWordTyped(me, word);
+                            break;
+                        default:
+                            System.out.println("WordTypedController: Unknown word type");
+                    }
+                    normalWordTyped(me, word);
                     flag = false;
                     break;
                 }
@@ -67,6 +71,32 @@ public class WordTypedController implements Runnable {
             }
         }
         System.out.println("WordTypedController terminated successfully");
+    }
+
+    private void extraLifeWordTyped(Me me, Word word) {
+        gameController.ui.removeWordFalling(word);
+        me.addLife();
+        try {
+            gameController.localGameController.peer.getSpace().get(new ActualField(LIFE), new FormalField(Integer.class));
+            gameController.localGameController.peer.getSpace().put(LIFE, me.getLives());
+        } catch (InterruptedException e) {
+            System.err.println("Could not update life");
+            throw new RuntimeException(e);
+        }
+        gameController.ui.updateLife(0, me.getLives());
+        gameController.wordHitController.sendUpdateLifeOrDeath(1, false);
+        gameController.wordHitController.sendUpdateLifeOrDeath(2, false);
+        gameController.wordHitController.sendUpdateLifeOrDeath(gameController.getActivePeers().size() - 2, false);
+        gameController.wordHitController.sendUpdateLifeOrDeath(gameController.getActivePeers().size() - 1, false);
+    }
+
+    private void normalWordTyped(Me me, Word word) {
+        gameController.localGameController.correctlyTyped(word);
+
+        gameController.ui.updateStreak(me.getStreak());
+        gameController.ui.updateLastWord(me.getLastWord().getText());
+        if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
+            attemptExtraWordSend(word);
     }
 
     private void attemptExtraWordSend(Word word) {

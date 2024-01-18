@@ -40,4 +40,7 @@ public class Word {
         }
     }
 
+    public WordType getType() {
+        return type;
+    }
 }
