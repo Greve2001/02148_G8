@@ -49,9 +49,10 @@ public class WordTypedController implements Runnable {
             // Try to match the player's typed word with a word on the screen
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
+                    gameController.ui.removeWordFalling(word);
                     switch (word.getType()) {
                         case NORMAL -> normalWordTyped(me, word);
-                        case EXRTA_LIFE -> extraLifeWordTyped(me, word);
+                        case EXRTA_LIFE -> extraLifeWordTyped(me);
                         default -> System.out.println("WordTypedController: Unknown word type");
                     }
                     flag = false;
@@ -67,8 +68,7 @@ public class WordTypedController implements Runnable {
         System.out.println("WordTypedController terminated successfully");
     }
 
-    private void extraLifeWordTyped(Me me, Word word) {
-        gameController.ui.removeWordFalling(word);
+    private void extraLifeWordTyped(Me me) {
         me.addLife();
         try {
             gameController.localGameController.peer.getSpace().get(new ActualField(LIFE), new FormalField(Integer.class));
@@ -86,7 +86,6 @@ public class WordTypedController implements Runnable {
 
     private void normalWordTyped(Me me, Word word) {
         gameController.localGameController.correctlyTyped(word);
-        gameController.ui.removeWordFalling(word);
         gameController.ui.updateStreak(me.getStreak());
         gameController.ui.updateLastWord(me.getLastWord().getText());
         if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
