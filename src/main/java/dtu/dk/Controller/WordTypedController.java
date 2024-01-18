@@ -55,7 +55,7 @@ public class WordTypedController implements Runnable {
                     gameController.ui.updateStreak(me.getStreak());
                     gameController.ui.updateLastWord(me.getLastWord().getText());
                     if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
-                        attemptExtraWordSend(word);
+                        sendExtraWordToNextPlayer(word);
                     flag = false;
                     break;
                 }
@@ -92,6 +92,8 @@ public class WordTypedController implements Runnable {
                     SEND_WORD,
                     gameController.myPair.getKey().getID()
             );
+
+            gameController.localGameController.myPlayer.increaseWordSentCounter();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

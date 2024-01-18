@@ -32,8 +32,6 @@ public class Me extends Player {
     }
 
     public void setLastWord(Word lastWord) {
-        if (lastWord == null)
-            wordsSentCounter++;
         this.lastWord = lastWord;
     }
 
@@ -45,7 +43,6 @@ public class Me extends Player {
     public boolean canSendExtraWord() {
         if (canSendExtraWord) {
             canSendExtraWord = false;
-            wordsSentCounter++;
             return true;
         }
         return false;
@@ -79,5 +76,9 @@ public class Me extends Player {
     public void setMaxStreak(int streak) {
         if (streak > this.maxStreak)
             maxStreak = streak;
+    }
+
+    public void increaseWordSentCounter() {
+        this.wordsSentCounter++;
     }
 }
