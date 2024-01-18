@@ -118,7 +118,7 @@ public class SetupController {
     private void connectToPeers() {
         // Add me first in the list og peers
         peers.add(new Pair<>(
-                new Peer(localID, localPeerSpace),
+                new Peer(localID, localPeerSpace, localURI),
                 new Me()
         ));
 
@@ -144,7 +144,7 @@ public class SetupController {
             int playerID = playerIDs.get(index);
 
             RemoteSpace peerSpace = new RemoteSpace(playerURI);
-            Peer peer = new Peer(playerID, peerSpace);
+            Peer peer = new Peer(playerID, peerSpace, playerURI);
             return new Pair<>(peer, new Player());
 
         } catch (Exception e) {
