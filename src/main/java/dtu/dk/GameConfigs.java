@@ -10,6 +10,9 @@ public class GameConfigs {
     public static final int MAX_WPM = 500;
     public static final double SEND_LAST_WORD_CHANCE = 1. / 20.;
 
+    //this is the chance of an effect word being generated for now only extra life
+    public static final double EFFECT_WORD_CHANCE = 0.05;
+
     /*
      *************** GameController settings ***************
      */

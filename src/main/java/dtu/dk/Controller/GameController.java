@@ -38,6 +38,7 @@ public class GameController {
     Thread wordTypedControllerThread = null;
     Thread wordHitControllerThread = null;
     DisconnectChecker disconnectChecker;
+    WordHitController wordHitController = null;
     private String username;
     private String hostIP;
     private String localIP;
@@ -311,7 +312,8 @@ public class GameController {
         updateCheckerThread.start();
         wordTypedControllerThread = new Thread(new WordTypedController(this));
         wordTypedControllerThread.start();
-        wordHitControllerThread = new Thread(new WordHitController(this));
+        wordHitController = new WordHitController(this);
+        wordHitControllerThread = new Thread(wordHitController);
         wordHitControllerThread.start();
 
         updateUIPlayerList();
