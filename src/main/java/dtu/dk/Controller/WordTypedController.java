@@ -50,14 +50,9 @@ public class WordTypedController implements Runnable {
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
                     switch (word.getType()) {
-                        case NORMAL:
-                            normalWordTyped(me, word);
-                            break;
-                        case EXRTA_LIFE:
-                            extraLifeWordTyped(me, word);
-                            break;
-                        default:
-                            System.out.println("WordTypedController: Unknown word type");
+                        case NORMAL -> normalWordTyped(me, word);
+                        case EXRTA_LIFE -> extraLifeWordTyped(me, word);
+                        default -> System.out.println("WordTypedController: Unknown word type");
                     }
                     flag = false;
                     break;
