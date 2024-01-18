@@ -320,8 +320,8 @@ public class GameController {
     }
 
     private void spawnWords() {
-        int wpm = GameConfigs.START_WPM;
-        int wordsBeforeIncrease;
+        double wpm = GameConfigs.START_WPM;
+        double wordsBeforeIncrease;
 
         for (int i = 0, fallenWords = 0; activePeers.size() > 1; i = (i + 1) % commonWords.size(), fallenWords++) {
             localGameController.addWordToMyScreen(commonWords.get(i));
@@ -329,15 +329,15 @@ public class GameController {
 
             wordsBeforeIncrease = wpm / GameConfigs.SEND_WORD_RATIO;
 
-            if (fallenWords == wordsBeforeIncrease && wpm < GameConfigs.MAX_WPM) {
+            if (fallenWords >= wordsBeforeIncrease && wpm < GameConfigs.MAX_WPM) {
                 wpm += GameConfigs.WPM_INCREASE;
                 fallenWords = 0;
             }
 
-            int sleepInterval = (60 / wpm) * 1000;
+            double sleepInterval = (60 / wpm) * 1000;
 
             try {
-                Thread.sleep(sleepInterval);
+                Thread.sleep((int)sleepInterval);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
