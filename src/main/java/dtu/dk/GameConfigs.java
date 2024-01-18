@@ -6,12 +6,12 @@ public class GameConfigs {
     public static final int REQUIRED_STREAK = 10;
     public static final int SEND_WORD_RATIO = 3; // Lower is slower
     public static final int WPM_INCREASE = 1;
-    public static final int START_WPM = 10; //todo back to 7
+    public static final int START_WPM = 7;
     public static final int MAX_WPM = 500;
     public static final double SEND_LAST_WORD_CHANCE = 1. / 20.;
 
     //this is the chance of an effect word being generated for now only extra life
-    public static final double EFFECT_WORD_CHANCE = 0.8; //todo back to 0.05
+    public static final double EFFECT_WORD_CHANCE = 0.05;
 
     /*
      *************** GameController settings ***************
