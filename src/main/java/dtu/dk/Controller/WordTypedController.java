@@ -86,7 +86,7 @@ public class WordTypedController implements Runnable {
 
     private void normalWordTyped(Me me, Word word) {
         gameController.localGameController.correctlyTyped(word);
-
+        gameController.ui.removeWordFalling(word);
         gameController.ui.updateStreak(me.getStreak());
         gameController.ui.updateLastWord(me.getLastWord().getText());
         if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)
