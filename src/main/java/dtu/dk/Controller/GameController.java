@@ -37,6 +37,10 @@ public class GameController {
     private boolean isHost;
 
     public GameController() {
+        this(GameConfigs.DEFAULT_PORT_JOIN);
+    }
+
+    public GameController(String port) {
         GUIRunner.startGUI();
         try {
             ui = MainFX.getUI();
@@ -60,7 +64,7 @@ public class GameController {
             if (isHost) {
                 setupController.host(localIP, GameConfigs.DEFAULT_PORT_HOST, localIP, GameConfigs.INIT_PORT);
             } else {
-                setupController.join(localIP, GameConfigs.DEFAULT_PORT_JOIN, hostIP, GameConfigs.INIT_PORT);
+                setupController.join(localIP, port, hostIP, GameConfigs.INIT_PORT);
             }
         } catch (NoGameSetupException e) {
             System.err.println("Could not start game");
