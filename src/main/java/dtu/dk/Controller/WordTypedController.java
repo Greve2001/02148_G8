@@ -4,6 +4,7 @@ import dtu.dk.FxWordsToken;
 import dtu.dk.GameConfigs;
 import dtu.dk.Model.Me;
 import dtu.dk.Model.Word;
+import javafx.util.Duration;
 import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.Space;
@@ -14,6 +15,7 @@ import static dtu.dk.Protocol.*;
 import static dtu.dk.UpdateToken.SEND_WORD;
 
 public class WordTypedController implements Runnable {
+    private static int sleepCounter = 0;
     GameController gameController;
     Space fxWords;
 
@@ -49,11 +51,19 @@ public class WordTypedController implements Runnable {
             // Try to match the player's typed word with a word on the screen
             for (Word word : wordsOnScreen) {
                 if (word.getText().equals(wordTyped)) {
-                    gameController.ui.removeWordFalling(word);
                     switch (word.getType()) {
-                        case NORMAL -> normalWordTyped(me, word);
-                        case EXRTA_LIFE -> extraLifeWordTyped(me);
-                        default -> System.out.println("WordTypedController: Unknown word type");
+                        case NORMAL:
+                            normalWordTyped(me, word);
+                            break;
+                        case EXRTA_LIFE:
+                            extraLifeWordTyped(me, word);
+                            break;
+                        case FALL_SLOW:
+                            gameController.ui.removeWordFalling(word);
+                            new Thread(this::extraFallSlowWordTyped).start();
+                            break;
+                        default:
+                            System.out.println("WordTypedController: Unknown word type");
                     }
                     flag = false;
                     break;
@@ -68,7 +78,43 @@ public class WordTypedController implements Runnable {
         System.out.println("WordTypedController terminated successfully");
     }
 
-    private void extraLifeWordTyped(Me me) {
+    private void extraFallSlowWordTyped() {
+        sleepCounter++;
+        if (Word.isSlowFalling()) {
+            return;
+        }
+        Word.setFalingSlow(true);
+        synchronized (gameController.localGameController.myPlayer.getWordsOnScreen()) {
+            for (Word word : gameController.localGameController.myPlayer.getWordsOnScreen()) {
+                word.getTranslateTransition().stop();
+                word.getTranslateTransition().setDuration(Duration.seconds(word.getFallDuration()));
+                word.getTranslateTransition().play();
+
+            }
+        }
+        while (sleepCounter > 0) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            sleepCounter--;
+        }
+        Word.setFalingSlow(false);
+        synchronized (gameController.localGameController.myPlayer.getWordsOnScreen()) {
+            for (Word word : gameController.localGameController.myPlayer.getWordsOnScreen()) {
+                word.getTranslateTransition().stop();
+                word.getTranslateTransition().setDuration(Duration.seconds(word.getFallDuration()));
+                word.getTranslateTransition().play();
+
+            }
+        }
+
+    }
+
+
+    private void extraLifeWordTyped(Me me, Word word) {
+        gameController.ui.removeWordFalling(word);
         me.addLife();
         try {
             gameController.localGameController.peer.getSpace().get(new ActualField(LIFE), new FormalField(Integer.class));
@@ -86,6 +132,7 @@ public class WordTypedController implements Runnable {
 
     private void normalWordTyped(Me me, Word word) {
         gameController.localGameController.correctlyTyped(word);
+        gameController.ui.removeWordFalling(word);
         gameController.ui.updateStreak(me.getStreak());
         gameController.ui.updateLastWord(me.getLastWord().getText());
         if (me.canSendExtraWord() && gameController.getActivePeers().size() > 1)

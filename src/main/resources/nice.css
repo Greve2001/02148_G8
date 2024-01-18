@@ -5,6 +5,7 @@
     -fx-slightgrey: #5d5d5d;
     -fx-white: #ffffff;
     -fx-red: #FF0000;
+    -fx-blue: #0000FF;
 }
 
 .background {
@@ -60,6 +61,7 @@
     -fx-text-fill: white;
     -fx-font-size: 48px;
 }
+
 \\can be deleted i think
 .wordsFaling {
     -fx-text-fill: -fx-white;
@@ -105,4 +107,13 @@
 .wordBoxExtraLife {
     -fx-border-color: -fx-red;
     -fx-border-radius: 10px;
+    -fx-border-width: 3px;
+    -fx-padding: 3px, 0px, 3px, 0px;
+}
+
+.wordBoxFallSlow {
+    -fx-border-color: -fx-blue;
+    -fx-border-radius: 10px;
+    -fx-border-width: 3px;
+    -fx-padding: 3px, 0px, 3px, 0px;
 }

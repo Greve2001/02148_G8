@@ -48,6 +48,9 @@ public class WordHitController implements Runnable {
                 case EXRTA_LIFE:
                     System.out.println("WordHitController: Extra life Missed");
                     break;
+                case FALL_SLOW:
+                    System.out.println("WordHitController: Fall slow word hit missed");
+                    break;
                 default:
                     System.out.println("WordHitController: Unknown word type");
             }

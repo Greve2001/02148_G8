@@ -9,8 +9,6 @@ target/
 *.iml
 *.ipr
 *.MF
-out/
-*.MF
 
 
 ### Eclipse ###

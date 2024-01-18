@@ -12,6 +12,7 @@ public class GameConfigs {
 
     //this is the chance of an effect word being generated for now only extra life
     public static final double EFFECT_WORD_CHANCE = 0.05;
+    public static final double FALL_SLOW_TIME = 2;
 
     /*
      *************** GameController settings ***************
