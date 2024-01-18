@@ -87,7 +87,8 @@ public class MainFX extends Application implements GUIInterface {
                     }
                 } else if (event.getCode() == KeyCode.INSERT) {
                     Clipboard clipboard = Clipboard.getSystemClipboard();
-                    prompt.setText(prompt.getText() + clipboard.getString());
+                    if (clipboard.getString() != null)
+                        prompt.setText(prompt.getText() + clipboard.getString());
                 } else {
                     prompt.setText(prompt.getText() + key);
                 }
